@@ -1,0 +1,2813 @@
+<!DOCTYPE html>
+<html lang="sr-Latn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ŠTOK I KRILO — Balkansko tržište prozora i fasada</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Archivo:wght@400;600&display=swap" rel="stylesheet" />
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        serif: ['Playfair Display', 'Georgia', 'serif'],
+      },
+      colors: {
+        brand: { DEFAULT: '#1a3a5c', light: '#2563a8', pale: '#e8f0f8' },
+        up: '#16a34a',
+        down: '#dc2626',
+        neutral: '#6b7280',
+      },
+    },
+  },
+}
+</script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #fafafa; color: #111; }
+  .font-serif { font-family: 'Playfair Display', serif; }
+  .ticker-track { display: flex; animation: ticker 40s linear infinite; }
+  .ticker-track:hover { animation-play-state: paused; }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .page { display: none; }
+  .page.active { display: block; }
+  .nav-link { position: relative; cursor: pointer; }
+  .nav-link.active { color: #1a3a5c; font-weight: 600; }
+  .nav-link.active::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 2px; background: #1a3a5c; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; overflow-y: auto; }
+  .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+  .card-hover { transition: box-shadow 0.15s, transform 0.15s; }
+  .card-hover:hover { box-shadow: 0 8px 30px rgba(26,58,92,0.12); transform: translateY(-2px); }
+  .btn-primary { background: #1a3a5c; color: #fff; padding: 0.6rem 1.4rem; font-size: 0.875rem; font-weight: 600; letter-spacing: 0.03em; border: none; cursor: pointer; transition: background 0.15s; }
+  .btn-primary:hover { background: #2563a8; }
+  .btn-outline { border: 1.5px solid #1a3a5c; color: #1a3a5c; padding: 0.6rem 1.4rem; font-size: 0.875rem; font-weight: 600; letter-spacing: 0.03em; background: transparent; cursor: pointer; transition: all 0.15s; }
+  .btn-outline:hover { background: #1a3a5c; color: #fff; }
+  .tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .badge-free { background: #dcfce7; color: #16a34a; padding: 2px 8px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; }
+  .badge-premium { background: #fef3c7; color: #b45309; padding: 2px 8px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; }
+  .badge-verified { background: #e8f0f8; color: #1a3a5c; padding: 2px 8px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; }
+  .ad-section { border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; background: #f8f9fa; position: relative; }
+  .ad-label { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.15em; color: #9ca3af; text-transform: uppercase; background: #f8f9fa; padding: 0 8px; white-space: nowrap; }
+  .ad-card { background: #fff; border: 1px solid #e5e7eb; transition: border-color 0.15s; cursor: pointer; }
+  .ad-card:hover { border-color: #1a3a5c; }
+  .ad-leaderboard { background: #fff; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; gap: 1rem; flex-wrap: wrap; }
+  .native-ad-card { background: #fff; border: 1px solid #e5e7eb; border-left: 3px solid #1a3a5c; padding: 1.25rem; position: relative; cursor: pointer; transition: box-shadow 0.15s; }
+  .native-ad-card:hover { box-shadow: 0 4px 16px rgba(26,58,92,0.1); }
+  .filter-btn { padding: 0.35rem 0.85rem; font-size: 0.8rem; font-weight: 500; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; transition: all 0.12s; }
+  .filter-btn.active, .filter-btn:hover { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+  .period-btn { padding: 0.3rem 0.7rem; font-size: 0.78rem; font-weight: 500; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; transition: all 0.12s; }
+  .period-btn.active { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+  input, select { outline: none; }
+  input:focus, select:focus { border-color: #1a3a5c !important; }
+  .sparkline-canvas { width: 80px !important; height: 36px !important; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  .mobile-menu { display: none; }
+  @media (max-width: 768px) {
+    .desktop-nav { display: none; }
+    .mobile-menu-btn { display: flex; }
+    .mobile-menu.open { display: block; }
+    .hero-grid { grid-template-columns: 1fr !important; }
+    .news-grid { grid-template-columns: 1fr !important; }
+    .price-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .company-grid { grid-template-columns: 1fr !important; }
+    .snapshot-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .edu-grid { grid-template-columns: 1fr !important; }
+    .events-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- STICKY HEADER -->
+<header id="main-header" class="sticky top-0 z-50 bg-white border-b border-gray-200" style="border-bottom: 2px solid #1a3a5c;">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <div class="flex-shrink-0 cursor-pointer flex items-center gap-3" onclick="showPage('home')">
+        <!-- Original mark: dva poteza, stroke-based, zaobljeni završeci -->
+        <svg width="32" height="36" viewBox="0 0 110 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g transform="translate(15,10)">
+            <g fill="none" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M32,16 V55 H82 V94" stroke="#0E1114"/>
+              <path d="M12,34 V75 H62" stroke="#123B5D"/>
+            </g>
+          </g>
+        </svg>
+        <div>
+          <div class="leading-none" style="font-family:'Archivo',sans-serif; font-weight:600; font-size:1rem; letter-spacing:0.1em; color:#0E1114;">ŠTOK <span style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">&amp;</span> KRILO</div>
+          <div style="font-family:'Inter',sans-serif; font-size:0.55rem; letter-spacing:0.15em; color:#9ca3af; margin-top:3px;">BALKANSKO TRŽIŠTE PROZORA I FASADA</div>
+        </div>
+      </div>
+      <!-- Desktop Nav -->
+      <nav class="desktop-nav flex items-center gap-6">
+        <span class="nav-link text-sm text-gray-600 hover:text-brand active" onclick="showPage('home'); setNav(this)">VESTI</span>
+        <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('cene'); setNav(this)">CENE</span>
+        <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('kompanije'); setNav(this)">KOMPANIJE</span>
+        <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('oglasi'); setNav(this)">OGLASI</span>
+        <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('edukacija'); setNav(this)">EDUKACIJA</span>
+        <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('sajmovi'); setNav(this)">SAJMOVI</span>
+        <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('tenderi'); setNav(this)">TENDERI</span>
+        <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('analize'); setNav(this)">ANALIZE</span>
+        <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('alati'); setNav(this)">ALATI</span>
+      </nav>
+      <!-- Right actions -->
+      <div class="flex items-center gap-3">
+        <button onclick="openSearch()" class="p-2 text-gray-500 hover:text-brand" title="Pretraži">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button class="btn-primary hidden sm:block" onclick="showNewsletterModal()">NEWSLETTER</button>
+        <!-- Hamburger -->
+        <button class="mobile-menu-btn p-2 text-gray-600 md:hidden hidden" onclick="toggleMobileMenu()" id="hamburger-btn" style="display:flex;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Mobile menu -->
+  <div class="mobile-menu bg-white border-t border-gray-100" id="mobile-menu">
+    <div class="px-4 py-3 flex flex-col gap-4">
+      <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('home');closeMobileMenu()">VESTI</span>
+      <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('cene');closeMobileMenu()">CENE</span>
+      <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('kompanije');closeMobileMenu()">KOMPANIJE</span>
+      <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('oglasi');closeMobileMenu()">OGLASI</span>
+      <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('edukacija');closeMobileMenu()">EDUKACIJA</span>
+      <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('sajmovi');closeMobileMenu()">SAJMOVI</span>
+      <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('tenderi');closeMobileMenu()">TENDERI</span>
+      <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('alati');closeMobileMenu()">ALATI</span>
+      <button class="btn-primary w-full" onclick="showNewsletterModal();closeMobileMenu()">NEWSLETTER</button>
+    </div>
+  </div>
+</header>
+
+<!-- PRICE TICKER -->
+<div class="bg-gray-950 text-white overflow-hidden cursor-pointer" style="height:40px;" onclick="showPage('cene')">
+  <div class="flex items-center h-full">
+    <div class="flex-shrink-0 bg-brand px-3 h-full flex items-center z-10">
+      <span class="text-xs font-bold tracking-widest text-white">INDUSTRIJA DANAS</span>
+    </div>
+    <div class="overflow-hidden flex-1">
+      <div class="ticker-track">
+        <div class="flex items-center gap-8 px-6 whitespace-nowrap" id="ticker-content"></div>
+        <div class="flex items-center gap-8 px-6 whitespace-nowrap" id="ticker-content-2"></div>
+      </div>
+    </div>
+    <div class="flex-shrink-0 text-gray-500 text-xs px-4 hidden sm:block">Ažurirano danas, 08:15</div>
+  </div>
+</div>
+
+<!-- ===================== HOME PAGE ===================== -->
+<div id="page-home" class="page active">
+
+  <!-- HERO -->
+  <section class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+      <div class="max-w-2xl">
+        <div class="tag text-brand mb-4">Industrijski informacioni centar</div>
+        <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-950 leading-tight mb-5">
+          Sve što industrija prozora i vrata treba da zna.
+        </h1>
+        <p class="text-lg text-gray-500 mb-8 leading-relaxed">Vesti, cene, kompanije, proizvodi i poslovne informacije za Balkan.</p>
+        <div class="flex flex-wrap gap-3">
+          <button class="btn-primary" onclick="showPage('home')">Pogledaj najnovije vesti</button>
+          <button class="btn-outline" onclick="showPage('cene')">Prati cene</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INDUSTRY SNAPSHOT -->
+  <section class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <div class="snapshot-grid grid grid-cols-4 gap-6 sm:gap-8">
+        <div class="text-center sm:text-left">
+          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950">2.684 <span class="text-xl font-sans font-normal text-gray-400">EUR/t</span></div>
+          <div class="text-sm text-gray-500 mt-1">Aluminijum</div>
+          <div class="text-xs font-semibold mt-1" style="color:#16a34a;">+4.8% za 30 dana</div>
+        </div>
+        <div class="text-center sm:text-left">
+          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950">1.240</div>
+          <div class="text-sm text-gray-500 mt-1">Kompanija u direktorijumu</div>
+          <div class="text-xs font-semibold mt-1 text-gray-400">Balkan region</div>
+        </div>
+        <div class="text-center sm:text-left">
+          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950">37</div>
+          <div class="text-sm text-gray-500 mt-1">Novih oglasa ove nedelje</div>
+          <div class="text-xs font-semibold mt-1 text-gray-400">Kupovina · Prodaja · Posao</div>
+        </div>
+        <div class="text-center sm:text-left">
+          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950">117.25</div>
+          <div class="text-sm text-gray-500 mt-1">EUR/RSD kurs</div>
+          <div class="text-xs font-semibold mt-1" style="color:#16a34a;">+0.1%</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN NEWS BLOCK -->
+  <section class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div id="hero-section" class="hero-grid grid grid-cols-1 lg:grid-cols-3 gap-8"></div>
+    </div>
+  </section>
+
+  <!-- ŠTA OVO ZNAČI ZA BALKAN? -->
+  <section class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <div style="border-left:4px solid #1a3a5c; padding-left:1.5rem; background:#f8fafc; padding: 1.5rem 1.5rem 1.5rem 2rem; border-left:4px solid #1a3a5c;">
+        <div class="tag text-brand mb-2">ŠTA OVO ZNAČI ZA BALKAN?</div>
+        <p class="text-gray-700 text-base leading-relaxed mb-4">"Rast cene aluminijuma direktno utiče na ulazne troškove proizvođača aluminijumske stolarije. Proizvođači koji rade sa manjim zalihama mogu prvi osetiti promenu troškova."</p>
+        <div class="mb-4">
+          <div class="text-xs font-bold text-gray-500 tracking-wider mb-2">3 stvari koje treba pratiti</div>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-xs bg-brand-pale text-brand px-3 py-1 font-medium">1. Cena aluminijuma</span>
+            <span class="text-xs bg-brand-pale text-brand px-3 py-1 font-medium">2. Rokovi isporuke</span>
+            <span class="text-xs bg-brand-pale text-brand px-3 py-1 font-medium">3. Kretanje potražnje</span>
+          </div>
+        </div>
+        <button class="text-brand text-sm font-semibold hover:underline" onclick="showPage('analize')">Pročitaj analizu →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- AD SLOT 1 — LEADERBOARD SPONZORI -->
+  <section class="ad-section py-5">
+    <div class="ad-label">SPONZORISANI SADRŽAJ</div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+      <div class="ad-leaderboard">
+        <!-- Sponzor 1 -->
+        <div class="flex items-center gap-4 flex-1 min-w-0" onclick="showToast('VEKA Profil Sistemi — poseta sajtu')">
+          <div class="w-12 h-12 bg-brand-pale flex items-center justify-center flex-shrink-0 font-bold text-brand text-sm">VEKA</div>
+          <div class="min-w-0">
+            <div class="text-sm font-semibold text-gray-900">VEKA Profil Sistemi</div>
+            <div class="text-xs text-gray-500 truncate">Premium PVC sistemi za prozore i vrata — novi SOFTLINE 82</div>
+          </div>
+          <span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>
+        </div>
+        <div class="hidden sm:block w-px bg-gray-200 self-stretch"></div>
+        <!-- Sponzor 2 -->
+        <div class="flex items-center gap-4 flex-1 min-w-0" onclick="showToast('Schüco — poseta sajtu')">
+          <div class="w-12 h-12 bg-blue-50 flex items-center justify-center flex-shrink-0 font-bold text-blue-700 text-sm">SCH</div>
+          <div class="min-w-0">
+            <div class="text-sm font-semibold text-gray-900">Schüco International</div>
+            <div class="text-xs text-gray-500 truncate">AL sistemi, fasade i automatska vrata za savremene objekte</div>
+          </div>
+          <span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>
+        </div>
+        <div class="hidden lg:block w-px bg-gray-200 self-stretch"></div>
+        <!-- Sponzor 3 -->
+        <div class="items-center gap-4 flex-1 min-w-0 hidden lg:flex" onclick="showToast('Guardian Glass — poseta sajtu')">
+          <div class="w-12 h-12 bg-green-50 flex items-center justify-center flex-shrink-0 font-bold text-green-700 text-sm">GG</div>
+          <div class="min-w-0">
+            <div class="text-sm font-semibold text-gray-900">Guardian Glass</div>
+            <div class="text-xs text-gray-500 truncate">Energetski efikasno staklo — SunGuard i ClimaGuard serija</div>
+          </div>
+          <span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>
+        </div>
+      </div>
+      <div class="flex justify-between items-center mt-2 px-0.5">
+        <span class="text-xs text-gray-400">Zainteresovani za oglašavanje? <span class="text-brand cursor-pointer hover:underline" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">Kontaktirajte nas →</span></span>
+        <span class="text-xs text-gray-300">AD</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAJNOVIJE IZ INDUSTRIJE -->
+  <section class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <h2 class="font-serif text-2xl font-bold text-gray-950">Najnovije iz industrije</h2>
+        <div class="flex gap-2 flex-wrap" id="news-filters">
+          <button class="filter-btn active" onclick="filterNews('sve', this)">Sve</button>
+          <button class="filter-btn" onclick="filterNews('balkan', this)">Balkan</button>
+          <button class="filter-btn" onclick="filterNews('svet', this)">Svet</button>
+          <button class="filter-btn" onclick="filterNews('kompanije', this)">Kompanije</button>
+          <button class="filter-btn" onclick="filterNews('proizvodi', this)">Proizvodi</button>
+          <button class="filter-btn" onclick="filterNews('tehnologija', this)">Tehnologija</button>
+          <button class="filter-btn" onclick="filterNews('investicije', this)">Investicije</button>
+        </div>
+      </div>
+      <div class="news-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="news-grid"></div>
+      <div class="mt-8 text-center">
+        <button class="btn-outline" onclick="showPage('vesti')">Sve vesti →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- AD SLOT 2 — NATIVE SPONSORED (između vesti i BWI teasera) -->
+  <section class="ad-section py-5">
+    <div class="ad-label">OGLASNI PROSTOR</div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Native ad 1 -->
+        <div class="native-ad-card" onclick="showToast('Elumatec — poseta sajtu')">
+          <div class="flex items-start gap-4">
+            <div class="w-14 h-14 bg-gray-100 flex items-center justify-center flex-shrink-0 font-bold text-gray-700 text-xs">ELU</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-bold tracking-widest text-gray-400">SPONZOR</span>
+              </div>
+              <div class="text-sm font-semibold text-gray-900 mb-1">Elumatec SBZ 628 — CNC centar nove generacije</div>
+              <div class="text-xs text-gray-500 leading-relaxed">Automatizujte obradu aluminijuma. 22% kraći ciklus. AI asistirana kompenzacija alata.</div>
+              <span class="text-xs text-brand font-semibold mt-2 inline-block hover:underline">Pogledaj specifikacije →</span>
+            </div>
+          </div>
+        </div>
+        <!-- Native ad 2 -->
+        <div class="native-ad-card" onclick="showToast('Roto Frank — poseta sajtu')">
+          <div class="flex items-start gap-4">
+            <div class="w-14 h-14 bg-gray-100 flex items-center justify-center flex-shrink-0 font-bold text-gray-700 text-xs">ROTO</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-bold tracking-widest text-gray-400">SPONZOR</span>
+              </div>
+              <div class="text-sm font-semibold text-gray-900 mb-1">Roto NT — okov za sve klase opterećenja do 130 kg</div>
+              <div class="text-xs text-gray-500 leading-relaxed">Kompletna linija okova za PVC i AL prozore. Distribucija za čitav Balkan.</div>
+              <span class="text-xs text-brand font-semibold mt-2 inline-block hover:underline">Zatraži ponudu →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-between items-center mt-2 px-0.5">
+        <span class="text-xs text-gray-400">Vaša kompanija ovde? <span class="text-brand cursor-pointer hover:underline" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">Informišite se o oglašavanju →</span></span>
+        <span class="text-xs text-gray-300">AD</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BALKAN WINDOW INDEX TEASER -->
+  <section class="border-b border-gray-100" style="background:linear-gradient(135deg,#0f2540 0%,#1a3a5c 100%);">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-8">
+        <div class="flex-1">
+          <div class="tag text-gray-400 mb-3">EKSKLUZIVNO</div>
+          <div class="font-bold text-white text-sm tracking-widest mb-2">BALKAN WINDOW INDEX</div>
+          <div class="flex items-end gap-4 mb-3">
+            <span class="font-serif text-7xl font-bold text-white">72.4</span>
+            <span class="text-2xl font-semibold mb-2" style="color:#4ade80;">+3.2%</span>
+          </div>
+          <p class="text-gray-400 text-sm max-w-md leading-relaxed">"Indikator poslovne aktivnosti industrije prozora, vrata, stakla i fasada na Balkanu."</p>
+        </div>
+        <div class="flex-shrink-0">
+          <button class="btn-outline text-white border-white hover:bg-white hover:text-brand" onclick="showPage('analize')">Pogledaj indeks →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER BLOCK -->
+  <section class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+      <div class="max-w-xl mx-auto text-center">
+        <div class="tag text-brand mb-3">NEWSLETTER</div>
+        <h2 class="font-serif text-3xl sm:text-4xl font-bold text-gray-950 mb-3">5 stvari koje danas treba da zna svaki profesionalac iz industrije.</h2>
+        <p class="text-gray-500 mb-6">Jedan email dnevno. Najvažnije vesti, cene i poslovne informacije.</p>
+        <div class="flex gap-0 max-w-md mx-auto">
+          <input type="email" id="newsletter-email-home" placeholder="Vaš email" class="flex-1 border border-gray-300 px-4 py-3 text-sm border-r-0" />
+          <button class="btn-primary px-6" onclick="subscribeNewsletter('newsletter-email-home')">PRIJAVI ME</button>
+        </div>
+        <p class="text-xs text-gray-400 mt-3">Bez spama. Samo industrijske informacije.</p>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end home -->
+
+
+<!-- ===================== TENDERI PAGE ===================== -->
+<div id="page-tenderi" class="page">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+
+    <!-- HEADER -->
+    <div class="border-b border-gray-200 pb-6 mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900" style="font-family:'Playfair Display',serif;">Aktivni tenderi</h1>
+          <p class="text-gray-500 mt-1 text-sm">Javne nabavke stolarije, fasada, stakla i montaže u regionu</p>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="text-xs text-gray-400" id="tender-updated">Učitavam...</span>
+          <button onclick="loadTenders()" class="btn-outline text-xs px-3 py-1.5">↻ Osveži</button>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="flex flex-wrap gap-3 mt-5">
+        <select id="tender-country" onchange="filterTenders()" class="border border-gray-300 px-3 py-2 text-sm bg-white">
+          <option value="">Sve zemlje</option>
+          <option value="srbija">Srbija</option>
+          <option value="hrvatska">Hrvatska</option>
+          <option value="slovenija">Slovenija</option>
+          <option value="bih">Bosna i Hercegovina</option>
+          <option value="bugarska">Bugarska</option>
+          <option value="rumunija">Rumunija</option>
+          <option value="makedonija">Severna Makedonija</option>
+          <option value="albanija">Albanija</option>
+          <option value="kosovo">Kosovo</option>
+          <optgroup label="── Zapadna Evropa ──"></optgroup>
+          <option value="nemacka">Nemačka</option>
+          <option value="austrija">Austrija</option>
+          <option value="italija">Italija</option>
+          <option value="francuska">Francuska</option>
+          <option value="svajcarska">Švajcarska</option>
+        </select>
+        <select id="tender-type" onchange="filterTenders()" class="border border-gray-300 px-3 py-2 text-sm bg-white">
+          <option value="">Svi tipovi</option>
+          <option value="stolarija">Stolarija</option>
+          <option value="fasada">Fasade</option>
+          <option value="staklo">Staklo</option>
+          <option value="montaza">Montaža</option>
+          <option value="ostalo">Ostalo</option>
+        </select>
+        <select id="tender-status-filter" onchange="filterTenders()" class="border border-gray-300 px-3 py-2 text-sm bg-white">
+          <option value="">Svi statusi</option>
+          <option value="aktivan">Aktivan</option>
+          <option value="uskoro">Rok uskoro</option>
+        </select>
+        <input id="tender-search" oninput="filterTenders()" placeholder="Pretraži tendere..." class="border border-gray-300 px-3 py-2 text-sm flex-1 min-w-48">
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div id="tender-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8"></div>
+
+    <!-- TED INFO BOX (shown until key is set) -->
+    <div id="ted-info-box" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 flex items-start gap-3">
+      <div class="text-blue-500 text-xl flex-shrink-0">ℹ</div>
+      <div>
+        <div class="text-sm font-semibold text-blue-800 mb-1">EU tenderi (HR, SI, RO, BG, IT, DE, AT, FR) + Švajcarska</div>
+        <div class="text-xs text-blue-700">Registrujte besplatni TED API key na <span class="font-mono bg-blue-100 px-1 rounded">developer.ted.europa.eu</span> i ubacite ga u portal za live EU tendere. Trenutno prikazani podaci su indikativni.</div>
+      </div>
+      <button onclick="document.getElementById('ted-info-box').style.display='none'" class="text-blue-400 hover:text-blue-600 text-lg flex-shrink-0 ml-auto">×</button>
+    </div>
+
+    <!-- LIVE SRBIJA BOX (shown when nabavke.gov.rs fetch works) -->
+    <div id="nabavke-live-box" class="bg-green-50 border border-green-200 rounded-lg p-4 mb-8 items-start gap-3 hidden">
+      <div class="text-green-500 text-xl flex-shrink-0">●</div>
+      <div>
+        <div class="text-sm font-semibold text-green-800 mb-1">nabavke.gov.rs — LIVE</div>
+        <div class="text-xs text-green-700">Srpski tenderi se povlače automatski sa portala javnih nabavki.</div>
+      </div>
+    </div>
+
+    <!-- TENDER GRID -->
+    <div id="tender-grid" class="space-y-4"></div>
+
+    <!-- EMPTY STATE -->
+    <div id="tender-empty" class="hidden text-center py-16 text-gray-400">
+      <div class="text-4xl mb-3">📋</div>
+      <div class="text-lg font-medium">Nema rezultata</div>
+      <div class="text-sm mt-1">Promijenite filtere ili pretragu</div>
+    </div>
+
+    <!-- SOURCE INFO -->
+    <div class="mt-10 pt-6 border-t border-gray-100 text-xs text-gray-400 space-y-1">
+      <div>Izvori: Portal javnih nabavki Srbije (nabavke.gov.rs) · TED EU (ted.europa.eu) · eDozvola HR · ostali nacionalni portali</div>
+      <div>CPV kodovi: 44221000 (prozori i vrata) · 45421000 (stolarija) · 45421100 (ugradnja) · 44112400 (fasade)</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== CENE PAGE ===================== -->
+<div id="page-cene" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <div class="flex items-start justify-between flex-wrap gap-4 mb-8">
+      <div>
+        <h1 class="font-serif text-4xl font-bold text-gray-950 mb-2">Cene koje pokreću industriju</h1>
+        <p class="text-gray-500">Metali, energija, sirovine i valute — automatski osvježavano.</p>
+      </div>
+      <div class="flex items-center gap-3 mt-2">
+        <span class="text-xs text-gray-400" id="prices-updated">Učitavam…</span>
+        <button onclick="fetchAllPrices()" class="btn-outline text-xs px-3 py-1.5">↻ Osveži</button>
+        <button onclick="openPriceEditor()" class="btn-outline text-xs px-3 py-1.5">✎ Uredi</button>
+      </div>
+    </div>
+    <!-- Grouped price sections -->
+    <div id="prices-by-group" class="mb-8"></div>
+    <!-- Chart section -->
+    <div class="bg-white border border-gray-200 p-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div>
+          <div class="font-serif text-xl font-bold text-gray-950" id="chart-title">Aluminijum — EUR/t</div>
+          <div class="text-gray-400 text-sm mt-0.5" id="chart-subtitle">Dnevni podaci, poslenjih 30 dana</div>
+        </div>
+        <div class="flex gap-2" id="period-btns">
+          <button class="period-btn" onclick="setPeriod('1D', this)">1D</button>
+          <button class="period-btn active" onclick="setPeriod('30D', this)">30D</button>
+          <button class="period-btn" onclick="setPeriod('90D', this)">90D</button>
+          <button class="period-btn" onclick="setPeriod('1Y', this)">1Y</button>
+        </div>
+      </div>
+      <div style="height:280px;"><canvas id="main-chart"></canvas></div>
+    </div>
+    <!-- What this means -->
+    <div class="mt-8 bg-gray-50 border border-gray-200 p-6">
+      <div class="tag text-brand mb-2">ŠTA CENA ZNAČI ZA PROIZVOĐAČE?</div>
+      <p class="text-gray-700 leading-relaxed">Aluminijum čini 40–60% ukupnih troškova materijala kod proizvođača AL stolarije. Svaki skok cene od 5% na LME direktno smanjuje maržu za 2–3% ukoliko nema zaštitnih mehanizama u ugovorima sa dobavljačima. Pratite trendove i prilagodite kalkulacije na vreme.</p>
+    </div>
+
+    <!-- AD SLOT — CENE STRANICA -->
+    <div class="ad-section mt-8 py-5 relative">
+      <div class="ad-label">SPONZORISANI SADRŽAJ</div>
+      <div class="pt-4">
+        <div class="ad-card p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4" onclick="showToast('Technoform — poseta sajtu')">
+          <div class="w-14 h-14 bg-orange-50 flex items-center justify-center flex-shrink-0 font-bold text-orange-700 text-xs">TF</div>
+          <div class="flex-1">
+            <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">PARTNER INDUSTRIJE</div>
+            <div class="text-base font-semibold text-gray-900">Technoform — termički prekid koji štedi energiju i novac</div>
+            <div class="text-xs text-gray-500 mt-1">Optimizujte Uf vrednost profila. Distribucija u celom regionu. Tehnička podrška na srpskom.</div>
+          </div>
+          <button class="btn-outline text-sm flex-shrink-0">Kontaktirajte →</button>
+        </div>
+        <div class="flex justify-end mt-1.5">
+          <span class="text-xs text-gray-300">OGLAS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== KOMPANIJE PAGE ===================== -->
+<div id="page-kompanije" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <div class="mb-8">
+      <h1 class="font-serif text-4xl font-bold text-gray-950 mb-2">Industrijski direktorijum</h1>
+      <p class="text-gray-500">Pronađite proizvođače, dobavljače i partnere iz industrije prozora i vrata.</p>
+    </div>
+    <div class="flex flex-wrap gap-3 mb-6">
+      <input type="text" id="company-search" placeholder="Pretraži kompanije…" oninput="filterCompanies()" class="border border-gray-300 px-4 py-2 text-sm w-64" />
+      <select id="company-country" onchange="filterCompanies()" class="border border-gray-300 px-4 py-2 text-sm bg-white">
+        <option value="">Sve države</option>
+        <option>Srbija</option>
+        <option>Hrvatska</option>
+        <option>Bosna i Hercegovina</option>
+        <option>Slovenija</option>
+        <option>Crna Gora</option>
+        <option>Severna Makedonija</option>
+        <option>Bugarska</option>
+        <option>Rumunija</option>
+        <option>Albanija</option>
+        <option>Kosovo</option>
+      </select>
+      <select id="company-cat" onchange="filterCompanies()" class="border border-gray-300 px-4 py-2 text-sm bg-white">
+        <option value="">Sve kategorije</option>
+        <option>PVC stolarija</option>
+        <option>AL stolarija</option>
+        <option>PVC/AL stolarija</option>
+        <option>AL profili</option>
+        <option>PVC profili</option>
+        <option>PVC/AL profili</option>
+        <option>PVC/AL sistemi</option>
+        <option>AL/PVC stolarija</option>
+        <option>Drvo-ALU stolarija</option>
+        <option>ALU ulazna vrata</option>
+        <option>Drveni prozori</option>
+        <option>Vrata</option>
+        <option>Staklo</option>
+        <option>Staklo / AL stolarija</option>
+        <option>Okov</option>
+        <option>Roletne</option>
+        <option>Garažna vrata</option>
+        <option>Roletne / garažna vrata</option>
+        <option>Fasade / alubond</option>
+        <option>Ograde</option>
+        <option>Arhitektonski biro</option>
+        <option>Mašine</option>
+        <option>Distributeri</option>
+      </select>
+    </div>
+    <div class="company-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="company-grid"></div>
+
+    <!-- AD SLOT — KOMPANIJE STRANICA -->
+    <div class="ad-section mt-10 py-5 relative">
+      <div class="ad-label">SPONZORISANI SADRŽAJ</div>
+      <div class="max-w-7xl mx-auto pt-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="ad-card p-4 text-center" onclick="showToast('MACO Okov — poseta sajtu')">
+            <div class="w-12 h-12 bg-gray-100 flex items-center justify-center mx-auto mb-2 font-bold text-gray-600 text-xs">MACO</div>
+            <div class="text-sm font-semibold text-gray-900 mb-1">MACO — okretno-nagibni okov</div>
+            <div class="text-xs text-gray-500 mb-2">Kompletni sistemi za sve tipove prozora</div>
+            <span class="text-xs text-brand font-semibold hover:underline cursor-pointer">Pogledaj katalog →</span>
+          </div>
+          <div class="ad-card p-4 text-center" onclick="showToast('Bystronic — poseta sajtu')">
+            <div class="w-12 h-12 bg-blue-50 flex items-center justify-center mx-auto mb-2 font-bold text-blue-700 text-xs">BY</div>
+            <div class="text-sm font-semibold text-gray-900 mb-1">Bystronic Glass — IGU linije</div>
+            <div class="text-xs text-gray-500 mb-2">Automatizovana produkcija izolacionog stakla</div>
+            <span class="text-xs text-brand font-semibold hover:underline cursor-pointer">Zatraži demo →</span>
+          </div>
+          <div class="ad-card p-4 text-center border-dashed border-gray-300 bg-gray-50" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">
+            <div class="w-12 h-12 border-2 border-dashed border-gray-300 flex items-center justify-center mx-auto mb-2 text-gray-300 text-xl">+</div>
+            <div class="text-sm font-semibold text-gray-400 mb-1">Vaš oglas ovde</div>
+            <div class="text-xs text-gray-400 mb-2">Dostignite 1.200+ kompanija</div>
+            <span class="text-xs text-brand font-semibold hover:underline cursor-pointer">Informišite se →</span>
+          </div>
+        </div>
+        <div class="flex justify-end mt-1.5">
+          <span class="text-xs text-gray-300">OGLAS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== OGLASI PAGE ===================== -->
+<div id="page-oglasi" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <div class="flex items-start justify-between flex-wrap gap-4 mb-8">
+      <div>
+        <h1 class="font-serif text-4xl font-bold text-gray-950 mb-2">Window Market</h1>
+        <p class="text-gray-500">Kupovina, prodaja, posao i poslovne prilike u industriji.</p>
+      </div>
+      <button class="btn-primary" onclick="openPostAd()">+ Objavi oglas</button>
+    </div>
+    <div class="flex gap-2 flex-wrap mb-6" id="ad-filters">
+      <button class="filter-btn active" onclick="filterAds('svi', this)">SVI</button>
+      <button class="filter-btn" onclick="filterAds('prodaja', this)">PRODAJA</button>
+      <button class="filter-btn" onclick="filterAds('kupovina', this)">KUPOVINA</button>
+      <button class="filter-btn" onclick="filterAds('posao', this)">POSAO</button>
+      <button class="filter-btn" onclick="filterAds('zastupnistvo', this)">ZASTUPNIŠTVO</button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="ads-grid"></div>
+  </div>
+</div>
+
+<!-- ===================== EDUKACIJA PAGE ===================== -->
+<div id="page-edukacija" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <div class="mb-8">
+      <h1 class="font-serif text-4xl font-bold text-gray-950 mb-2">Štok i Krilo Academy</h1>
+      <p class="text-gray-500">Praktično znanje za profesionalce iz industrije.</p>
+    </div>
+    <div class="flex gap-2 flex-wrap mb-6" id="edu-filters">
+      <button class="filter-btn active" onclick="filterEdu('sve', this)">Sve</button>
+      <button class="filter-btn" onclick="filterEdu('prodaja', this)">Prodaja</button>
+      <button class="filter-btn" onclick="filterEdu('proizvodnja', this)">Proizvodnja</button>
+      <button class="filter-btn" onclick="filterEdu('montaza', this)">Montaža</button>
+      <button class="filter-btn" onclick="filterEdu('tehnika', this)">Tehnika</button>
+      <button class="filter-btn" onclick="filterEdu('marketing', this)">Marketing</button>
+      <button class="filter-btn" onclick="filterEdu('ai', this)">AI</button>
+    </div>
+    <div class="edu-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="edu-grid"></div>
+  </div>
+</div>
+
+<!-- ===================== SAJMOVI PAGE ===================== -->
+<div id="page-sajmovi" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <div class="mb-8">
+      <h1 class="font-serif text-4xl font-bold text-gray-950 mb-2">Industrijski kalendar</h1>
+      <p class="text-gray-500">Najvažniji sajmovi i događaji za industriju prozora, vrata, stakla i fasada.</p>
+    </div>
+    <div class="flex gap-2 flex-wrap mb-6" id="event-filters">
+      <button class="filter-btn active" onclick="filterEvents('svi', this)">Svi</button>
+      <button class="filter-btn" onclick="filterEvents('srbija', this)">Srbija</button>
+      <button class="filter-btn" onclick="filterEvents('nemacka', this)">Nemačka</button>
+      <button class="filter-btn" onclick="filterEvents('italija', this)">Italija</button>
+      <button class="filter-btn" onclick="filterEvents('austrija', this)">Austrija</button>
+    </div>
+    <div class="events-grid grid grid-cols-1 sm:grid-cols-2 gap-5" id="events-grid"></div>
+  </div>
+</div>
+
+<!-- ===================== ANALIZE PAGE ===================== -->
+<div id="page-analize" class="page">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+    <div class="mb-8">
+      <h1 class="font-serif text-4xl font-bold text-gray-950 mb-2">Analize i komentari</h1>
+      <p class="text-gray-500">Dublja analiza tržišnih kretanja i poslovnih trendova u industriji.</p>
+    </div>
+    <div class="space-y-8">
+      <div class="border-b border-gray-100 pb-8">
+        <div class="tag text-brand mb-2">TRŽIŠTE</div>
+        <h2 class="font-serif text-2xl font-bold text-gray-950 mb-3">Balkan Window Index — Q4 2024: Indikator poslovne aktivnosti industrije</h2>
+        <p class="text-gray-600 leading-relaxed mb-4">Balkan Window Index (BWI) za Q4 2024 iznosi 72.4, što predstavlja rast od 3.2% u odnosu na prethodni kvartal. Indeks prati aktivnost u šest ključnih segmenata: proizvodnja PVC profila, AL ekstruzija, staklo i IGU, okov i hardware, montažne usluge, i maloprodaja stolarije.</p>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div class="bg-gray-50 p-4 text-center">
+            <div class="font-serif text-3xl font-bold text-gray-950">72.4</div>
+            <div class="text-xs text-gray-500 mt-1">BWI Q4 2024</div>
+          </div>
+          <div class="bg-gray-50 p-4 text-center">
+            <div class="font-serif text-3xl font-bold" style="color:#16a34a;">+3.2%</div>
+            <div class="text-xs text-gray-500 mt-1">Kvartal na kvartal</div>
+          </div>
+          <div class="bg-gray-50 p-4 text-center">
+            <div class="font-serif text-3xl font-bold text-gray-950">70.1</div>
+            <div class="text-xs text-gray-500 mt-1">BWI Q3 2024</div>
+          </div>
+        </div>
+        <button class="text-brand text-sm font-semibold hover:underline">Pročitaj celu analizu →</button>
+      </div>
+      <div class="border-b border-gray-100 pb-8">
+        <div class="tag text-up mb-2">CENE SIROVINA</div>
+        <h2 class="font-serif text-2xl font-bold text-gray-950 mb-3">Šta rast cene aluminijuma znači za proizvođače AL stolarije</h2>
+        <p class="text-gray-600 leading-relaxed mb-4">LME cena aluminijuma porasla je za 4.8% u poslednjih 30 dana. Analiziramo direktan uticaj na kalkulacije, moguće strategije zaštite i kada očekivati da se rast prenese na krajnje kupce.</p>
+        <button class="text-brand text-sm font-semibold hover:underline">Pročitaj analizu →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE: ALATI ===================== -->
+<div id="page-alati" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+
+    <!-- Header -->
+    <div class="mb-10 border-b border-gray-200 pb-8">
+      <div class="tag text-brand mb-2">DIREKTORIJUM SOFTVERA</div>
+      <h1 class="font-serif text-4xl font-bold text-gray-950 mb-3">Alati za proizvođače</h1>
+      <p class="text-gray-500 max-w-2xl">Kurirani pregled softvera i digitalnih alata za industriju prozora, vrata i fasada. Svaki alat je ručno provjeren — listujemo samo rješenja s podrškom ili lokalizacijom za balkanske tržište.</p>
+      <div class="mt-6 flex flex-wrap gap-3 items-center">
+        <button class="filter-btn active" onclick="filterTools('sve', this)">Sve kategorije</button>
+        <button class="filter-btn" onclick="filterTools('erp', this)">ERP / Upravljanje</button>
+        <button class="filter-btn" onclick="filterTools('cnc', this)">CNC / Produkcija</button>
+        <button class="filter-btn" onclick="filterTools('kalkulacija', this)">Kalkulacija i ponude</button>
+        <button class="filter-btn" onclick="filterTools('cad', this)">CAD / Dizajn</button>
+        <button class="filter-btn" onclick="filterTools('crm', this)">CRM / Prodaja</button>
+        <button class="filter-btn" onclick="filterTools('energija', this)">Energetika</button>
+      </div>
+    </div>
+
+    <!-- Featured tools -->
+    <div class="mb-6">
+      <div class="text-xs font-bold text-gray-400 tracking-widest mb-4">ISTAKNUTA RJEŠENJA</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="featured-tools-grid">
+
+        <!-- Klaes -->
+        <div class="tool-card" data-category="erp cnc">
+          <div class="bg-white border border-gray-200 p-6 h-full flex flex-col" style="border-top: 3px solid #1a3a5c;">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-bold tracking-widest text-white bg-brand px-2 py-0.5">FEATURED</span>
+                  <span class="text-xs font-bold tracking-widest text-gray-400">ERP · CNC</span>
+                </div>
+                <h3 class="font-serif text-xl font-bold text-gray-950">Klaes</h3>
+              </div>
+              <div class="flex-shrink-0 w-10 h-10 bg-gray-100 flex items-center justify-center text-brand font-bold text-sm">KL</div>
+            </div>
+            <p class="text-gray-600 text-sm leading-relaxed mb-4 flex-1">Vodeći ERP za proizvođače prozora i vrata u Evropi. Pokriva kalkulaciju, narudžbe, produkcijsko planiranje i CNC upravljanje u jednom sistemu. Više od 4.000 instalacija globalno.</p>
+            <div class="flex flex-wrap gap-2 mb-5">
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">Kalkulacija</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">CNC integracija</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">Cloud opcija</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">DE / EN / SRB</span>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn-primary text-xs flex-1" onclick="openDemoModal('Klaes')">Zatraži demo</button>
+              <button class="btn-outline text-xs px-3">Web →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orgadata LogiKal -->
+        <div class="tool-card" data-category="cad kalkulacija">
+          <div class="bg-white border border-gray-200 p-6 h-full flex flex-col" style="border-top: 3px solid #1a3a5c;">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-bold tracking-widest text-white bg-brand px-2 py-0.5">FEATURED</span>
+                  <span class="text-xs font-bold tracking-widest text-gray-400">CAD · Kalkulacija</span>
+                </div>
+                <h3 class="font-serif text-xl font-bold text-gray-950">Orgadata LogiKal</h3>
+              </div>
+              <div class="flex-shrink-0 w-10 h-10 bg-gray-100 flex items-center justify-center text-brand font-bold text-sm">OL</div>
+            </div>
+            <p class="text-gray-600 text-sm leading-relaxed mb-4 flex-1">Specijalizovani CAD softver za AL i PVC sisteme. Automatska kalkulacija statike, termike i cena. Direktna integracija s profilnim sistemima Schüco, WICONA, Reynaers i dr.</p>
+            <div class="flex flex-wrap gap-2 mb-5">
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">AL profili</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">Statika</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">U-vrijednost</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">DE / EN</span>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn-primary text-xs flex-1" onclick="openDemoModal('Orgadata LogiKal')">Zatraži demo</button>
+              <button class="btn-outline text-xs px-3">Web →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- WinDoor -->
+        <div class="tool-card" data-category="erp kalkulacija">
+          <div class="bg-white border border-gray-200 p-6 h-full flex flex-col" style="border-top: 3px solid #1a3a5c;">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-bold tracking-widest text-white bg-brand px-2 py-0.5">FEATURED</span>
+                  <span class="text-xs font-bold tracking-widest text-gray-400">ERP · Kalkulacija</span>
+                </div>
+                <h3 class="font-serif text-xl font-bold text-gray-950">WinDoor</h3>
+              </div>
+              <div class="flex-shrink-0 w-10 h-10 bg-gray-100 flex items-center justify-center text-brand font-bold text-sm">WD</div>
+            </div>
+            <p class="text-gray-600 text-sm leading-relaxed mb-4 flex-1">ERP rješenje razvijeno specifično za manje i srednje proizvođače PVC i AL stolarije. Brz onboarding, kalkulacija po šabalonima, upravljanje montažom i reklamacijama.</p>
+            <div class="flex flex-wrap gap-2 mb-5">
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">PVC / AL</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">Montaža</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">Reklamacije</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">SRB / BIH / HR</span>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn-primary text-xs flex-1" onclick="openDemoModal('WinDoor')">Zatraži demo</button>
+              <button class="btn-outline text-xs px-3">Web →</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Regular tools grid -->
+    <div class="mb-10">
+      <div class="text-xs font-bold text-gray-400 tracking-widest mb-4">SVI ALATI</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="all-tools-grid">
+
+        <!-- Lisec -->
+        <div class="tool-card bg-white border border-gray-200 p-5 card-hover" data-category="cnc">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">CNC / Produkcija</div>
+              <h3 class="font-bold text-gray-950">Lisec Software</h3>
+            </div>
+            <div class="flex-shrink-0 w-9 h-9 bg-gray-100 flex items-center justify-center text-brand font-bold text-xs">LS</div>
+          </div>
+          <p class="text-gray-500 text-sm leading-relaxed mb-4">Upravljački softver za staklorezačke linije i IGU produkciju. Standard u staklo preradi, podržava automatizovane linije Lisec i kompatibilne.</p>
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Staklo</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">IGU</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Automatizacija</span>
+          </div>
+          <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('Lisec Software')">Zatraži informacije →</button>
+        </div>
+
+        <!-- ProFenster -->
+        <div class="tool-card bg-white border border-gray-200 p-5 card-hover" data-category="kalkulacija crm">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">Kalkulacija · CRM</div>
+              <h3 class="font-bold text-gray-950">ProFenster</h3>
+            </div>
+            <div class="flex-shrink-0 w-9 h-9 bg-gray-100 flex items-center justify-center text-brand font-bold text-xs">PF</div>
+          </div>
+          <p class="text-gray-500 text-sm leading-relaxed mb-4">Web-based platforma za kalkulaciju, ponude i praćenje naloga za manje radionice. Bez instalacije, plaćanje po korisniku. Podržava srpski, bosanski i hrvatski.</p>
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Web app</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">SRB / BIH / HR</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">SaaS</span>
+          </div>
+          <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('ProFenster')">Zatraži informacije →</button>
+        </div>
+
+        <!-- FacadeCalc -->
+        <div class="tool-card bg-white border border-gray-200 p-5 card-hover" data-category="kalkulacija energija">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">Kalkulacija · Energetika</div>
+              <h3 class="font-bold text-gray-950">FacadeCalc Pro</h3>
+            </div>
+            <div class="flex-shrink-0 w-9 h-9 bg-gray-100 flex items-center justify-center text-brand font-bold text-xs">FC</div>
+          </div>
+          <p class="text-gray-500 text-sm leading-relaxed mb-4">Alat za proračun termičkih karakteristika fasadnih sistema. Generira izvještaje prema EN 13830 i lokalnim standardima za energetske certifikate.</p>
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">EN 13830</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">U-vrijednost</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Izvještaji</span>
+          </div>
+          <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('FacadeCalc Pro')">Zatraži informacije →</button>
+        </div>
+
+        <!-- AlCRM -->
+        <div class="tool-card bg-white border border-gray-200 p-5 card-hover" data-category="crm">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">CRM / Prodaja</div>
+              <h3 class="font-bold text-gray-950">AlCRM Industry</h3>
+            </div>
+            <div class="flex-shrink-0 w-9 h-9 bg-gray-100 flex items-center justify-center text-brand font-bold text-xs">AC</div>
+          </div>
+          <p class="text-gray-500 text-sm leading-relaxed mb-4">CRM prilagođen distributerima i predstavnicima profilnih sistema. Praćenje projekata po gradilištu, ofertiranje, servisni nalozi i historija klijenta.</p>
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Distributeri</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Projekti</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Mobile app</span>
+          </div>
+          <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('AlCRM Industry')">Zatraži informacije →</button>
+        </div>
+
+        <!-- GlassCut -->
+        <div class="tool-card bg-white border border-gray-200 p-5 card-hover" data-category="cnc">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">CNC / Produkcija</div>
+              <h3 class="font-bold text-gray-950">GlassCut Optimizer</h3>
+            </div>
+            <div class="flex-shrink-0 w-9 h-9 bg-gray-100 flex items-center justify-center text-brand font-bold text-xs">GC</div>
+          </div>
+          <p class="text-gray-500 text-sm leading-relaxed mb-4">Optimizator rezanja stakla za manje radionice. Minimizuje otpad, generiše planove rezanja i izvozi u format kompatibilan s CNC mašinama.</p>
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Optimizacija</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Staklo</span>
+            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Desktop app</span>
+          </div>
+          <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('GlassCut Optimizer')">Zatraži informacije →</button>
+        </div>
+
+        <!-- Placeholder / Vendor CTA -->
+        <div class="tool-card bg-white border border-dashed border-gray-300 p-5 flex flex-col items-center justify-center text-center" style="min-height:200px;" data-category="sve">
+          <div class="w-10 h-10 bg-gray-100 flex items-center justify-center text-gray-400 text-xl mb-3">+</div>
+          <div class="font-semibold text-gray-700 mb-1">Vaš softver ovdje</div>
+          <p class="text-gray-400 text-sm mb-4">Prodajete rješenje za industriju? Listajte se na Štok i Krilo i pristupite kupcima koji već traže alate.</p>
+          <button class="btn-outline text-xs" onclick="openDemoModal('listing')">Zatražite listing →</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Vendor CTA Banner -->
+    <div class="bg-brand text-white p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div>
+        <div class="text-xs font-bold tracking-widest text-blue-300 mb-2">ZA SOFTVERSKE VENDORE</div>
+        <h2 class="font-serif text-2xl font-bold mb-2">Dođite do odlučilaca u industriji</h2>
+        <p class="text-blue-100 text-sm max-w-lg">Štok i Krilo čitaju direktori, vlasnici fabrika i tehnički menadžeri. Featured listing dovodi kvalificirane leadove direktno na vaš demo.</p>
+      </div>
+      <div class="flex flex-col gap-3 flex-shrink-0">
+        <button class="bg-white text-brand font-bold text-sm px-6 py-3 hover:bg-blue-50 transition-colors" onclick="openDemoModal('vendor-listing')">Zatražite paket</button>
+        <div class="text-blue-300 text-xs text-center">Odgovaramo u roku od 24h</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DEMO REQUEST MODAL -->
+<div class="modal-overlay" id="demo-modal" onclick="closeDemoModal(event)">
+  <div class="bg-white w-full max-w-lg rounded-sm mt-8" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      <div>
+        <div class="tag text-brand mb-0.5">ZAHTJEV ZA DEMO</div>
+        <div class="font-serif text-lg font-bold text-gray-950" id="demo-modal-title">Zatražite demo</div>
+      </div>
+      <button onclick="closeDemoModal()" class="text-gray-400 hover:text-gray-700 text-xl font-light leading-none">✕</button>
+    </div>
+    <div class="px-6 py-6">
+      <p class="text-gray-500 text-sm mb-6">Ostavite kontakt podatke i tim kompanije će vas kontaktirati u roku od 1-2 radna dana.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Ime i prezime *</label>
+          <input type="text" placeholder="Marko Marković" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Kompanija *</label>
+          <input type="text" placeholder="Naziv vaše firme" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1.5">E-mail *</label>
+          <input type="email" placeholder="marko@kompanija.rs" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Broj zaposlenih</label>
+          <select class="w-full border border-gray-200 px-3 py-2.5 text-sm text-gray-600">
+            <option value="">Izaberite...</option>
+            <option>1-10</option>
+            <option>11-50</option>
+            <option>51-200</option>
+            <option>200+</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Poruka (opciono)</label>
+          <textarea rows="3" placeholder="Opišite vaše potrebe ili pitanje..." class="w-full border border-gray-200 px-3 py-2.5 text-sm resize-none"></textarea>
+        </div>
+      </div>
+      <button class="btn-primary w-full mt-6 py-3">Pošaljite zahtjev</button>
+      <p class="text-gray-400 text-xs text-center mt-3">Štok i Krilo ne dijeli vaše podatke s trećim stranama.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="bg-gray-950 text-white mt-0">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10">
+      <div class="col-span-2 sm:col-span-1">
+        <div class="flex items-center gap-2 mb-3">
+          <!-- Negativ verzija znaka: bijeli potezi na tamnoj podlozi -->
+          <svg width="26" height="29" viewBox="0 0 110 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g transform="translate(15,10)">
+              <g fill="none" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M32,16 V55 H82 V94" stroke="#FAFAF9"/>
+                <path d="M12,34 V75 H62" stroke="rgba(250,250,249,0.6)"/>
+              </g>
+            </g>
+          </svg>
+          <div style="font-family:'Archivo',sans-serif; font-weight:600; font-size:0.9rem; letter-spacing:0.1em; color:#FAFAF9;">ŠTOK <span style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">&amp;</span> KRILO</div>
+        </div>
+        <div class="text-gray-500 text-xs tracking-widest mb-4">BALKANSKO TRŽIŠTE PROZORA I FASADA</div>
+        <p class="text-gray-400 text-xs leading-relaxed">Industrijski informacioni centar za industriju prozora, vrata, stakla i fasada na Balkanu.</p>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-gray-500 tracking-widest mb-3">SADRŽAJ</div>
+        <div class="space-y-2 text-sm text-gray-400">
+          <div class="hover:text-white cursor-pointer" onclick="showPage('home')">Vesti</div>
+          <div class="hover:text-white cursor-pointer" onclick="showPage('cene')">Cene</div>
+          <div class="hover:text-white cursor-pointer" onclick="showPage('kompanije')">Kompanije</div>
+          <div class="hover:text-white cursor-pointer" onclick="showPage('oglasi')">Oglasi</div>
+          <div class="hover:text-white cursor-pointer" onclick="showPage('analize')">Analize</div>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-gray-500 tracking-widest mb-3">PLATFORMA</div>
+        <div class="space-y-2 text-sm text-gray-400">
+          <div class="hover:text-white cursor-pointer" onclick="showPage('edukacija')">Edukacija</div>
+          <div class="hover:text-white cursor-pointer" onclick="showPage('sajmovi')">Sajmovi</div>
+          <div class="hover:text-white cursor-pointer" onclick="showPage('tenderi')">Tenderi</div>
+          <div class="hover:text-white cursor-pointer" onclick="showPage('alati')">Alati</div>
+          <div class="hover:text-white cursor-pointer" onclick="showNewsletterModal()">Newsletter</div>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-gray-500 tracking-widest mb-3">PRATITE NAS</div>
+        <div class="space-y-2 text-sm text-gray-400">
+          <div class="hover:text-white cursor-pointer">LinkedIn</div>
+          <div class="hover:text-white cursor-pointer">Instagram</div>
+          <div class="hover:text-white cursor-pointer">Facebook</div>
+          <div class="hover:text-white cursor-pointer">YouTube</div>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 pt-6 flex flex-wrap justify-between items-center gap-2">
+      <div class="text-gray-600 text-xs">© 2026 ŠTOK I KRILO. Sva prava zadržana.</div>
+      <div class="text-gray-600 text-xs">Demo verzija — Podaci su ilustrativni</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== SEARCH MODAL ===================== -->
+<div class="modal-overlay" id="search-modal" onclick="closeSearch(event)">
+  <div class="bg-white w-full max-w-2xl rounded-sm mt-8" onclick="event.stopPropagation()">
+    <div class="flex items-center border-b border-gray-200 px-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" placeholder="Pretraži vesti, kompanije, oglase…" class="flex-1 py-4 px-3 text-base border-none outline-none" oninput="doSearch()" />
+      <button onclick="closeSearch()" class="text-gray-400 hover:text-gray-700 p-2 text-xl font-light">✕</button>
+    </div>
+    <div id="search-results" class="max-h-96 overflow-y-auto p-4"></div>
+  </div>
+</div>
+
+<!-- ARTICLE MODAL -->
+<div class="modal-overlay" id="article-modal" onclick="closeArticle(event)">
+  <div class="bg-white w-full max-w-3xl rounded-sm" onclick="event.stopPropagation()">
+    <div class="flex justify-end p-4 border-b border-gray-100">
+      <button onclick="closeArticle()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
+    </div>
+    <div class="p-6 sm:p-8" id="article-content"></div>
+  </div>
+</div>
+
+<!-- COMPANY MODAL -->
+<div class="modal-overlay" id="company-modal" onclick="closeCompanyModal(event)">
+  <div class="bg-white w-full max-w-2xl rounded-sm" onclick="event.stopPropagation()">
+    <div class="flex justify-end p-4 border-b border-gray-100">
+      <button onclick="closeCompanyModal()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
+    </div>
+    <div class="p-6 sm:p-8" id="company-modal-content"></div>
+  </div>
+</div>
+
+<!-- AD MODAL -->
+<div class="modal-overlay" id="ad-modal" onclick="closeAdModal(event)">
+  <div class="bg-white w-full max-w-xl rounded-sm" onclick="event.stopPropagation()">
+    <div class="flex justify-end p-4 border-b border-gray-100">
+      <button onclick="closeAdModal()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
+    </div>
+    <div class="p-6 sm:p-8" id="ad-modal-content"></div>
+  </div>
+</div>
+
+<!-- NEWSLETTER MODAL -->
+<div class="modal-overlay" id="newsletter-modal" onclick="closeNewsletterModal(event)">
+  <div class="bg-white w-full max-w-md rounded-sm" onclick="event.stopPropagation()">
+    <div class="flex justify-end p-4 border-b border-gray-100">
+      <button onclick="closeNewsletterModal()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
+    </div>
+    <div class="p-8 text-center">
+      <div class="tag text-brand mb-3">ŠTOK I KRILO NEWSLETTER</div>
+      <h2 class="font-serif text-2xl font-bold text-gray-950 mb-3">Ostanite informisani.</h2>
+      <p class="text-gray-500 text-sm mb-6">Jedan email dnevno. Cene, vesti i poslovne prilike iz industrije.</p>
+      <div class="flex gap-0 mb-3">
+        <input type="email" id="newsletter-email-modal" placeholder="Vaš email" class="flex-1 border border-gray-300 px-4 py-3 text-sm border-r-0" />
+        <button class="btn-primary px-5" onclick="subscribeNewsletter('newsletter-email-modal')">PRIJAVI ME</button>
+      </div>
+      <p class="text-xs text-gray-400">Bez spama. Samo industrijske informacije.</p>
+    </div>
+  </div>
+</div>
+
+<!-- POST AD MODAL -->
+<div class="modal-overlay" id="post-ad-modal" onclick="closePostAd(event)">
+  <div class="bg-white w-full max-w-xl rounded-sm" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between p-4 border-b border-gray-100">
+      <span class="font-serif font-bold text-lg">Objavi oglas</span>
+      <button onclick="closePostAd()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
+    </div>
+    <div class="p-6">
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-gray-500 block mb-1">KATEGORIJA</label>
+          <select class="w-full border border-gray-300 px-4 py-2.5 text-sm bg-white">
+            <option>Prodaja opreme</option><option>Kupovina materijala</option><option>Posao</option><option>Zastupništvo</option><option>Partnerstvo</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500 block mb-1">NASLOV OGLASA</label>
+          <input type="text" placeholder="Unesite naslov oglasa" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500 block mb-1">OPIS</label>
+          <textarea rows="4" placeholder="Kratki opis…" class="w-full border border-gray-300 px-4 py-2.5 text-sm resize-none"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-gray-500 block mb-1">LOKACIJA</label>
+            <input type="text" placeholder="Grad, Država" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-500 block mb-1">CENA (opciono)</label>
+            <input type="text" placeholder="npr. 15.000 EUR" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
+          </div>
+        </div>
+        <button class="btn-primary w-full py-3" onclick="showToast('Oglas je primljen. Bićete kontaktirani.'); closePostAd()">POŠALJI OGLAS</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="fixed bottom-6 right-6 bg-gray-950 text-white text-sm px-5 py-3 z-50 opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+
+<script>
+// ==================== DATA ====================
+const prices = [
+  // ── METALI ──
+  { id: 'al',     group: 'METALI',   label: 'Aluminijum LME', value: '2.684',  unit: 'EUR/t',    change: '+1.8%', up: true,  live: true,  ticker: 'ALI=F', conv: 'usd_t_eur_t'   },
+  { id: 'cu',     group: 'METALI',   label: 'Bakar LME',      value: '9.412',  unit: 'EUR/t',    change: '-0.7%', up: false, live: true,  ticker: 'HG=F',  conv: 'usd_lb_eur_t'  },
+  // ── ENERGIJA ──
+  { id: 'brent',  group: 'ENERGIJA', label: 'Nafta Brent',    value: '68.42',  unit: 'USD/bbl',  change: '+0.4%', up: true,  live: true,  ticker: 'BZ=F',  conv: 'direct'        },
+  { id: 'gas',    group: 'ENERGIJA', label: 'Gas HH',         value: '3.18',   unit: 'USD/MMBtu',change: '+1.2%', up: true,  live: true,  ticker: 'NG=F',  conv: 'direct'        },
+  // ── SIROVINE (manual) ──
+  { id: 'pvc',    group: 'SIROVINE', label: 'PVC granulat',   value: '1.050',  unit: 'EUR/t',    change: '+2.1%', up: true,  live: false },
+  { id: 'glass',  group: 'SIROVINE', label: 'Float staklo',   value: '104.8',  unit: 'INDEX',    change: '+0.8%', up: true,  live: false },
+  { id: 'sil',    group: 'SIROVINE', label: 'Silikon sealant',value: '3.20',   unit: 'EUR/kg',   change: '0.0%',  up: true,  live: false },
+  { id: 'epdm',   group: 'SIROVINE', label: 'EPDM profili',   value: '2.85',   unit: 'EUR/kg',   change: '-0.5%', up: false, live: false },
+  // ── VALUTE ──
+  { id: 'eurrsd', group: 'VALUTE',   label: 'EUR / RSD',      value: '117.25', unit: '',         change: '+0.1%', up: true,  live: true,  fxCode: 'RSD' },
+  { id: 'eurbam', group: 'VALUTE',   label: 'EUR / BAM',      value: '1.9558', unit: '',         change: '0.0%',  up: true,  live: false, note: 'Fiksni kurs' },
+  { id: 'eurmkd', group: 'VALUTE',   label: 'EUR / MKD',      value: '61.52',  unit: '',         change: '+0.0%', up: true,  live: true,  fxCode: 'MKD' },
+  { id: 'eurall', group: 'VALUTE',   label: 'EUR / ALL',      value: '123.45', unit: '',         change: '+0.1%', up: true,  live: true,  fxCode: 'ALL' },
+  { id: 'eurron', group: 'VALUTE',   label: 'EUR / RON',      value: '4.977',  unit: '',         change: '-0.1%', up: false, live: true,  fxCode: 'RON' },
+  { id: 'eurusd', group: 'VALUTE',   label: 'EUR / USD',      value: '1.0842', unit: '',         change: '+0.2%', up: true,  live: true,  fxCode: 'USD' },
+];
+
+const newsItems = [
+  { cat: 'trziste', catLabel: 'TRŽIŠTE', date: '20. avg 2026', title: 'Aluminijum na LME prešao 2.700 EUR/t — troškovi rastu za sve koji kupuju profil', desc: 'Rast od 4,8% u 30 dana gura cene aluminijumskog profila na višemesečni maksimum. Proizvođači koji nisu zaključali cene isporuke do kraja kvartala osjetiće pritisak na marže već u septembru.', read: '2 min', source: 'LME / analiza redakcije', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'standardi', catLabel: 'REGULATIVA', date: '19. avg 2026', title: 'EU EPBD: od januara 2027. novi objekti moraju imati U ≤ 1,0 za prozore', desc: 'Revised Energy Performance of Buildings Directive konačno dobija jasne tehničke zahtjeve za stolariju. Države članice moraju implementirati do decembra 2026. Za balkanske izvoznike koji rade EU projekte — nije opcija nego uslov.', read: '3 min', source: 'EPBD / EU Gazette', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'kompanije', catLabel: 'REGION', date: '18. avg 2026', title: 'Veka Sistem otvorio novi showroom u Beogradu — 450 m² izložbenog prostora', desc: 'Nakon Zagreba i Ljubljane, Veka Group širi prisustvo u Srbiji. Novi prostor na Novom Beogradu namenjen je arhitektima i investitorima — ne krajnjim kupcima. Naglasak na sistemskim rješenjima za pasivnu gradnju.', read: '2 min', source: 'Veka Group / redakcija', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'tehnologija', catLabel: 'DIGITALIZACIJA', date: '15. avg 2026', title: 'Schüco i HOCHTIEF testiraju BIM-driven narudžbu stolarije — nula grešaka na 340 otvora', desc: 'Pilot projekat u Frankfurtu: arhitektonski model direktno generiše naloge za proizvodnju bez ručnog unosa mjera. Greške u mjerama pale sa 3,2% na 0%. Model se planira skalirati na Schüco partnere u regionu.', read: '4 min', source: 'AEC Magazine', img: 'https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'trziste', catLabel: 'ANALIZA', date: '14. avg 2026', title: 'Renovacija nadmašila novu gradnju u 6 od 9 balkanskih zemalja', desc: 'Podaci Eurostata za H1 2026: Slovenija, Hrvatska i Srbija vode trend — više novca ide u energetsku obnovu nego u nove objekte. Za proizvođače stolarije to znači kraće serije, više varijanti, brže isporuke.', read: '3 min', source: 'Eurostat / obrada redakcije', img: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'proizvodi', catLabel: 'NOVI PROIZVOD', date: '13. avg 2026', title: 'Reynaers Aluminium: CS 104 sistem za hladnu klimu dolazi u Srbiju i Rumuniju', desc: 'Belgijski Reynaers širi distribuciju svog visokoizolacionog CS 104 profila (Uf = 1,1 W/m²K) na srpsko i rumunsko tržište kroz lokalne partnere. Sistem je razvijen za skandinavske zahtjeve — ali EPBD ga čini relevantnim i na jugu.', read: '2 min', source: 'Reynaers Group', img: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'tehnologija', catLabel: 'TEHNOLOGIJA', date: '14. jul 2026', title: 'MACO Sense: dva evropska priznanja za pametni okov u jednoj godini', desc: 'Nakon Red Dot Awarda, sada i German Innovation Award u zlatnoj kategoriji. MACO-ov senzorski okov koji prati prozore i vrata postaje standard na koji se industrija poziva.', read: '3 min', source: 'Windows Active', img: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'kompanije', catLabel: 'AKVIZICIJA', date: '5. avg 2026', title: 'ASSA ABLOY kupuje Gunnebo — ulazna kontrola sve je u jednoj ruci', desc: 'Još jedna akvizicija giganta koji polako apsorbuje sve što se tiče otvaranja i zatvaranja vrata. Gunnebo radi brzoprolazne kapije i sigurnosne sisteme — 670 zaposlenih, pogoni na tri kontinenta.', read: '2 min', source: 'Window & Door', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'standardi', catLabel: 'STANDARDI', date: '5. avg 2026', title: 'Novi američki standard za montažu prozora — prvi put od 2012.', desc: 'FGIA i WDMA objavili zajednički dokument koji mijenja preporuke stare 14 godina. Za balkanske izvoznike na sjevernoamerička i zapadnoevropska tržišta — vrijedi pročitati.', read: '2 min', source: 'Window & Door', img: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'trziste', catLabel: 'TRŽIŠTE', date: '4. avg 2026', title: 'SAD: nova gradnja usporava, zamjena raste. Šta to znači za nas?', desc: 'Američka tržišna istraživanja pokazuju pomak koji se uvijek dogodi s faznim pomakom i u Evropi: manje novih objekata, više renovacija i zamjene stolarije. Balkan je još u drugoj fazi — ali ne zauvijek.', read: '4 min', source: 'DWM Magazine', img: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'proizvodnja', catLabel: 'PROIZVODNJA', date: '6. avg 2026', title: 'Kako povećati output za 21% bez nove hale i bez zastoja', desc: 'Emplas iz Engleske je to uradio: preuredili su cijelu fabriku, premjestili svaku mašinu, i ni jedna isporuka nije kasnila. Nije magija — jeste dobar plan.', read: '5 min', source: 'Window News UK', img: 'https://images.unsplash.com/photo-1565793979786-8534b53b0c55?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'kompanije', catLabel: 'INDUSTRIJA', date: '7. avg 2026', title: 'Owens Corning zatvara fabriku vrata u SAD-u, otpušta 130 radnika', desc: 'Peti zatvoreni pogon od kada su kupili Masonite. Prihodi od vrata pali 12%, EBITDA prepolovljena. Globalno tržište vrata pod pritiskom — i to se osjeća i kod dobavljača u regionu.', read: '3 min', source: 'DWM Magazine', img: 'https://images.unsplash.com/photo-1601084881623-cdf9a8ea242c?w=900&fit=crop&auto=format&q=75' },
+  { cat: 'standardi', catLabel: 'TEHNIKA', date: '7. jul 2026', title: 'ASSA ABLOY otvorio testni centar od 691 m² — rezultati za dvije sedmice', desc: 'UKAS-akreditovani centar u Britaniji testira PAS 24, korozijsku otpornost i vodonepropusnost. Za balkanske proizvođače koji izvoze na UK tržište — relevantna adresa.', read: '2 min', source: 'Windows Active' },
+  { cat: 'tehnologija', catLabel: 'MARKETING', date: '6. avg 2026', title: 'Hörmann Truedor: kako kompanija gradi mrežu dilera kroz roadshow i TV kampanju', desc: 'Jutarnji događaji za instalatere, soap opera kampanja na društvenim mrežama, Installer Finder koji preusmjerava kupce lokalnim dilerima. Model koji funkcioniše i van Britanije.', read: '3 min', source: 'Window News UK' },
+  { cat: 'proizvodi', catLabel: 'NOVI PROIZVOD', date: '7. avg 2026', title: 'Strata i Vector: dva nova modela za tržište koje traži dizajn uz sigurnost', desc: 'Entrance širi Edge kolekciju — hibridna LVL konstrukcija, Inox detalji, 30 boja, PAS 24. Kompozitna vrata polako ulaze i na balkanska gradilišta.', read: '2 min', source: 'Window News UK' },
+  { cat: 'proizvodi', catLabel: 'OKOV', date: '5. avg 2026', title: 'VBH greenteQ: detalj koji kupci primijete, a mnogi proizvođači zaborave', desc: 'Poštanski otvor na ulaznim vratima — sitnica koja kupca ili uvjeri ili ne. VBH nudi osam opcija, od inoks za more do Omega Slim za tankookvirana kompozitna vrata.', read: '2 min', source: 'Window & Door' },
+  { cat: 'kompanije', catLabel: 'AKVIZICIJA', date: 'maj 2026', title: 'Inwido kupuje Marlex — Šveđani ušli na hrvatsko tržište', desc: 'Inwido, najveći distributer prozora u Skandinaviji, platio je 5,1x EBITDA za 70% udjela u varaždinskom Marlexu. 270 zaposlenih, prihod EUR 33m, vlastita IGU produkcija — lider PVC prozora u Hrvatskoj.', read: '3 min', source: 'SeeNews / Inwido' },
+  { cat: 'investicije', catLabel: 'INVESTICIJA', date: 'avg 2026', title: 'Rollplast širi pogon za $16.4m — i cilja Hrvatsku', desc: 'Bugarski Rollplast investira u novu halu u Kostinbrodu s 4 MWp solarnim sistemom. Već imaju 144 franšizna partnera u regiji. Plan: ulazak na hrvatsko tržište.', read: '2 min', source: 'Al Circle / SeeNews' },
+  { cat: 'kompanije', catLabel: 'KADROVSKA', date: 'maj 2026', title: 'Nikica Jurić novi generalni direktor Deceuninck za SEE regiju', desc: 'Deceuninck, jedan od tri najveća svjetska proizvođača PVC profila, mijenja generalnog direktora za jugoistočnu Evropu. Jurić preuzima regiju koja pokriva Srbiju, Hrvatsku, Sloveniju, BiH i ostatak SEE.', read: '2 min', source: 'Prozori+Vrata / Forbes HR' },
+  { cat: 'kompanije', catLabel: 'JUBILEJ', date: 'jul 2026', title: 'Alumil slavi 20 godina fabrike u Srbiji', desc: 'Grčka Alumil grupacija obilježava dvije decenije ekstruzije aluminijumskih profila u Čačku. Jedna od rijetkih vlastitih ekstruzija u regionu — i dokaz da se u Balkanu može praviti aluminijum koji ide na zahtjevna tržišta.', read: '2 min', source: 'CorD Magazine' },
+  { cat: 'kompanije', catLabel: 'INVESTICIJA', date: '2025/2026', title: 'Yavuz Company BiH: blizu 30 miliona KM investicije u 20 godina', desc: 'Jedini domaći proizvođač PVC profila u BiH radi 800+ otvora dnevno iz tri fabrike. BAUWIN i BAUFENS sistemi, izvoz u Europu i Afriku. Priča o kompaniji koja je izgradila vertikalu od nule.', read: '3 min', source: 'Yavuz.ba' },
+];
+
+const articles = [
+  {
+    cat: 'TEHNOLOGIJA', title: 'MACO Sense: dva evropska priznanja za pametni okov u jednoj godini',
+    source: 'Windows Active', date: '14. jul 2026',
+    body: 'Berlinska ceremonija German Innovation Award donijela je MACO-u zlatnu nagradu u kategoriji "Excellence in Business to Business – Building & Elements". Nije im prvi put ove godine — Sense by MACO je u proljeće već odnio Red Dot Award za dizajn proizvoda 2026.\n\nSense je, ukratko, okov koji pamti. Integrisani senzori prate status prozora, kliznih i ulaznih vrata i komuniciraju s pametnom zgradom. Pet varijanti pokriva sve tipove — Window Pro T&T, Window T&T, Casement, Door i Universal. Sve rade na Matter protokolu, što znači da se bez problema integrišu s uređajima različitih proizvođača.\n\nZašto je to važno: integrator koji gradi pametnu zgradu ne želi da mu okov "ne priča" s termostatom ili alarmom. Matter protokol to rješava. MACO je to prepoznao rano — i sad bere nagrade.\n\nChristoph Lahnsteiner iz MACO-ovog product managementa kaže kratko: "Ove dvije nagrade pokazuju koliko dobro Sense spaja funkcionalnost i dizajn."\n\n— Šta ovo znači za Balkan? —\nMACO je vjerovatno najzastupljeniji dobavljač okova u regionu. Sense serija dostupna je kod ovlaštenih distributera u Srbiji, BiH i Hrvatskoj. Ko god pravi prozore ili vrata za pametne zgrade — ili želi da uđe u taj segment — treba da zna za ovu seriju.'
+  },
+  {
+    cat: 'AKVIZICIJA', title: 'ASSA ABLOY kupuje Gunnebo — ulazna kontrola sve je u jednoj ruci',
+    source: 'Window & Door', date: '5. avg 2026',
+    body: 'ASSA ABLOY je objavio kupovinu Gunnebo Entrance Control — kompanije koja pravi brzoprolazne kapije, masovne tranzitne prolaze i sigurnosna rotirajuća vrata. Gunnebo ima oko 670 zaposlenih, pogone u Evropi, SAD-u i Aziji, a sjedište u britanskom Maresfiedu.\n\nNa papiru je to logičan potez. ASSA ABLOY već dominira bravama, cilindričnim mehanizmima i pristupnim kontrolama. Gunnebo dodaje fizičku barijeru na ulazu — kapije za metro stanice, aerodrome, poslovne zgrade. Portfolio se zatvara u krug.\n\nCEO Nico Delvaux nije previše filozofisao: "Ova akvizicija jača našu poziciju na zrelim tržištima komplementarnim portfoliom." Gunnebo ulazi u Pedestrian segment Entrance Systems divisiona.\n\nBrojanje: od 2020. ASSA ABLOY je kupio više od 70 kompanija. Ritam ne usporava.\n\n— Šta ovo znači za Balkan? —\nASA ABLOY je prisutan u svim balkanskim zemljama — direktno ili kroz distributere. Svaka nova akvizicija znači širi katalog na jednoj adresi, ali i manje nezavisnih igrača u dobavljačkom lancu. Za projektante koji specificiraju ulazne sisteme za javne i poslovne objekte: portfolio koji vrijedi pratiti.'
+  },
+  {
+    cat: 'STANDARDI', title: 'Novi američki standard za montažu prozora — prvi put od 2012.',
+    source: 'Window & Door', date: '5. avg 2026',
+    body: 'FGIA (Fenestration and Glazing Industry Alliance) i WDMA (Window & Door Manufacturers Association) zajedno su objavili AAMA/WDMA 100 — ažurirani standard za ugradnju prozora s montažnim flanšama u membrane drainage wall sistemima. Prethodna verzija bila je iz 2012. — 14 godina bez revizije.\n\nStandard pokriva specifičan, ali važan slučaj: ugradnju u membranske drenažne sisteme koji su dominantni u sjevernoameričkoj gradnji i sve prisutaniji u zapadnoj Evropi. Dokument je odmah dostupan u online prodavnicama obiju asocijacija.\n\nOvo je, kažu, prvi u nizu zajedničkih standarda koje dvije organizacije planiraju objavljivati. Signal: industrija se konsoliduje i oko normativnog okvira, ne samo oko tržišta.\n\n— Šta ovo znači za Balkan? —\nNa Balkanu vrijede EN standardi — EN 14351, RAL montažne smjernice, lokalne normativi. AAMA direktno ne obavezuje. Ali izvoznici koji rade za Austriju, Njemačku ili Skandinaviju znaju da ti kupci gledaju globalne trendove. Ažuriranje američkih normi najavljuje smjer: stroža dokumentacija montaže, više odgovornosti za izvođača. Vrijedi pratiti.'
+  },
+  {
+    cat: 'TRŽIŠTE', title: 'SAD: nova gradnja usporava, zamjena raste. Šta to znači za nas?',
+    source: 'DWM Magazine', date: '4. avg 2026',
+    body: 'Mortgage Bankers Association objavila je u junu whitepaper koji kaže ono što mnogi nisu htjeli čuti: priča o "manjku stanova" u SAD-u više ne stoji. Najamna praznina je na 7,3%, ponuda za prodaju porasla je 30% u nekim tržištima, a rast cijena nekretnina prognozira se na svega 1% ove godine.\n\nŠto to konkretno znači za stolarijsku industriju? Manje novih objekata, više zamjene i renovacije. Model prihoda se mijenja — iz "prodaj jedanput graditelju" u "prodaj više puta krajnjem korisniku koji mijenja stolariju staru 15 godina".\n\nDemografija je pozadinska priča. Formiranje novih domaćinstava usporava zbog starenja populacije i manje Gen Z kohorte. Robert Dietz iz National Association of Home Builders-a procjenjuje 40% vjerovatnoće recesije u sljedeća tri kvartala — dvostruko više od istorijskog prosjeka.\n\nGradnja nema blagih krizičnih tačaka. Kad se zahladi, hladi se brzo.\n\n— Šta ovo znači za Balkan? —\nSrbija, Crna Gora i Sjeverna Makedonija su još uvijek u fazi rasta nove gradnje — pa se ovo ne tiče nas neposredno. Ali tržišta koja su prolazila kroz istu tranziciju uvijek su je prolazila s faznim pomakom. Kompanije koje sad grade retrofit i zamjenski kanal — sopstvenu bazu korisnika, servisnu mrežu, programe zamjene — biće u poziciji kad trend dođe ovamo.'
+  },
+  {
+    cat: 'PROIZVODNJA', title: 'Kako povećati output za 21% bez nove hale i bez zastoja',
+    source: 'Window News UK', date: '6. avg 2026',
+    body: 'Emplas iz Wellingborougha (UK) je 2023. kupio drugi pogon od 25.000 kvadratnih stopa za kompozitna vrata i patio odjel. Selidba tog odjela oslobodila je prostor u originalnoj fabrici od 57.000 kvadratnih stopa. I onda je počeo pravi posao.\n\nKompanija je preuredila cijelu fabriku — premjestila praktično svaku mašinu, preorganizovala tokove procesa, poboljšala protok materijala. Rezultat: output porastao više od 20%. Broj propuštenih isporuka za to cijelo vrijeme: nula.\n\nDawid Hajduk, projektni koordinator koji je vodio reorganizaciju: "Ključni izazov je bio da ne smijemo stati. Morali smo do detalja planirati kada i kako preseliti svaku mašinu — uz rokove isporuke koji se ne pomijeraju."\n\nOvo nije priča o novom kapitalu ili novoj opremi. Isti ljudi, ista oprema, drugačiji raspored i disciplina izvođenja.\n\n— Šta ovo znači za Balkan? —\nSvaki pogon na Balkanu koji čeka novu halu da poveća kapacitet treba da pročita ovu priču. Emplas pokazuje da se petina kapaciteta može dobiti reorganizacijom postojećeg prostora — uz dobar plan i dovoljno discipline da ga realizuješ bez da usporiš proizvodnju. To je direktno prenosivo znanje.'
+  },
+  {
+    cat: 'INDUSTRIJA', title: 'Owens Corning zatvara fabriku vrata u SAD-u, otpušta 130 radnika',
+    source: 'DWM Magazine', date: '7. avg 2026',
+    body: 'Owens Corning trajna je odluka: pogon za unutrašnja vrata u Walkertown, Indiana, zatvara se do kraja oktobra 2026. Oko 130 radnih mjesta ide u dvije faze.\n\nOvo je peti pogon koji se zatvara od kad je Owens Corning u maju 2024. kupio Masonite. Prethodni: Santiago (Čile), Prineville Oregon, Greenville Texas, Aldergrove British Columbia i Mesquite Texas. Pet pogona za godinu i po.\n\nBrojevi iza odluke: u Q1 2026. prihodi doors segmenta pali su 12% na 475 miliona dolara. EBITDA prepolovljena — sa 68 na 34 miliona dolara. U aprilu je Owens Corning prodao i tri distribucijska centra vrata kompaniji Metrie.\n\nKomunikacijska direktorica Megan James dala je standardni korporativni odgovor o "strateškim odlukama kao odgovoru na tržišno okruženje." Brojevi su bili jasniji.\n\n— Šta ovo znači za Balkan? —\nGlobalna industrija vrata se konsoliduje. Za balkanske distributere to može značiti promjene u dobavljačkom lancu i dostupnosti određenih modela. Ali i otvaranje: regionalni igrači koji mogu garantovati brzu isporuku i servis dobijaju prednost koju korporativni giganti teško nude sa 10.000 km udaljenosti.'
+  },
+  {
+    cat: 'TEHNIKA', title: 'ASSA ABLOY otvorio testni centar od 691 m² — rezultati za dvije sedmice',
+    source: 'Windows Active', date: '7. jul 2026',
+    body: 'ASSA ABLOY je u Daventry-u (Northamptonshire, UK) otvorio prošireni test centar površine 691 m². Centar nosi UKAS akreditaciju — britanski nacionalni standard za ispitne laboratorije.\n\nŠta se može testirati: PAS 24 pojačana sigurnost za vrata, BS EN 1670 otpornost na koroziju i BS 6375-1 vodonepropusnost. Turnaround za izvještaje i sertifikate: dvije sedmice od uspješnog testiranja.\n\nLokacija je odabrana praktično — Daventry je čvor na M1, pristupačan iz svih pravaca UK. Objekat je ujedno jedan od prvih koji nosi novi korporativni vizualni identitet ASSA ABLOY-a za 2026. godinu.\n\nTehnički direktor Staff Cooke: "UKAS akreditacija kupcima daje sigurnost da naše testiranje ispunjava stroge, nacionalno priznate standarde." Bez suvišnih komentara.\n\n— Šta ovo znači za Balkan? —\nZa proizvođače koji izvoze ili planiraju izvoz na UK tržište, PAS 24 certifikacija je obavezna na velikom dijelu specifikacija. Ko distribuira ili sarađuje s ASSA ABLOY-ovom mrežom u regionu — ovo je adresa za testiranje finalnih sklopova. Dvije sedmice turnaround nije loše za sertifikat koji otvara britanska gradilišta.'
+  },
+  {
+    cat: 'MARKETING', title: 'Hörmann Truedor: kako kompanija gradi mrežu dilera kroz roadshow i TV kampanju',
+    source: 'Window News UK', date: '6. avg 2026',
+    body: 'Hörmann Truedor je završio seriju roadshow događaja po UK-u namijenjenih instalaterima kompozitnih vrata. Format: jutro, kafa, doručak, razgovor o tome kako proširiti portfolio i zaraditi više po ugrađenim vratime. Bez kravata, bez PowerPoint maratona.\n\nAli prava vijest s roadshowa je lansiranje "Hörmann Street" — kampanje na društvenim mrežama inspirisane britanskim soap operama. Fiktivna ulica, ponavljajući likovi, svakodnevni scenariji u kojima se vrata pojavljuju prirodno. Prema prvim reakcijama instalatere, prijem je bio bolji nego što su očekivali.\n\nInstalaterima koji su prisustvovali ponuđeni su: £1.500 vaučera za vrata, 750 bonus bodova u Hörmann Rewards programu i godišnji besplatni pristup Door Designer alatu. Upiti s nove web stranice preusmjeravaju se lokalnim odobrenim dilerima kroz Installer Finder.\n\nModel radi ovako: centralno generišeš demand, lokalno ga konvertuješ. Jednostavno na papiru, teško za realizovati bez prave infrastrukture.\n\n— Šta ovo znači za Balkan? —\nHörmann je aktivan u cijeloj jugoistočnoj Evropi. Ovaj model — centralna kampanja plus lokalna distrubucija leadova — funkcioniše i van UK. Regionalni distributeri koji grade dealersku mrežu mogu preuzeti istu logiku: generiraj potražnju brendom, preusmjeri posao lokalnoj mreži.'
+  },
+  {
+    cat: 'NOVI PROIZVOD', title: 'Strata i Vector: dva nova modela za tržište koje traži dizajn uz sigurnost',
+    source: 'Window News UK', date: '7. avg 2026',
+    body: 'Entrance Composite Door Solutions proširio je Edge Collection s dva modela. Strata: čvrsta vrata s osam letvica, čist dizajn bez ornamenata. Vector: četiri letvice s ugrađenim Inox ostakljivanjem i flush završetkom kroz kasete integrirane u krilno krilo — za one koji žele staklo, ali ne žele da ga vide kao rješenje sljepljeno na gotov proizvod.\n\nOba modela dolaze s glatkim ili zrnatim GRP površinama u 30 boja i završnih obrada — standardne, premium, lakovane, RAL nijanse po narudžbi. Konstrukcija: LVL drveni okviri s kompozitnim skins i sigurnosnim pločama. Oba u skladu s PAS 24.\n\nGregory Kelly, direktor kompanije, daje kratak rezime filozofije: "Uvijek gledamo šta motiviše kupce i pretaćemo to u proizvode koji pomažu instalaterima da osvoje više posla." Nema teorije — samo povratna veza s tržištem pretočena u novi model.\n\n— Šta ovo znači za Balkan? —\nKompozitna vrata na Balkanu rastu sporije nego u zapadnoj Evropi, ali rastu. Kupci koji biraju ulazna vrata sve češće počinju s pitanjem "kako izgleda" — i tek onda s "kakva je izolacija." Uvoznici koji već sarađuju s britanskim ili irskim dobavljačima: ovaj segment vrijedi pratiti u naredne dvije do tri godine.'
+  },
+  {
+    cat: 'OKOV', title: 'VBH greenteQ: detalj koji kupci primijete, a mnogi proizvođači zaborave',
+    source: 'Window & Door', date: '5. avg 2026',
+
+    body: 'Poštanski otvor na ulaznim vratima — na njega se ne misli dok nije problem. Previše nizak, kriva boja, ne brtveni dobro ili izgleda jeftino uz skupocjen okov. Kupac to primijeti. Proizvođač obično ne.\n\nVBH distribucija nudi osam opcija letterplate otvora za proizvođače vrata, od kojih četiri dolaze iz greenteQ palete. Na vrhu liste za teška okruženja: architeQ Coastline od nehrđajućeg čelika — Inox za priobalne lokacije gdje sve korodira brže nego što bi trebalo.\n\nZvijezda novog kataloga: Omega Slim. Projektovan za slim mid-rail i kompozitna vrata s tankim okvirima. Dimenzije: 56 mm visina, teleskopska regulacija za debljine od 40 do 70 mm. Zaklopci s obje strane, brush i foam brtve. Devet boja unutar greenteQ Suite s kojima uskladiti ostatak okova. Garancija: 20 godina na površinu, 10 na mehaniku.\n\nGary Gleeson iz VBH-ovog marketinga kaže ono što je i logično: "Nudimo letterplate za svaku primjenu — od inoksa za more do Omega Slim za tankookvirana vrata." Ponuda postoji. Pitanje je da li je ugradiš ili zaboraviš.\n\n— Šta ovo znači za Balkan? —\nVBH distribuira u više balkanskih zemalja. Za proizvođače koji rade slim profil kompozitna vrata — ili koji žele da podignu nivo finalne obrade — Omega Slim je konkretan odgovor na specifičan problem.'
+  },
+];
+
+const companies = [
+  // ── SRBIJA ──
+  { name: 'Alumil YU Industry', city: 'Čačak', country: 'Srbija', cat: 'AL profili', products: ['Ekstruzija aluminijuma', 'Arhitektonski sistemi', 'Fasadni sistemi'], verified: true, url: 'https://www.alumil.com/serbia', desc: 'Grčka grupacija Alumil u Srbiji ima vlastitu fabriku ekstruzije aluminijumskih profila u Čačku. Jedna od rijetkih lokalnih ekstruzija u regionu. Ove godine slavi 20 godina rada u Srbiji.' },
+  { name: 'ETEM Srbija', city: 'Beograd', country: 'Srbija', cat: 'AL profili', products: ['Prozorski sistemi', 'Fasadni sistemi', 'Klizna vrata'], verified: true, url: 'https://www.etem.com', desc: 'ETEM (dio EL.PROM grupe) nudi aluminijumske arhitektonske sisteme za prozore, vrata i fasade. Aktivni na tržištu Srbije, BiH i regije.' },
+  { name: 'AGC Flat Glass Jug', city: 'Beograd', country: 'Srbija', cat: 'Staklo', products: ['Float staklo', 'Niskoemisijsko staklo', 'Sigurnosno staklo'], verified: true, url: 'https://www.agc-glass.eu', desc: 'AGC distribucija i obrada ravnog stakla za srpsko tržište. Dio AGC grupe — jednog od tri najveća svjetska proizvođača ravnog stakla.' },
+  { name: 'Rolomatik', city: 'Beograd', country: 'Srbija', cat: 'Garažna vrata', products: ['Garažna segmentna vrata', 'Industrijska vrata', 'Rolo vrata'], verified: false, url: 'https://rolomatik.com', desc: 'Srpski proizvođač i instalater garažnih i industrijskih vrata. Pokriva tržište Srbije i dijela regije.' },
+  { name: 'Aluline', city: 'Beograd', country: 'Srbija', cat: 'Garažna vrata', products: ['Garažna rolo vrata', 'Segmentna vrata', 'Industrijska vrata'], verified: false, url: 'https://aluline.rs', desc: 'Aluline proizvodi i ugrađuje garažna rolo vrata i industrijska segmentna vrata na srpskom tržištu.' },
+  { name: 'Profilink', city: 'Beograd', country: 'Srbija', cat: 'PVC/AL sistemi', products: ['PVC profili', 'Aluminijumski sistemi', 'Roletni sistemi'], verified: false, url: 'https://www.prozorivrata.com/profilink-prosiruje-svoj-portfolio-aluminijumskim-resenjima/', desc: 'Profilink je proširio portfolio aluminijumskim rješenjima. Distribuira profile i roletne sisteme za srpske proizvođače stolarije.' },
+  { name: 'Roto Frank Srbija', city: 'Novi Sad', country: 'Srbija', cat: 'Okov', products: ['NT okretno-nagibni okov', 'Klizni okov', 'Sigurnosni okov'], verified: true, url: 'https://www.roto-frank.com', desc: 'Regionalni zastupnik Roto Frank okova za srpsko tržište. Roto je jedan od tri najveća svjetska proizvođača okova za stolariju.' },
+  { name: 'Alphaline', city: 'Beograd', country: 'Srbija', cat: 'Okov', products: ['Siegenia okov', 'MACO okov', 'Sigurnosni sistemi'], verified: false, url: 'https://alphaline.rs', desc: 'Distributer Siegenia i MACO okova za Srbiju. Nudi kompletnu paletu okova za PVC i aluminijumsku stolariju.' },
+];
+
+// ==================== ADS ====================
+const ads = [
+  {
+    type: 'prodaja', typeLabel: 'PRODAJA',
+    title: 'PVC prozori i vrata — serijska proizvodnja, hitna prodaja zaliha',
+    desc: 'Prodajemo 120 komada PVC prozora (60×120 cm, trostruko staklo, Veka profil 70mm) iz otkazane gradnje. Cijena ispod tržišne, preuzimanje u Beogradu.',
+    location: 'Beograd, Srbija', price: 'od 85 EUR/kom', date: '18. avg 2026'
+  },
+  {
+    type: 'kupovina', typeLabel: 'KUPOVINA',
+    title: 'Tražimo dobavljača aluminijumske stolarije za hotelski projekat',
+    desc: 'Investitor traži pouzdanog dobavljača za 340 otvora (prozori + vrata + fasada) za hotel 4* u Budvi. Isporuka Q1 2027. Reference obavezne.',
+    location: 'Budva, Crna Gora', price: null, date: '17. avg 2026'
+  },
+  {
+    type: 'posao', typeLabel: 'POSAO',
+    title: 'Tražimo KV radnike za montažu stolarije — Hrvatska i Slovenija',
+    desc: 'Građevinska firma angažuje 8 montažera stolarije za projekte u Rijeci i Ljubljani. Smještaj osiguran, ugovor na 12 mjeseci s produžetkom.',
+    location: 'Rijeka / Ljubljana', price: '2.200 – 2.800 EUR neto', date: '16. avg 2026'
+  },
+  {
+    type: 'zastupnistvo', typeLabel: 'ZASTUPNIŠTVO',
+    title: 'Tražimo zastupnika za Reynaers sistem u Bosni i Hercegovini',
+    desc: 'Belgijski proizvođač aluminijumskih profila Reynaers Aluminium traži ekskluzivnog distributera za BiH tržište. Potrebni: showroom, tech tim i reference.',
+    location: 'Bosna i Hercegovina', price: null, date: '14. avg 2026'
+  },
+  {
+    type: 'prodaja', typeLabel: 'PRODAJA',
+    title: 'Linija za izradu PVC prozora — kompletna oprema Pertici & Donati',
+    desc: 'Prodajemo kompletnu liniju za izradu PVC stolarije (2019.g): pila, glodalica, zavarivačica, ugaona čistačica. Kapacitet 60 prozora/dan. Razlog prodaje: preseljenje proizvodnje.',
+    location: 'Zagreb, Hrvatska', price: '38.000 EUR', date: '13. avg 2026'
+  },
+  {
+    type: 'kupovina', typeLabel: 'KUPOVINA',
+    title: 'Kupujemo rabljene PVC klizne sisteme — minimum 50 komada',
+    desc: 'Investitor u Rumuniji traži rabljene klizne sisteme za renovaciju apartmana. Prihvatamo Schüco, Rehau ili Veka. Plaćanje odmah, organizujemo transport.',
+    location: 'Bukurešt, Rumunija', price: 'do 120 EUR/kom', date: '12. avg 2026'
+  },
+];
+
+
+// ==================== EDU ITEMS ====================
+const eduItems = [
+  {
+    cat: 'tehnika', catLabel: 'TEHNIKA', premium: false,
+    title: 'Kako čitati U-vrijednost: šta znači Uf, Ug i Uw za krajnji proizvod',
+    author: 'Redakcija', time: '8 min'
+  },
+  {
+    cat: 'prodaja', catLabel: 'PRODAJA', premium: false,
+    title: 'Tehnička prodaja stolarije: kako razgovarati s arhitektom koji ne zna šta hoće',
+    author: 'Redakcija', time: '6 min'
+  },
+  {
+    cat: 'menadžment', catLabel: 'MENADŽMENT', premium: true,
+    title: 'Kalkulacija cijene po otvoru: od materijala do margine',
+    author: 'Redakcija', time: '12 min'
+  },
+  {
+    cat: 'tehnika', catLabel: 'TEHNIKA', premium: false,
+    title: 'EPBD 2026: minimalni zahtjevi za stolariju u novogradnji i renovaciji',
+    author: 'Redakcija', time: '10 min'
+  },
+  {
+    cat: 'ai', catLabel: 'AI ALATI', premium: false,
+    title: 'AI za ponude: kako automatizovati pripremu tehničke dokumentacije',
+    author: 'Redakcija', time: '7 min'
+  },
+  {
+    cat: 'montaza', catLabel: 'MONTAŽA', premium: true,
+    title: 'RAL standard za montažu prozora: greške koje koštaju i kako ih izbjeći',
+    author: 'Redakcija', time: '9 min'
+  },
+];
+
+// ==================== EVENTS ====================
+const events = [
+  {
+    name: 'BAU München 2027', countryKey: 'nemacka',
+    date: '13–18. jan 2027', city: 'München', country: 'Njemačka',
+    desc: 'Najveći svjetski sajam arhitekture, materijala i sistema za gradnju. Obavezan za sve koji prate trendove fasada, prozora i vrata.',
+    exhibitors: '2.200+'
+  },
+  {
+    name: 'Made Expo Milan', countryKey: 'italija',
+    date: '19–22. mar 2027', city: 'Milano', country: 'Italija',
+    desc: 'Vodeći talijanski sajam arhitekture i građevine. Jak fokus na aluminijumsku stolariju, fasadne sisteme i pasivnu gradnju.',
+    exhibitors: '1.500+'
+  },
+  {
+    name: 'Fensterbau Frontale', countryKey: 'nemacka',
+    date: '25–28. mar 2026', city: 'Nürnberg', country: 'Njemačka',
+    desc: 'Specijalizovani sajam posvećen isključivo prozorima, vratima i fasadama. Ključan za regionalnu industriju stolarije.',
+    exhibitors: '900+'
+  },
+  {
+    name: 'R+T Stuttgart', countryKey: 'nemacka',
+    date: 'feb 2027', city: 'Stuttgart', country: 'Njemačka',
+    desc: 'Vodeći sajam roleta, sjenila i automatike za prozore i vrata. Inovacije u sun protection i pametnoj integraciji.',
+    exhibitors: '800+'
+  },
+  {
+    name: 'Wiener Baufestival', countryKey: 'austrija',
+    date: 'oktobar 2026', city: 'Beč', country: 'Austrija',
+    desc: 'Regionalni sajam gradnje i arhitekture sa posebnim fokusom na energetsku efikasnost i pasivnu gradnju.',
+    exhibitors: '350+'
+  },
+  {
+    name: 'Sajam Gradnje Beograd', countryKey: 'srbija',
+    date: 'april 2027', city: 'Beograd', country: 'Srbija',
+    desc: 'Najveći regionalni sajam građevinske industrije u Srbiji. Prostor za izlaganje sistema stolarije i prezentaciju projekata.',
+    exhibitors: '400+'
+  },
+];
+
+// ==================== TENDERI ====================
+const TED_API_KEY = 'dec3c29a94794d2896513c7a7f29da92'; // dodati key od developer.ted.europa.eu
+
+const tenderPlaceholders = [
+  // ── SRBIJA ──
+  { id:'rs1', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
+    title:'Nabavka i ugradnja PVC stolarije za stambeni objekat', buyer:'JKP Gradsko stambeno Beograd',
+    location:'Beograd', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Otvoreni postupak', value:'4.200.000 RSD', valueEur:'~35.800 EUR',
+    published:'5. avg 2026', deadline:'5. sep 2026', daysLeft:16,
+    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
+  { id:'rs2', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
+    title:'Zamena prozora i vrata na objektu Osnovne škole "Dositej Obradović"', buyer:'Grad Novi Sad',
+    location:'Novi Sad', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Otvoreni postupak', value:'1.850.000 RSD', valueEur:'~15.800 EUR',
+    published:'7. avg 2026', deadline:'28. avg 2026', daysLeft:8,
+    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
+  { id:'rs3', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
+    title:'Isporuka i montaža aluminijumske fasade na poslovnoj zgradi', buyer:'Grad Niš — Direkcija za izgradnju',
+    location:'Niš', type:'fasada', typeLabel:'Fasade',
+    cpv:'44112400', cpvLabel:'Fasadni radovi',
+    procedure:'Otvoreni postupak', value:'12.500.000 RSD', valueEur:'~106.500 EUR',
+    published:'3. avg 2026', deadline:'8. sep 2026', daysLeft:19,
+    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
+  { id:'rs4', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
+    title:'Rekonstrukcija stolarije i fasade zdravstvenog centra', buyer:'Dom zdravlja Kragujevac',
+    location:'Kragujevac', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421000', cpvLabel:'Stolarski radovi',
+    procedure:'Otvoreni postupak', value:'3.600.000 RSD', valueEur:'~30.700 EUR',
+    published:'8. avg 2026', deadline:'29. avg 2026', daysLeft:9,
+    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
+  { id:'rs5', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
+    title:'Nabavka kaljenog i termoizolacionog stakla za opštinske objekte', buyer:'Opština Čačak',
+    location:'Čačak', type:'staklo', typeLabel:'Staklo',
+    cpv:'44221000', cpvLabel:'Prozori, vrata i staklo',
+    procedure:'Otvoreni postupak', value:'980.000 RSD', valueEur:'~8.350 EUR',
+    published:'9. avg 2026', deadline:'3. sep 2026', daysLeft:14,
+    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
+
+  // ── HRVATSKA ──
+  { id:'hr1', country:'hrvatska', countryLabel:'Hrvatska', flag:'🇭🇷',
+    title:'Dobava i ugradnja PVC stolarije na stambenim zgradama', buyer:'Grad Zagreb — Gradski ured za prostorno uređenje',
+    location:'Zagreb', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Otvoreni postupak (EU)', value:'95.000 EUR', valueEur:'95.000 EUR',
+    published:'6. avg 2026', deadline:'10. sep 2026', daysLeft:21,
+    url:'https://eojn.nn.hr', live:false, src:'placeholder' },
+  { id:'hr2', country:'hrvatska', countryLabel:'Hrvatska', flag:'🇭🇷',
+    title:'Zamjena fasadne aluminijumske stolarije na školi', buyer:'Osnovna škola Split 3, Split',
+    location:'Split', type:'fasada', typeLabel:'Fasade',
+    cpv:'44221000', cpvLabel:'Prozori i vrata',
+    procedure:'Otvoreni postupak (EU)', value:'48.000 EUR', valueEur:'48.000 EUR',
+    published:'4. avg 2026', deadline:'2. sep 2026', daysLeft:13,
+    url:'https://eojn.nn.hr', live:false, src:'placeholder' },
+  { id:'hr3', country:'hrvatska', countryLabel:'Hrvatska', flag:'🇭🇷',
+    title:'Isporuka i montaža PVC i aluminijumske stolarije za Dom kulture', buyer:'Grad Rijeka',
+    location:'Rijeka', type:'montaza', typeLabel:'Montaža',
+    cpv:'45421000', cpvLabel:'Stolarski radovi',
+    procedure:'Otvoreni postupak (EU)', value:'62.000 EUR', valueEur:'62.000 EUR',
+    published:'2. avg 2026', deadline:'6. sep 2026', daysLeft:17,
+    url:'https://eojn.nn.hr', live:false, src:'placeholder' },
+
+  // ── SLOVENIJA ──
+  { id:'si1', country:'slovenija', countryLabel:'Slovenija', flag:'🇸🇮',
+    title:'Dobava in montaža PVC stavbnega pohištva na stanovanjskih objektih', buyer:'Mestna občina Ljubljana',
+    location:'Ljubljana', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Vgradnja oken in vrat',
+    procedure:'Odprti postopek (EU)', value:'185.000 EUR', valueEur:'185.000 EUR',
+    published:'7. avg 2026', deadline:'15. sep 2026', daysLeft:26,
+    url:'https://www.enarocanje.si', live:false, src:'placeholder' },
+  { id:'si2', country:'slovenija', countryLabel:'Slovenija', flag:'🇸🇮',
+    title:'Zamenjava oken in vrat v šolski stavbi — energetska prenova', buyer:'OŠ Frana Erjavca, Maribor',
+    location:'Maribor', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421000', cpvLabel:'Mizarska dela',
+    procedure:'Odprti postopek (EU)', value:'72.000 EUR', valueEur:'72.000 EUR',
+    published:'5. avg 2026', deadline:'1. sep 2026', daysLeft:12,
+    url:'https://www.enarocanje.si', live:false, src:'placeholder' },
+
+  // ── BIH ──
+  { id:'ba1', country:'bih', countryLabel:'Bosna i Hercegovina', flag:'🇧🇦',
+    title:'Nabavka i ugradnja stolarije za stambeni kompleks "Ilidža"', buyer:'Zavod za izgradnju Kantona Sarajevo',
+    location:'Sarajevo', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Otvoreni postupak', value:'280.000 KM', valueEur:'~143.000 EUR',
+    published:'6. avg 2026', deadline:'9. sep 2026', daysLeft:20,
+    url:'https://www.ejn.gov.ba', live:false, src:'placeholder' },
+  { id:'ba2', country:'bih', countryLabel:'Bosna i Hercegovina', flag:'🇧🇦',
+    title:'Rekonstrukcija prozora i vrata na Upravnoj zgradi opštine', buyer:'Opština Banja Luka',
+    location:'Banja Luka', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'44221000', cpvLabel:'Prozori, vrata i slično',
+    procedure:'Otvoreni postupak', value:'95.000 KM', valueEur:'~48.500 EUR',
+    published:'8. avg 2026', deadline:'27. avg 2026', daysLeft:7,
+    url:'https://www.ejn.gov.ba', live:false, src:'placeholder' },
+
+  // ── BUGARSKA ──
+  { id:'bg1', country:'bugarska', countryLabel:'Bugarska', flag:'🇧🇬',
+    title:'Доставка и монтаж на алуминиева и PVC дограма за административна сграда', buyer:'Sofijska opština',
+    location:'Sofija', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Montaža prozora i vrata',
+    procedure:'Otvoreni postupak (EU)', value:'185.000 BGN', valueEur:'~94.500 EUR',
+    published:'4. avg 2026', deadline:'4. sep 2026', daysLeft:15,
+    url:'https://app.eop.bg', live:false, src:'placeholder' },
+  { id:'bg2', country:'bugarska', countryLabel:'Bugarska', flag:'🇧🇬',
+    title:'Смяна на прозорци и врати в многофамилна жилищна сграда', buyer:'Opština Plovdiv',
+    location:'Plovdiv', type:'montaza', typeLabel:'Montaža',
+    cpv:'45421000', cpvLabel:'Stolarski radovi',
+    procedure:'Otvoreni postupak (EU)', value:'62.000 BGN', valueEur:'~31.700 EUR',
+    published:'7. avg 2026', deadline:'30. avg 2026', daysLeft:10,
+    url:'https://app.eop.bg', live:false, src:'placeholder' },
+
+  // ── RUMUNIJA ──
+  { id:'ro1', country:'rumunija', countryLabel:'Rumunija', flag:'🇷🇴',
+    title:'Furnizare și montaj tâmplărie PVC pentru blocuri de locuințe', buyer:'Asociația de proprietari Sector 3, București',
+    location:'Bukurešt', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Otvoreni postupak (EU)', value:'220.000 RON', valueEur:'~44.200 EUR',
+    published:'3. avg 2026', deadline:'3. sep 2026', daysLeft:14,
+    url:'https://www.e-licitatie.ro', live:false, src:'placeholder' },
+  { id:'ro2', country:'rumunija', countryLabel:'Rumunija', flag:'🇷🇴',
+    title:'Înlocuire tâmplărie exterioară și reabilitare fațadă — școală', buyer:'Consiliul Județean Cluj',
+    location:'Cluj-Napoca', type:'fasada', typeLabel:'Fasade',
+    cpv:'44112400', cpvLabel:'Fasadni radovi',
+    procedure:'Otvoreni postupak (EU)', value:'95.000 EUR', valueEur:'95.000 EUR',
+    published:'5. avg 2026', deadline:'10. sep 2026', daysLeft:21,
+    url:'https://www.e-licitatie.ro', live:false, src:'placeholder' },
+
+  // ── MAKEDONIJA ──
+  { id:'mk1', country:'makedonija', countryLabel:'Severna Makedonija', flag:'🇲🇰',
+    title:'Набавка и монтажа на ПВЦ и АЛУ столарија за спортски центар', buyer:'Град Скопје',
+    location:'Skoplje', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Otvoreni postupak', value:'4.800.000 MKD', valueEur:'~78.000 EUR',
+    published:'6. avg 2026', deadline:'7. sep 2026', daysLeft:18,
+    url:'https://www.e-nabavki.gov.mk', live:false, src:'placeholder' },
+
+  // ── ALBANIJA ──
+  { id:'al1', country:'albanija', countryLabel:'Albanija', flag:'🇦🇱',
+    title:'Furnizim dhe instalim i dritareve dhe dyerve PVC për ndërtesë administrative', buyer:'Bashkia Tiranë',
+    location:'Tirana', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Otvoreni postupak', value:'12.500.000 ALL', valueEur:'~101.200 EUR',
+    published:'5. avg 2026', deadline:'31. avg 2026', daysLeft:11,
+    url:'https://www.app.gov.al', live:false, src:'placeholder' },
+
+  // ── KOSOVO ──
+  { id:'xk1', country:'kosovo', countryLabel:'Kosovo', flag:'🇽🇰',
+    title:'Furnizimi dhe montimi i dritareve PVC dhe dyerve alumin për shkollë', buyer:'Komuna e Prishtinës',
+    location:'Priština', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421000', cpvLabel:'Stolarski radovi',
+    procedure:'Otvoreni postupak', value:'85.000 EUR', valueEur:'85.000 EUR',
+    published:'4. avg 2026', deadline:'28. avg 2026', daysLeft:8,
+    url:'https://skpp.rks-gov.net', live:false, src:'placeholder' },
+
+  // ── NEMAČKA ──
+  { id:'de1', country:'nemacka', countryLabel:'Nemačka', flag:'🇩🇪',
+    title:'Lieferung und Montage von PVC-Fenstern und -Türen für Wohnkomplex', buyer:'Stadtbaugesellschaft München',
+    location:'Minhen', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Offenes Verfahren (EU)', value:'420.000 EUR', valueEur:'420.000 EUR',
+    published:'6. avg 2026', deadline:'15. sep 2026', daysLeft:26,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+  { id:'de2', country:'nemacka', countryLabel:'Nemačka', flag:'🇩🇪',
+    title:'Aluminium-Fassadensystem für Bürogebäude — Neubau', buyer:'Freie und Hansestadt Hamburg',
+    location:'Hamburg', type:'fasada', typeLabel:'Fasade',
+    cpv:'44112400', cpvLabel:'Fasadni radovi',
+    procedure:'Offenes Verfahren (EU)', value:'1.250.000 EUR', valueEur:'1.250.000 EUR',
+    published:'4. avg 2026', deadline:'10. sep 2026', daysLeft:21,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+  { id:'de3', country:'nemacka', countryLabel:'Nemačka', flag:'🇩🇪',
+    title:'Fenstersanierung an Schulgebäuden — energetische Modernisierung', buyer:'Kreis Düsseldorf',
+    location:'Diseldorf', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421000', cpvLabel:'Stolarski radovi',
+    procedure:'Offenes Verfahren (EU)', value:'680.000 EUR', valueEur:'680.000 EUR',
+    published:'7. avg 2026', deadline:'5. sep 2026', daysLeft:16,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+
+  // ── AUSTRIJA ──
+  { id:'at1', country:'austrija', countryLabel:'Austrija', flag:'🇦🇹',
+    title:'Lieferung und Einbau von Holz-Alu-Fenster für Wohnanlage', buyer:'Wiener Wohnen GmbH',
+    location:'Beč', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Offenes Verfahren (EU)', value:'560.000 EUR', valueEur:'560.000 EUR',
+    published:'5. avg 2026', deadline:'8. sep 2026', daysLeft:19,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+  { id:'at2', country:'austrija', countryLabel:'Austrija', flag:'🇦🇹',
+    title:'Austausch von Aluminiumfenstern an öffentlichen Gebäuden — Graz', buyer:'Stadt Graz',
+    location:'Grac', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'44221000', cpvLabel:'Prozori i vrata',
+    procedure:'Offenes Verfahren (EU)', value:'320.000 EUR', valueEur:'320.000 EUR',
+    published:'3. avg 2026', deadline:'1. sep 2026', daysLeft:12,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+
+  // ── ITALIJA ──
+  { id:'it1', country:'italija', countryLabel:'Italija', flag:'🇮🇹',
+    title:'Fornitura e posa in opera di infissi in PVC per edilizia residenziale pubblica', buyer:'ALER Milano',
+    location:'Milano', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Procedura aperta (EU)', value:'780.000 EUR', valueEur:'780.000 EUR',
+    published:'8. avg 2026', deadline:'18. sep 2026', daysLeft:29,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+  { id:'it2', country:'italija', countryLabel:'Italija', flag:'🇮🇹',
+    title:'Sostituzione infissi e riqualificazione energetica facciate — scuole', buyer:'Comune di Roma',
+    location:'Rim', type:'fasada', typeLabel:'Fasade',
+    cpv:'44112400', cpvLabel:'Fasadni radovi',
+    procedure:'Procedura aperta (EU)', value:'1.450.000 EUR', valueEur:'1.450.000 EUR',
+    published:'6. avg 2026', deadline:'12. sep 2026', daysLeft:23,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+  { id:'it3', country:'italija', countryLabel:'Italija', flag:'🇮🇹',
+    title:'Fornitura serramenti in alluminio per complesso residenziale', buyer:'Comune di Torino',
+    location:'Torino', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'44221200', cpvLabel:'Aluminijumska stolarija',
+    procedure:'Procedura aperta (EU)', value:'490.000 EUR', valueEur:'490.000 EUR',
+    published:'4. avg 2026', deadline:'3. sep 2026', daysLeft:14,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+
+  // ── FRANCUSKA ──
+  { id:'fr1', country:'francuska', countryLabel:'Francuska', flag:'🇫🇷',
+    title:'Fourniture et pose de menuiseries PVC pour logements sociaux', buyer:'Paris Habitat',
+    location:'Pariz', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Appel d\'offres ouvert (EU)', value:'920.000 EUR', valueEur:'920.000 EUR',
+    published:'7. avg 2026', deadline:'16. sep 2026', daysLeft:27,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+  { id:'fr2', country:'francuska', countryLabel:'Francuska', flag:'🇫🇷',
+    title:'Remplacement des menuiseries extérieures — rénovation énergétique', buyer:'Métropole de Lyon',
+    location:'Lion', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'44221000', cpvLabel:'Prozori i vrata',
+    procedure:'Appel d\'offres ouvert (EU)', value:'380.000 EUR', valueEur:'380.000 EUR',
+    published:'5. avg 2026', deadline:'4. sep 2026', daysLeft:15,
+    url:'https://ted.europa.eu', live:false, src:'placeholder' },
+
+  // ── ŠVAJCARSKA ──
+  { id:'ch1', country:'svajcarska', countryLabel:'Švajcarska', flag:'🇨🇭',
+    title:'Lieferung und Montage Holz-Metall-Fenster für Schulhaus Zürich', buyer:'Stadt Zürich — Hochbaudepartement',
+    location:'Cirih', type:'stolarija', typeLabel:'Stolarija',
+    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
+    procedure:'Offenes Verfahren (CH)', value:'680.000 CHF', valueEur:'~720.000 EUR',
+    published:'6. avg 2026', deadline:'11. sep 2026', daysLeft:22,
+    url:'https://www.simap.ch', live:false, src:'placeholder' },
+  { id:'ch2', country:'svajcarska', countryLabel:'Švajcarska', flag:'🇨🇭',
+    title:'Remplacement fenêtres et portes aluminium — bâtiment administratif', buyer:'Canton de Vaud',
+    location:'Lozana', type:'fasada', typeLabel:'Fasade',
+    cpv:'44221000', cpvLabel:'Prozori i vrata',
+    procedure:'Appel d\'offres (CH)', value:'290.000 CHF', valueEur:'~307.000 EUR',
+    published:'4. avg 2026', deadline:'2. sep 2026', daysLeft:13,
+    url:'https://www.simap.ch', live:false, src:'placeholder' },
+
+];
+
+let _allTenders = [];
+let _tendersLoaded = false;
+
+// ── TED EU: fetch live tenders (HR, SI, RO, BG) ─────────────────────────────
+const TED_COUNTRIES = { HR:'hrvatska', SI:'slovenija', RO:'rumunija', BG:'bugarska',
+  IT:'italija', DE:'nemacka', AT:'austrija', FR:'francuska' };
+const TED_FLAGS     = { HR:'🇭🇷', SI:'🇸🇮', RO:'🇷🇴', BG:'🇧🇬',
+  IT:'🇮🇹', DE:'🇩🇪', AT:'🇦🇹', FR:'🇫🇷' };
+const TED_LABELS    = { HR:'Hrvatska', SI:'Slovenija', RO:'Rumunija', BG:'Bugarska',
+  IT:'Italija', DE:'Nemačka', AT:'Austrija', FR:'Francuska' };
+
+const CPV_TYPE_MAP = {
+  '44221': 'stolarija', '44221000':'stolarija', '44221100':'stolarija',
+  '44221200':'stolarija', '45421':'montaza', '45421000':'montaza',
+  '45421100':'montaza', '44112':'fasada', '44112400':'fasada',
+  '44163':'staklo', '44163100':'staklo',
+};
+const CPV_LABEL_MAP = {
+  '44221000':'Prozori, vrata i slično',  '44221100':'Prozori',
+  '44221200':'Vrata',                    '45421000':'Stolarski radovi',
+  '45421100':'Ugradnja prozora i vrata', '44112400':'Fasadni radovi',
+  '44163100':'Staklo i staklarski rad',
+};
+
+function parseTEDDate(str) {
+  // "20260810" → "10. avg 2026"  or ISO "2026-08-10"
+  if (!str) return '';
+  const clean = str.replace(/-/g,'');
+  if (clean.length < 8) return str;
+  const y = clean.slice(0,4), m = parseInt(clean.slice(4,6)), d = parseInt(clean.slice(6,8));
+  const months = ['jan','feb','mar','apr','maj','jun','jul','avg','sep','okt','nov','dec'];
+  return `${d}. ${months[m-1]} ${y}`;
+}
+
+function tedDaysLeft(deadlineStr) {
+  if (!deadlineStr) return 30;
+  const clean = deadlineStr.replace(/-/g,'');
+  const y = parseInt(clean.slice(0,4)), m = parseInt(clean.slice(4,6))-1, d = parseInt(clean.slice(6,8));
+  const diff = Math.round((new Date(y,m,d) - new Date()) / 86400000);
+  return diff > 0 ? diff : 0;
+}
+
+function mapTEDNotice(n, idx) {
+  const country  = n['buyer-country'] || '';
+  const countryKey = TED_COUNTRIES[country] || country.toLowerCase();
+  const rawCpvs  = n['cpv-code'] || [];
+  const cpvs     = Array.isArray(rawCpvs) ? rawCpvs : [rawCpvs];
+  const cpv      = cpvs[0] ? String(cpvs[0]).replace(/[^0-9]/g,'').slice(0,8) : '45421000';
+  const cpv5     = cpv.slice(0,5);
+  const type     = CPV_TYPE_MAP[cpv] || CPV_TYPE_MAP[cpv5] || 'stolarija';
+
+  const titles   = n['title'] || {};
+  const title    = titles['ENG'] || titles['HRV'] || titles['SLV'] || titles['RON'] || titles['BUL']
+                   || Object.values(titles)[0] || 'EU tender — stolarija';
+  const buyers   = n['buyer-name'] || {};
+  const buyer    = buyers['ENG'] || Object.values(buyers)[0] || '';
+
+  const place    = n['place-of-performance'] || {};
+  const city     = Array.isArray(place) ? (place[0]?.['town'] || country) : (place['town'] || country);
+
+  const deadline = n['deadline-date'] || '';
+  const pubDate  = n['dispatch-date'] || n['publication-date'] || '';
+
+  let value = 'N/A', valueEur = '';
+  const ev = n['estimated-value'];
+  if (ev) {
+    const num = parseFloat(ev);
+    if (!isNaN(num)) {
+      value = num.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0}) + ' EUR';
+      valueEur = value;
+    }
+  }
+
+  return {
+    id: 'ted_' + idx,
+    country: countryKey,
+    countryLabel: TED_LABELS[country] || country,
+    flag: TED_FLAGS[country] || '🇪🇺',
+    title,
+    buyer,
+    location: city,
+    type,
+    typeLabel: {stolarija:'Stolarija', fasada:'Fasade', staklo:'Staklo', montaza:'Montaža'}[type] || 'Stolarija',
+    cpv,
+    cpvLabel: CPV_LABEL_MAP[cpv] || 'EU tender',
+    procedure: 'Otvoreni postupak (EU)',
+    value,
+    valueEur,
+    published: parseTEDDate(pubDate),
+    deadline: parseTEDDate(deadline),
+    daysLeft: tedDaysLeft(deadline),
+    url: n['ted-url'] || `https://ted.europa.eu/en/notice/-/detail/${n['publication-number'] || ''}`,
+    live: true,
+    src: 'TED EU',
+  };
+}
+
+async function fetchTEDTenders() {
+  if (!TED_API_KEY) return null;
+  try {
+    const body = JSON.stringify({
+      query: 'cpv-code IN ("44221000","44221100","44221200","45421000","45421100","44112400","44163100") AND (buyer-country IN ("HR","SI","RO","BG","IT","DE","AT","FR")) AND publication-date >= 20260601',
+      fields: ['publication-number','title','buyer-name','buyer-country','notice-type',
+               'cpv-code','estimated-value','deadline-date','dispatch-date',
+               'place-of-performance','ted-url'],
+      page: 1,
+      limit: 30,
+      sort: [{ field: 'publication-date', order: 'desc' }]
+    });
+
+    // Try direct first (TED API supports CORS for GET; POST may need proxy)
+    let res = null;
+    try {
+      res = await Promise.race([
+        fetch('https://api.ted.europa.eu/v3/notices/search', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'TED-API-Key': TED_API_KEY },
+          body,
+        }),
+        new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 8000))
+      ]);
+    } catch(e) {
+      // CORS fallback via proxy
+      const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.ted.europa.eu/v3/notices/search');
+      res = await Promise.race([
+        fetch(proxyUrl, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'TED-API-Key': TED_API_KEY },
+          body,
+        }),
+        new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 10000))
+      ]);
+    }
+
+    if (!res || !res.ok) throw new Error('TED response: ' + (res?.status || 'no response'));
+    const data = await res.json();
+    const notices = data.notices || data.results || data.items || [];
+    if (!notices.length) return null;
+
+    const items = notices.map((n, i) => mapTEDNotice(n, i)).filter(Boolean);
+
+    // Show live badge in UI
+    const box = document.getElementById('ted-info-box');
+    if (box) {
+      box.className = 'bg-green-50 border border-green-200 rounded-lg p-4 mb-8 flex items-start gap-3';
+      box.innerHTML = `<div class="text-green-500 text-xl flex-shrink-0">●</div>
+        <div><div class="text-sm font-semibold text-green-800 mb-1">TED EU — LIVE (${items.length} tendera)</div>
+        <div class="text-xs text-green-700">Hrvatska, Slovenija, Rumunija, Bugarska, Italija, Nemačka, Austrija, Francuska — povučeni sa ted.europa.eu</div></div>
+        <button onclick="document.getElementById('ted-info-box').style.display='none'" class="text-green-400 hover:text-green-600 text-lg flex-shrink-0 ml-auto">×</button>`;
+    }
+    return items;
+  } catch(e) {
+    console.warn('TED fetch failed:', e.message);
+    return null;
+  }
+}
+
+// ── TRY to fetch nabavke.gov.rs via proxy ─────────────────────────────────
+async function fetchSrbijaLive() {
+  try {
+    const proxy = 'https://corsproxy.io/?';
+    const url = encodeURIComponent('https://portal.ujn.gov.rs/delta/buyer/registered/jn/search?searchTerm=stolarija&status=ACTIVE&format=json');
+    const res = await Promise.race([
+      fetch(proxy + url),
+      new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 6000))
+    ]);
+    if (!res.ok) throw new Error('not ok');
+    const data = await res.json();
+    if (!data || !data.content) throw new Error('no content');
+    const items = data.content.slice(0, 8).map((item, i) => ({
+      id: 'rs_live_' + i,
+      country: 'srbija', countryLabel: 'Srbija', flag: '🇷🇸',
+      title: item.predmetNabavke || item.naziv || 'Nabavka stolarije',
+      buyer: item.nazivNarucіoca || item.narucilac || 'Naručilac',
+      location: item.mesto || 'Srbija',
+      type: 'stolarija', typeLabel: 'Stolarija',
+      cpv: '45421000', cpvLabel: 'Stolarski radovi',
+      procedure: item.vrstaPostupka || 'Otvoreni postupak',
+      value: item.procenjenaVrednost ? item.procenjenaVrednost.toLocaleString('sr') + ' RSD' : 'N/A',
+      valueEur: '',
+      published: item.datumObjave || '',
+      deadline: item.rokZaPodnosenje || '',
+      daysLeft: 14,
+      url: 'https://portal.ujn.gov.rs',
+      live: true, src: 'nabavke.gov.rs'
+    }));
+    document.getElementById('nabavke-live-box').classList.remove('hidden');
+    document.getElementById('nabavke-live-box').style.display = 'flex';
+    return items;
+  } catch(e) {
+    return null;
+  }
+}
+
+// ── MAIN LOAD ─────────────────────────────────────────────────────────────
+async function loadTenders() {
+  document.getElementById('tender-updated').textContent = 'Učitavam...';
+  document.getElementById('tender-grid').innerHTML = '<div class="text-center py-12 text-gray-400">Povlačim tendere...</div>';
+
+  let tenders = [...tenderPlaceholders];
+
+  // Run both fetches in parallel
+  const [liveRS, liveTED] = await Promise.all([
+    fetchSrbijaLive(),
+    fetchTEDTenders(),
+  ]);
+
+  // Replace placeholder RS with live if available
+  if (liveRS && liveRS.length > 0) {
+    tenders = tenders.filter(t => t.country !== 'srbija');
+    tenders = [...liveRS, ...tenders];
+  }
+
+  // Replace placeholder EU countries with live TED data
+  if (liveTED && liveTED.length > 0) {
+    const liveCodes = [...new Set(liveTED.map(t => t.country))];
+    tenders = tenders.filter(t => !liveCodes.includes(t.country));
+    tenders = [...tenders, ...liveTED];
+  }
+
+  tenders.sort((a,b) => (a.daysLeft || 99) - (b.daysLeft || 99));
+
+  _allTenders = tenders;
+  _tendersLoaded = true;
+
+  const liveCount = tenders.filter(t => t.live).length;
+  const now = new Date();
+  document.getElementById('tender-updated').textContent =
+    (liveCount > 0 ? '● ' : '') +
+    'Ažurirano: ' + now.toLocaleTimeString('sr-Latn', {hour:'2-digit', minute:'2-digit'}) +
+    (liveCount > 0 ? ` · ${liveCount} live` : ' · demo podaci');
+
+  renderTenderStats(tenders);
+  filterTenders();
+}
+
+
+// ── STATS BAR ─────────────────────────────────────────────────────────────
+function renderTenderStats(tenders) {
+  const total = tenders.length;
+  const urgent = tenders.filter(t => t.daysLeft <= 14).length;
+  const countries = [...new Set(tenders.map(t => t.country))].length;
+  const liveCount = tenders.filter(t => t.live).length;
+
+  document.getElementById('tender-stats').innerHTML = [
+    { label: 'Ukupno aktivnih', value: total, color: 'blue' },
+    { label: 'Rok ≤ 14 dana',   value: urgent, color: 'red' },
+    { label: 'Zemalja',         value: countries, color: 'gray' },
+    { label: 'Live podataka',   value: liveCount, color: 'green' },
+  ].map(s => `
+    <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
+      <div class="text-2xl font-bold text-gray-900">${s.value}</div>
+      <div class="text-xs text-gray-500 mt-1">${s.label}</div>
+    </div>`).join('');
+}
+
+// ── FILTER ────────────────────────────────────────────────────────────────
+function filterTenders() {
+  if (!_tendersLoaded) return;
+  const country = document.getElementById('tender-country').value;
+  const type    = document.getElementById('tender-type').value;
+  const status  = document.getElementById('tender-status-filter').value;
+  const search  = (document.getElementById('tender-search').value || '').toLowerCase();
+
+  let list = _allTenders.filter(t => {
+    if (country && t.country !== country) return false;
+    if (type && t.type !== type) return false;
+    if (status === 'uskoro' && t.daysLeft > 14) return false;
+    if (status === 'aktivan' && t.daysLeft <= 0) return false;
+    if (search && !t.title.toLowerCase().includes(search) &&
+        !t.buyer.toLowerCase().includes(search) &&
+        !t.location.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const grid  = document.getElementById('tender-grid');
+  const empty = document.getElementById('tender-empty');
+  if (list.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+  } else {
+    empty.classList.add('hidden');
+    grid.innerHTML = list.map(renderTenderCard).join('');
+  }
+}
+
+// ── RENDER CARD ───────────────────────────────────────────────────────────
+function renderTenderCard(t) {
+  const urgentClass = t.daysLeft <= 7  ? 'border-red-300 bg-red-50'  :
+                      t.daysLeft <= 14 ? 'border-orange-200 bg-orange-50' :
+                      'border-gray-200 bg-white';
+  const urgentBadge = t.daysLeft <= 7
+    ? '<span class="inline-block bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded">Uskoro istječe</span>'
+    : t.daysLeft <= 14
+    ? '<span class="inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-0.5 rounded">Rok uskoro</span>'
+    : '';
+  const liveBadge = t.live
+    ? '<span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded"><span class="w-1.5 h-1.5 bg-green-500 rounded-full inline-block"></span>LIVE</span>'
+    : '<span class="inline-flex items-center gap-1 bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded">DEMO</span>';
+
+  const typeColors = {
+    stolarija:'bg-blue-100 text-blue-700', fasada:'bg-purple-100 text-purple-700',
+    staklo:'bg-cyan-100 text-cyan-700',    montaza:'bg-yellow-100 text-yellow-700',
+    ostalo:'bg-gray-100 text-gray-700',
+  };
+  const typeColor = typeColors[t.type] || typeColors.ostalo;
+  const valueLine = (t.valueEur && t.valueEur !== t.value)
+    ? '<span class="text-gray-400 block">' + t.valueEur + '</span>' : '';
+
+  return '<div class="border rounded-lg p-5 ' + urgentClass + ' hover:shadow-md transition-shadow">'
+    + '<div class="flex flex-col sm:flex-row sm:items-start gap-4">'
+    + '<div class="flex-1 min-w-0">'
+    + '<div class="flex flex-wrap items-center gap-2 mb-2">'
+    + '<span class="text-base">' + (t.flag||'') + '</span>'
+    + '<span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">' + (t.countryLabel||'') + '</span>'
+    + '<span class="text-xs px-2 py-0.5 rounded font-medium ' + typeColor + '">' + (t.typeLabel||'') + '</span>'
+    + urgentBadge + liveBadge
+    + '</div>'
+    + '<h3 class="font-semibold text-gray-900 text-sm leading-snug mb-1">' + (t.title||'') + '</h3>'
+    + '<div class="text-xs text-gray-500 mb-3">' + (t.buyer||'') + ' · ' + (t.location||'') + '</div>'
+    + '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">'
+    + '<div><span class="text-gray-400 block">Vrijednost</span><span class="font-semibold text-gray-700">' + (t.value||'N/A') + '</span>' + valueLine + '</div>'
+    + '<div><span class="text-gray-400 block">Rok</span><span class="font-semibold text-gray-700">' + (t.deadline||'') + '</span><span class="text-gray-400"> ' + (t.daysLeft||'') + ' dana</span></div>'
+    + '<div><span class="text-gray-400 block">Postupak</span><span class="font-semibold text-gray-700">' + (t.procedure||'') + '</span></div>'
+    + '<div><span class="text-gray-400 block">CPV</span><span class="font-semibold text-gray-700">' + (t.cpv||'') + '</span><span class="text-gray-400 block">' + (t.cpvLabel||'') + '</span></div>'
+    + '</div></div>'
+    + '<div class="flex flex-row sm:flex-col gap-2 sm:items-end flex-shrink-0">'
+    + '<a href="' + (t.url||'#') + '" target="_blank" rel="noopener" class="btn-primary text-xs px-3 py-1.5" style="text-decoration:none">Pogledaj →</a>'
+    + '<button onclick="copyTenderLink(\'' + (t.url||'') + '\')" class="btn-outline text-xs px-3 py-1.5">⎘ Kopiraj</button>'
+    + '</div></div></div>';
+}
+
+function copyTenderLink(url) {
+  navigator.clipboard.writeText(url).catch(() => {});
+}
+
+
+// ==================== HERO ====================
+function renderHero() {
+  try {
+  const featured = newsItems[0];
+  const sides = [newsItems[1], newsItems[3], newsItems[4], newsItems[5]];
+
+  const svgFallback = `
+    <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 w-full h-full opacity-20">
+      <rect x="50" y="60" width="120" height="180" fill="none" stroke="white" stroke-width="2"/>
+      <rect x="80" y="90" width="30" height="40" fill="white" opacity="0.3"/>
+      <rect x="120" y="90" width="30" height="40" fill="white" opacity="0.3"/>
+      <rect x="80" y="160" width="70" height="80" fill="white" opacity="0.2"/>
+      <rect x="200" y="40" width="160" height="220" fill="none" stroke="white" stroke-width="2"/>
+      <rect x="220" y="80" width="50" height="60" fill="white" opacity="0.25"/>
+      <rect x="290" y="80" width="50" height="60" fill="white" opacity="0.25"/>
+      <rect x="220" y="180" width="120" height="80" fill="white" opacity="0.15"/>
+      <rect x="400" y="80" width="100" height="140" fill="none" stroke="white" stroke-width="1.5"/>
+      <rect x="415" y="100" width="30" height="35" fill="white" opacity="0.2"/>
+      <rect x="455" y="100" width="30" height="35" fill="white" opacity="0.2"/>
+    </svg>`;
+
+  const bgStyle = featured.img
+    ? `background:url('${featured.img}') center/cover no-repeat; background-color:#1a3a5c;`
+    : `background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 50%,#1e5a8a 100%);`;
+
+  const featuredIdx = newsItems.indexOf(featured);
+
+  const sideHtml = sides.map((n, i) => {
+    const idx = newsItems.indexOf(n);
+    const isLast = i === sides.length - 1;
+    return `
+      <div class="${isLast ? '' : 'border-b border-gray-100 pb-4'} cursor-pointer card-hover px-1" onclick="openArticle(${idx})">
+        <div class="tag mb-1" style="color:${tagColor(n.cat)}">${n.catLabel}</div>
+        <h3 class="font-serif text-gray-900 text-lg font-bold leading-snug hover:text-brand">${n.title}</h3>
+        <p class="text-gray-400 text-xs mt-1">${n.date} · ${n.source}</p>
+      </div>`;
+  }).join('');
+
+  document.getElementById('hero-section').innerHTML = `
+    <div class="lg:col-span-2 card-hover cursor-pointer" onclick="openArticle(${featuredIdx})">
+      <div class="relative overflow-hidden" style="height:300px; ${bgStyle}">
+        ${featured.img ? '' : svgFallback}
+        <div class="absolute bottom-0 left-0 right-0 p-6" style="background:linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%);">
+          <div class="tag text-yellow-300 mb-2">${featured.catLabel}</div>
+          <h2 class="font-serif text-white text-2xl sm:text-3xl font-bold leading-tight">${featured.title}</h2>
+        </div>
+      </div>
+      <div class="pt-4 pb-2">
+        <p class="text-gray-500 text-sm leading-relaxed">${featured.desc}</p>
+        <button class="mt-3 text-brand text-sm font-semibold hover:underline">Pročitaj više →</button>
+      </div>
+    </div>
+    <div class="flex flex-col gap-4">
+      ${sideHtml}
+    </div>`;
+  } catch(e) { console.error('renderHero error:', e); }
+}
+
+
+
+// ==================== PRICE EDITOR ====================
+const STORAGE_KEY = 'stokikrilo_prices_v1';
+
+function loadSavedPrices() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    prices.forEach(p => {
+      if (saved[p.id]) {
+        if (saved[p.id].value !== undefined) p.value  = saved[p.id].value;
+        if (saved[p.id].change !== undefined) p.change = saved[p.id].change;
+        if (saved[p.id].up    !== undefined) p.up     = saved[p.id].up;
+      }
+    });
+  } catch(e) {}
+}
+
+function savePriceEdits() {
+  const saved = {};
+  prices.forEach(p => {
+    const valEl = document.getElementById('pe-val-' + p.id);
+    const chgEl = document.getElementById('pe-chg-' + p.id);
+    if (!valEl) return;
+    const newVal = valEl.value.trim();
+    const newChg = chgEl ? chgEl.value.trim() : p.change;
+    const up = !newChg.startsWith('-');
+    p.value  = newVal  || p.value;
+    p.change = newChg  || p.change;
+    p.up     = up;
+    if (!p.live) {
+      saved[p.id] = { value: p.value, change: p.change, up: p.up };
+    }
+  });
+  // Also save manually-overridden live prices that user edited
+  prices.forEach(p => {
+    const valEl = document.getElementById('pe-val-' + p.id);
+    if (valEl && p.live) {
+      const overrideVal = valEl.value.trim();
+      if (overrideVal !== String(p.value)) {
+        saved[p.id] = { value: p.value, change: p.change, up: p.up };
+      }
+    }
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); } catch(e) {}
+  closePriceEditor();
+  renderPriceGroups();
+  buildTicker();
+}
+
+function resetManualPrices() {
+  if (!confirm('Resetovati sve ručno unesene vrijednosti?')) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  closePriceEditor();
+  location.reload();
+}
+
+function openPriceEditor() {
+  const body = document.getElementById('price-editor-body');
+  const groups = ['METALI', 'ENERGIJA', 'SIROVINE', 'VALUTE'];
+  const groupLabels = { METALI: 'Metali', ENERGIJA: 'Energija', SIROVINE: 'Sirovine', VALUTE: 'Valute' };
+  body.innerHTML = groups.map(g => {
+    const items = prices.filter(p => p.group === g);
+    return `
+      <div class="mb-5">
+        <div class="text-xs font-bold tracking-widest text-gray-400 mb-3 pb-1 border-b border-gray-100">${groupLabels[g]}</div>
+        ${items.map(p => `
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-36 flex-shrink-0">
+              <div class="text-sm font-medium text-gray-800">${p.label}</div>
+              <div class="text-xs text-gray-400">${p.unit || 'valuta'} ${p.live ? '<span class="text-green-600">● live</span>' : '<span class="text-gray-400">— ručno</span>'}</div>
+            </div>
+            <input id="pe-val-${p.id}" type="text" value="${p.value}"
+              class="border border-gray-300 px-3 py-1.5 text-sm w-32 font-mono"
+              placeholder="npr. 2.684" ${p.live ? 'style="color:#9ca3af" title="Live — automatski se ažurira"' : ''} />
+            <input id="pe-chg-${p.id}" type="text" value="${p.change}"
+              class="border border-gray-300 px-3 py-1.5 text-sm w-24 font-mono"
+              placeholder="+1.2%" />
+            <div class="text-xs text-gray-400">${p.note || ''}</div>
+          </div>
+        `).join('')}
+      </div>`;
+  }).join('');
+  document.getElementById('price-editor-overlay').classList.add('open');
+}
+
+function closePriceEditor() {
+  document.getElementById('price-editor-overlay').classList.remove('open');
+}
+
+// ==================== LIVE PRICE FETCH ====================
+const CORS_PROXY = 'https://corsproxy.io/?';
+const YF_BASE    = 'https://query1.finance.yahoo.com/v8/finance/chart/';
+let _pricesRefreshTimer = null;
+
+function _fetchTimeout(url, ms) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(t));
+}
+
+async function fetchAllPrices() {
+  const statusEl = document.getElementById('prices-updated');
+  if (statusEl) statusEl.textContent = 'Učitavam…';
+
+  let eurusd = parseFloat(prices.find(p => p.id === 'eurusd').value) || 1.08;
+
+  // ── 1. Valute: ExchangeRate-API (CORS-enabled, no key needed) ──
+  try {
+    const r = await _fetchTimeout('https://open.er-api.com/v6/latest/EUR', 7000);
+    const d = await r.json();
+    if (d.result === 'success' && d.rates) {
+      eurusd = d.rates.USD || eurusd;
+      prices.forEach(p => {
+        if (!p.fxCode || !d.rates[p.fxCode]) return;
+        const newVal = d.rates[p.fxCode];
+        const oldVal = parseFloat(p.value) || newVal;
+        const chg    = ((newVal - oldVal) / oldVal * 100);
+        p.value   = newVal.toFixed(p.fxCode === 'USD' ? 4 : 2);
+        p.change  = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+        p.up      = chg >= 0;
+        p.fetched = true;
+      });
+    }
+  } catch(e) { console.warn('FX fetch error:', e.message); }
+
+  // ── 2. Metali & energija: Yahoo Finance via CORS proxy ──
+  const metalJobs = [
+    { id: 'al',    ticker: 'ALI=F', convFn: v => (v / eurusd).toFixed(0)                   }, // USD/t  → EUR/t
+    { id: 'cu',    ticker: 'HG=F',  convFn: v => (v * 2204.62 / eurusd).toFixed(0)          }, // USD/lb → EUR/t
+    { id: 'brent', ticker: 'BZ=F',  convFn: v => v.toFixed(2)                               }, // USD/bbl direct
+    { id: 'gas',   ticker: 'NG=F',  convFn: v => v.toFixed(3)                               }, // USD/MMBtu direct
+  ];
+
+  await Promise.allSettled(metalJobs.map(async ({ id, ticker, convFn }) => {
+    try {
+      const url = CORS_PROXY + encodeURIComponent(YF_BASE + ticker);
+      const r   = await _fetchTimeout(url, 9000);
+      const d   = await r.json();
+      const meta = d?.chart?.result?.[0]?.meta;
+      if (!meta) return;
+      const current  = meta.regularMarketPrice;
+      const prevClose = meta.previousClose || meta.chartPreviousClose || current;
+      const chg = ((current - prevClose) / prevClose * 100);
+      const p = prices.find(x => x.id === id);
+      if (!p) return;
+      p.value   = convFn(current);
+      p.change  = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+      p.up      = chg >= 0;
+      p.fetched = true;
+    } catch(e) { console.warn(ticker + ' fetch error:', e.message); }
+  }));
+
+  // ── 3. Statistički indeksi: Eurostat (staklo) + DBnomics/Destatis (PVC) ──
+  try {
+    const glassUrl = 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inppd_m?nace_r2=C23.1&indic=PRIN&s_adj=NSA&unit=I15&geo=EU27_2020&lang=en&format=JSON';
+    const gr = await _fetchTimeout(glassUrl, 8000);
+    const gd = await gr.json();
+    if (gd.value) {
+      const vals  = gd.value;
+      const keys  = Object.keys(vals).map(Number).sort((a,b) => a - b);
+      const last  = vals[keys[keys.length - 1]];
+      const prev2 = vals[keys[keys.length - 2]];
+      if (last && prev2) {
+        const chg = ((last - prev2) / prev2 * 100);
+        const p   = prices.find(x => x.id === 'glass');
+        if (p) {
+          p.value   = last.toFixed(1);
+          p.unit    = 'INDEX (EU27)';
+          p.change  = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+          p.up      = chg >= 0;
+          p.fetched = true;
+          p.live    = true;
+          p.note    = 'Eurostat PPI, NACE C23.1';
+        }
+      }
+    }
+  } catch(e) { console.warn('Eurostat glass PPI error:', e.message); }
+
+  // DBnomics / Destatis — PVC Erzeugerpreisindex GP09-20 (Platten, Folien, PVC)
+  try {
+    const pvcUrl = 'https://api.db.nomics.world/v22/series/DESTATIS/61241BM002?series_ids=GP09-20.DG.PRE001&observations=1';
+    const pr  = await _fetchTimeout(pvcUrl, 8000);
+    const pd  = await pr.json();
+    const obs = pd?.series?.docs?.[0]?.period_start_day;
+    const pvals = pd?.series?.docs?.[0]?.value;
+    if (pvals && pvals.length >= 2) {
+      const last = pvals[pvals.length - 1];
+      const prev = pvals[pvals.length - 2];
+      if (last !== null && prev !== null) {
+        const chg = ((last - prev) / prev * 100);
+        const p   = prices.find(x => x.id === 'pvc');
+        if (p) {
+          p.value   = last.toFixed(1);
+          p.unit    = 'INDEX (DE)';
+          p.change  = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+          p.up      = chg >= 0;
+          p.fetched = true;
+          p.live    = true;
+          p.note    = 'Destatis PPI, GP09-20';
+        }
+      }
+    }
+  } catch(e) { console.warn('DBnomics PVC error:', e.message); }
+
+  // ── 4. Refresh UI ──
+  const now     = new Date();
+  const timeStr = now.toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' });
+  const liveCount = prices.filter(p => p.fetched).length;
+  if (statusEl) statusEl.textContent = `Ažurirano ${timeStr} · ${liveCount} live`;
+
+  renderPriceGroups();
+  buildTicker();
+
+  // ── 4. Schedule next refresh (5 min) ──
+  if (_pricesRefreshTimer) clearTimeout(_pricesRefreshTimer);
+  _pricesRefreshTimer = setTimeout(fetchAllPrices, 5 * 60 * 1000);
+}
+
+// ==================== TICKER ====================
+function buildTicker() {
+  try {
+    const html = prices.map(p => `
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-semibold text-gray-300">${p.label}</span>
+        <span class="text-white text-xs font-bold">${p.value}${p.unit ? ' ' + p.unit : ''}</span>
+        <span class="text-xs font-bold" style="color:${p.up ? '#4ade80' : '#f87171'}">${p.change}</span>
+      </div>
+      <span class="text-gray-700 text-xs">|</span>
+    `).join('');
+    const t1 = document.getElementById('ticker-content');
+    const t2 = document.getElementById('ticker-content-2');
+    if (t1) t1.innerHTML = html;
+    if (t2) t2.innerHTML = html;
+  } catch(e) { console.error('buildTicker error:', e); }
+}
+
+// ==================== NEWS ====================
+function renderNews(filter) {
+  try {
+    const grid = document.getElementById('news-grid');
+    if (!grid) { console.error('news-grid not found'); return; }
+    const filtered = (!filter || filter === 'sve') ? newsItems : newsItems.filter(function(n) { return n.cat === filter; });
+    if (!filtered || filtered.length === 0) { grid.innerHTML = '<p class="text-gray-400 col-span-3 text-center py-8">Nema vesti za ovaj filter.</p>'; return; }
+    var html = '';
+    for (var i = 0; i < filtered.length; i++) {
+      var n = filtered[i];
+      var tc = tagColor(n.cat);
+      var img = n.img ? '<img src="' + n.img + '" class="w-full h-32 object-cover rounded mb-3" loading="lazy">' : '';
+      html += '<div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover rounded-lg" onclick="openArticle(' + newsItems.indexOf(n) + ')">';
+      html += img;
+      html += '<div class="flex items-center gap-2 mb-2">';
+      html += '<span class="tag text-xs font-semibold" style="color:' + tc + '">' + (n.catLabel || '') + '</span>';
+      html += '<span class="text-xs text-gray-400">' + (n.date || '') + '</span>';
+      html += '</div>';
+      html += '<h3 class="font-serif font-bold text-gray-900 text-base leading-snug mb-2 hover:text-brand">' + (n.title || '') + '</h3>';
+      html += '<p class="text-gray-500 text-xs leading-relaxed mb-3">' + (n.desc || '') + '</p>';
+      html += '<div class="flex items-center justify-between">';
+      html += '<span class="text-xs text-gray-400">' + (n.read || '') + ' čitanja</span>';
+      html += '<span class="text-brand text-xs font-semibold">Čitaj →</span>';
+      html += '</div></div>';
+    }
+    grid.innerHTML = html;
+  } catch(e) { console.error('renderNews error:', e); }
+}
+function tagColor(cat) {
+  const map = { investicije: '#1a3a5c', proizvodi: '#7c3aed', balkan: '#0284c7', svet: '#6b7280', kompanije: '#b45309', tehnologija: '#166534', regulativa: '#dc2626' };
+  return map[cat] || '#1a3a5c';
+}
+
+function filterNews(cat, btn) {
+  document.querySelectorAll('#news-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNews(cat);
+}
+
+// ==================== PRICES ====================
+let mainChart = null;
+let activePriceId = 'al';
+let activePeriod = '30D';
+
+const GROUP_LABELS = {
+  METALI: 'Metali',
+  ENERGIJA: 'Energija',
+  SIROVINE: 'Sirovine',
+  VALUTE: 'Valute Balkana'
+};
+
+function renderPriceGroups() {
+  const container = document.getElementById('prices-by-group');
+  if (!container) return;
+  const groups = ['METALI', 'ENERGIJA', 'SIROVINE', 'VALUTE'];
+  container.innerHTML = groups.map(g => {
+    const items = prices.filter(p => p.group === g);
+    const cols = g === 'VALUTE' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-4';
+    return `
+      <div class="mb-7">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="text-xs font-bold tracking-widest text-gray-400">${GROUP_LABELS[g]}</span>
+          <div class="flex-1 h-px bg-gray-100"></div>
+        </div>
+        <div class="grid ${cols} gap-3">
+          ${items.map(p => `
+            <div class="bg-white border-2 p-4 cursor-pointer card-hover transition-all ${activePriceId === p.id ? 'border-brand' : 'border-gray-100'}" onclick="selectPrice('${p.id}')">
+              <div class="flex items-start justify-between gap-1 mb-1">
+                <div class="text-xs font-semibold text-gray-500 leading-tight">${p.label}</div>
+                ${p.live
+                  ? (p.fetched ? '<span class="text-green-600 text-xs font-bold flex-shrink-0" title="Live">●</span>'
+                               : '<span class="text-gray-300 text-xs flex-shrink-0" title="Čekam…">○</span>')
+                  : (p.note ? `<span class="text-xs text-gray-300 flex-shrink-0" title="${p.note}">—</span>`
+                            : '<span class="text-gray-300 text-xs flex-shrink-0" title="Ručno ažuriranje">—</span>')}
+              </div>
+              <div class="font-serif text-xl font-bold text-gray-950">${p.value}</div>
+              ${p.unit ? `<div class="text-xs text-gray-400">${p.unit}</div>` : ''}
+              <div class="text-xs font-bold mt-1" style="color:${p.up ? '#16a34a' : '#dc2626'}">${p.change}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }).join('');
+  // also refresh ticker cards at top of home page
+  const homeGrid = document.getElementById('price-cards');
+  if (homeGrid) {
+    homeGrid.innerHTML = prices.filter(p => ['al','cu','brent','eurrsd','pvc','glass'].includes(p.id)).map(p => `
+      <div class="bg-white border-2 p-4 cursor-pointer card-hover transition-all ${activePriceId === p.id ? 'border-brand' : 'border-gray-100'}" onclick="selectPrice('${p.id}')">
+        <div class="text-xs font-semibold text-gray-500 mb-1">${p.label}</div>
+        <div class="font-serif text-xl font-bold text-gray-950">${p.value}</div>
+        <div class="text-xs text-gray-400">${p.unit}</div>
+        <div class="text-xs font-bold mt-1" style="color:${p.up ? '#16a34a' : '#dc2626'}">${p.change}</div>
+      </div>
+    `).join('');
+  }
+}
+
+// Legacy alias so existing chart code still works
+function renderPriceCards() { renderPriceGroups(); }
+
+function selectPrice(id) {
+  activePriceId = id;
+  renderPriceCards();
+  const p = prices.find(x => x.id === id);
+  document.getElementById('chart-title').textContent = `${p.label} — ${p.unit || 'Index'}`;
+  updateChart();
+}
+
+function genData(n, base, vol) {
+  const d = [];
+  let v = base;
+  for (let i = 0; i < n; i++) {
+    v = v + (Math.random() - 0.48) * vol;
+    d.push(Math.max(base * 0.85, +v.toFixed(2)));
+  }
+  return d;
+}
+
+function genLabels(n) {
+  const labels = [];
+  const now = new Date(2025, 0, 15);
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    labels.push(d.toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' }));
+  }
+  return labels;
+}
+
+const periodConfig = { '1D': { n: 24, vol: 4, subtitle: 'Sat po sat, poslednja 24h' }, '30D': { n: 30, vol: 18, subtitle: 'Dnevni podaci, poslenjih 30 dana' }, '90D': { n: 90, vol: 22, subtitle: 'Dnevni podaci, poslenjih 90 dana' }, '1Y': { n: 260, vol: 28, subtitle: 'Nedeljni podaci, poslenjih 12 meseci' } };
+
+function updateChart() {
+  const p = prices.find(x => x.id === activePriceId);
+  const baseVal = parseFloat(p.value.replace(',', '.'));
+  const cfg = periodConfig[activePeriod];
+  const labels = genLabels(cfg.n);
+  const data = genData(cfg.n, baseVal, cfg.vol);
+  data[data.length - 1] = baseVal;
+  document.getElementById('chart-subtitle').textContent = cfg.subtitle;
+  const ctx = document.getElementById('main-chart').getContext('2d');
+  if (mainChart) mainChart.destroy();
+  mainChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data,
+        borderColor: p.up ? '#16a34a' : '#dc2626',
+        backgroundColor: p.up ? 'rgba(22,163,74,0.06)' : 'rgba(220,38,38,0.06)',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, callbacks: { label: ctx => `${p.value.split('.')[0]} — ${ctx.parsed.y.toFixed(2)} ${p.unit}` } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10 }, color: '#9ca3af' } },
+        y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 }, color: '#9ca3af' } },
+      }
+    }
+  });
+}
+
+function setPeriod(period, btn) {
+  activePeriod = period;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateChart();
+}
+
+// ==================== COMPANIES ====================
+function renderCompanies(data) {
+  const grid = document.getElementById('company-grid');
+  grid.innerHTML = data.map((c, i) => `
+    <div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover" onclick="openCompany(${i})">
+      <div class="flex items-start justify-between mb-3">
+        <div class="w-12 h-12 bg-brand-pale flex items-center justify-center flex-shrink-0">
+          <span class="font-bold text-brand text-xs">${c.name.split(' ').map(w => w[0]).slice(0,2).join('')}</span>
+        </div>
+        ${c.verified ? '<span class="badge-verified">PROVEREN</span>' : ''}
+      </div>
+      <div class="font-serif font-bold text-gray-900 text-base mb-1">${c.name}</div>
+      <div class="text-xs text-gray-500 mb-2">${c.city} · ${c.country}</div>
+      <div class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-0.5 mb-3">${c.cat}</div>
+      <div class="flex flex-wrap gap-1">
+        ${c.products.map(p => `<span class="text-xs border border-gray-100 px-2 py-0.5 text-gray-500">${p}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterCompanies() {
+  const q = document.getElementById('company-search').value.toLowerCase();
+  const country = document.getElementById('company-country').value;
+  const cat = document.getElementById('company-cat').value;
+  const filtered = companies.filter(c =>
+    (!q || c.name.toLowerCase().includes(q) || c.cat.toLowerCase().includes(q)) &&
+    (!country || c.country === country) &&
+    (!cat || c.cat === cat)
+  );
+  renderCompanies(filtered);
+}
+
+function openCompany(i) {
+  const c = companies[i];
+  document.getElementById('company-modal-content').innerHTML = `
+    <div class="flex items-start gap-4 mb-6">
+      <div class="w-16 h-16 bg-brand-pale flex items-center justify-center flex-shrink-0">
+        <span class="font-bold text-brand text-sm">${c.name.split(' ').map(w => w[0]).slice(0,2).join('')}</span>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 flex-wrap mb-1">
+          <h2 class="font-serif text-2xl font-bold text-gray-950">${c.name}</h2>
+          ${c.verified ? '<span class="badge-verified">PROVEREN PROFIL</span>' : ''}
+        </div>
+        <div class="text-gray-500 text-sm">${c.city}, ${c.country}</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-6 mb-6">
+      <div>
+        <div class="text-xs font-bold text-gray-500 tracking-wider mb-2">KATEGORIJA</div>
+        <div class="text-sm text-gray-800">${c.cat}</div>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-gray-500 tracking-wider mb-2">PROIZVODI</div>
+        <div class="flex flex-wrap gap-1">${c.products.map(p => `<span class="text-xs bg-gray-100 px-2 py-0.5 text-gray-600">${p}</span>`).join('')}</div>
+      </div>
+    </div>
+    <div class="mb-6">
+      <div class="text-xs font-bold text-gray-500 tracking-wider mb-2">O KOMPANIJI</div>
+      <p class="text-sm text-gray-600 leading-relaxed">${c.desc || c.name + ' je industrijska kompanija specijalizovana za ' + c.cat.toLowerCase() + ' sa sedištem u ' + c.city + '.'}</p>
+    </div>
+    <div class="flex gap-3 flex-wrap">
+      <button class="btn-primary" onclick="showToast('Zahtev za kontakt je poslat.'); closeCompanyModal()">Kontaktirajte kompaniju</button>
+      ${c.url ? `<a href="${c.url}" target="_blank" rel="noopener" class="btn-outline" style="text-decoration:none; display:inline-block;">Web stranica →</a>` : ''}
+      <button class="btn-outline" onclick="closeCompanyModal()">Zatvori</button>
+    </div>
+  `;
+  document.getElementById('company-modal').classList.add('open');
+}
+function closeCompanyModal(e) {
+  if (!e || e.currentTarget === e.target) document.getElementById('company-modal').classList.remove('open');
+}
+
+// ==================== ADS ====================
+function renderAds(data) {
+  const grid = document.getElementById('ads-grid');
+  grid.innerHTML = data.map((a, i) => `
+    <div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover">
+      <div class="flex items-center justify-between mb-3">
+        <span class="tag" style="color:#1a3a5c">${a.typeLabel}</span>
+        <span class="text-xs text-gray-400">${a.date}</span>
+      </div>
+      <h3 class="font-serif font-bold text-gray-900 text-base leading-snug mb-2">${a.title}</h3>
+      <p class="text-xs text-gray-500 mb-3">${a.desc}</p>
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-gray-500">📍 ${a.location}</span>
+        ${a.price ? `<span class="text-sm font-semibold text-brand">${a.price}</span>` : ''}
+      </div>
+      <button class="mt-3 btn-outline text-xs py-1.5 px-3 w-full" onclick="openAd(${i})">Pogledaj oglas</button>
+    </div>
+  `).join('');
+}
+
+function filterAds(type, btn) {
+  document.querySelectorAll('#ad-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = type === 'svi' ? ads : ads.filter(a => a.type === type);
+  renderAds(filtered);
+}
+
+function openAd(i) {
+  const a = ads[i];
+  document.getElementById('ad-modal-content').innerHTML = `
+    <div class="mb-4">
+      <span class="tag text-brand">${a.typeLabel}</span>
+    </div>
+    <h2 class="font-serif text-2xl font-bold text-gray-950 mb-3">${a.title}</h2>
+    <p class="text-gray-600 leading-relaxed mb-4">${a.desc}</p>
+    <div class="bg-gray-50 p-4 mb-5 flex flex-wrap gap-4">
+      <div><div class="text-xs text-gray-400">Lokacija</div><div class="text-sm font-medium">${a.location}</div></div>
+      <div><div class="text-xs text-gray-400">Datum</div><div class="text-sm font-medium">${a.date}</div></div>
+      ${a.price ? `<div><div class="text-xs text-gray-400">Cena</div><div class="text-sm font-bold text-brand">${a.price}</div></div>` : ''}
+    </div>
+    <button class="btn-primary w-full" onclick="showToast('Vaš upit je prosleđen oglašivaču.'); closeAdModal()">Pošalji upit</button>
+  `;
+  document.getElementById('ad-modal').classList.add('open');
+}
+function closeAdModal(e) {
+  if (!e || e.currentTarget === e.target) document.getElementById('ad-modal').classList.remove('open');
+}
+function openPostAd() { document.getElementById('post-ad-modal').classList.add('open'); }
+function closePostAd(e) {
+  if (!e || e.currentTarget === e.target) document.getElementById('post-ad-modal').classList.remove('open');
+}
+
+// ==================== EDUCATION ====================
+function renderEdu(data) {
+  const grid = document.getElementById('edu-grid');
+  grid.innerHTML = data.map(e => `
+    <div class="bg-white border border-gray-100 cursor-pointer card-hover overflow-hidden">
+      <div style="height:120px;background:linear-gradient(135deg,${eduColor(e.cat)} 0%, ${eduColorDark(e.cat)} 100%);"></div>
+      <div class="p-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="tag" style="color:${eduColor(e.cat)}">${e.catLabel}</span>
+          <span class="${e.premium ? 'badge-premium' : 'badge-free'}">${e.premium ? 'PREMIUM' : 'FREE'}</span>
+        </div>
+        <h3 class="font-serif font-bold text-gray-900 text-base leading-snug mb-2">${e.title}</h3>
+        <div class="flex items-center justify-between text-xs text-gray-400">
+          <span>${e.author}</span>
+          <span>${e.time} čitanja</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function eduColor(cat) {
+  const m = { prodaja: '#1a3a5c', proizvodnja: '#166534', montaza: '#7c3aed', tehnika: '#0284c7', marketing: '#b45309', ai: '#111827', menadžment: '#1a3a5c' };
+  return m[cat] || '#1a3a5c';
+}
+function eduColorDark(cat) {
+  const m = { prodaja: '#2563a8', proizvodnja: '#15803d', montaza: '#6d28d9', tehnika: '#0369a1', marketing: '#92400e', ai: '#1f2937', menadžment: '#2563a8' };
+  return m[cat] || '#2563a8';
+}
+
+function filterEdu(cat, btn) {
+  document.querySelectorAll('#edu-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = cat === 'sve' ? eduItems : eduItems.filter(e => e.cat === cat);
+  renderEdu(filtered);
+}
+
+// ==================== EVENTS ====================
+function renderEvents(data) {
+  const grid = document.getElementById('events-grid');
+  grid.innerHTML = data.map((e, i) => `
+    <div class="bg-white border border-gray-100 p-5 card-hover cursor-pointer" onclick="showToast('Detalji sajma: ${e.name}')">
+      <div class="flex items-start gap-4">
+        <div style="background:#1a3a5c; min-width:56px; height:56px;" class="flex items-center justify-center flex-shrink-0">
+          <span class="text-white font-bold text-xs text-center leading-tight px-1">${e.name.split(' ')[0]}</span>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-serif font-bold text-gray-900 text-lg mb-0.5">${e.name}</h3>
+          <div class="text-xs text-gray-500 mb-2">📅 ${e.date} · 📍 ${e.city}, ${e.country}</div>
+          <p class="text-xs text-gray-500 leading-relaxed mb-2">${e.desc}</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs bg-brand-pale text-brand px-2 py-0.5">${e.exhibitors} izlagača</span>
+            <button class="text-xs text-brand font-semibold hover:underline">Detalji →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterEvents(country, btn) {
+  document.querySelectorAll('#event-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = country === 'svi' ? events : events.filter(e => e.countryKey === country);
+  renderEvents(filtered);
+}
+
+// ==================== SEARCH ====================
+const allSearchItems = [
+  ...newsItems.map(n => ({ type: 'Vest', title: n.title, sub: n.catLabel, page: 'home' })),
+  ...companies.map(c => ({ type: 'Kompanija', title: c.name, sub: `${c.city} · ${c.cat}`, page: 'kompanije' })),
+  ...ads.map(a => ({ type: 'Oglas', title: a.title, sub: a.location, page: 'oglasi' })),
+  ...eduItems.map(e => ({ type: 'Edukacija', title: e.title, sub: e.catLabel, page: 'edukacija' })),
+];
+
+function openSearch() { document.getElementById('search-modal').classList.add('open'); setTimeout(() => document.getElementById('search-input').focus(), 100); }
+function closeSearch(e) {
+  if (!e || e.currentTarget === e.target) { document.getElementById('search-modal').classList.remove('open'); document.getElementById('search-input').value = ''; document.getElementById('search-results').innerHTML = ''; }
+}
+function doSearch() {
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  const res = document.getElementById('search-results');
+  if (!q) { res.innerHTML = ''; return; }
+  const found = allSearchItems.filter(i => i.title.toLowerCase().includes(q)).slice(0, 12);
+  if (!found.length) { res.innerHTML = '<div class="text-gray-400 text-sm text-center py-4">Nema rezultata za ovu pretragu.</div>'; return; }
+  res.innerHTML = found.map(f => `
+    <div class="flex items-center gap-3 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 px-2 -mx-2" onclick="showPage('${f.page}'); closeSearch();">
+      <div class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 flex-shrink-0 w-20 text-center">${f.type}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-medium text-gray-900 truncate">${f.title}</div>
+        <div class="text-xs text-gray-400">${f.sub}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ==================== ARTICLE MODAL ====================
+function openArticle(i) {
+  const a = articles[i] || { cat: 'VEST', title: newsItems[i]?.title || 'Članak', body: newsItems[i]?.desc || '' };
+  document.getElementById('article-content').innerHTML = `
+    <div class="tag text-brand mb-3">${a.cat}</div>
+    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-gray-950 mb-4 leading-tight">${a.title}</h2>
+    <div class="text-gray-400 text-xs mb-6 pb-4 border-b border-gray-100">Redakcija Štok &amp; Krilo · ${a.date || ''} · Izvor: ${a.source || 'Redakcija'}</div>
+    <div class="text-gray-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">${a.body}</div>
+    <div class="mt-8 pt-6 border-t border-gray-100 flex flex-wrap gap-3">
+      <button class="btn-primary" onclick="showToast('Link kopiran.'); closeArticle()">Podeli članak</button>
+      <button class="btn-outline" onclick="closeArticle()">Zatvori</button>
+    </div>
+  `;
+  document.getElementById('article-modal').classList.add('open');
+}
+function closeArticle(e) {
+  if (!e || e.currentTarget === e.target) document.getElementById('article-modal').classList.remove('open');
+}
+
+// ==================== NEWSLETTER ====================
+function showNewsletterModal() { document.getElementById('newsletter-modal').classList.add('open'); }
+function closeNewsletterModal(e) {
+  if (!e || e.currentTarget === e.target) document.getElementById('newsletter-modal').classList.remove('open');
+}
+function subscribeNewsletter(inputId) {
+  const email = document.getElementById(inputId).value;
+  if (!email || !email.includes('@')) { showToast('Unesite ispravnu email adresu.'); return; }
+  showToast('Uspešno ste se prijavili na newsletter!');
+  document.getElementById(inputId).value = '';
+  closeNewsletterModal();
+}
+
+// ==================== NAVIGATION ====================
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + name);
+  if (target) {
+    target.classList.add('active');
+    if (name === 'cene') { setTimeout(() => { renderPriceCards(); updateChart(); }, 50); }
+    if (name === 'kompanije') renderCompanies(companies);
+    if (name === 'oglasi') renderAds(ads);
+    if (name === 'edukacija') renderEdu(eduItems);
+    if (name === 'sajmovi') renderEvents(events);
+    if (name === 'tenderi') { if (!_tendersLoaded) loadTenders(); }
+  } else {
+    document.getElementById('page-home').classList.add('active');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setNav(el) {
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function toggleMobileMenu() {
+  const m = document.getElementById('mobile-menu');
+  m.classList.toggle('open');
+}
+function closeMobileMenu() { document.getElementById('mobile-menu').classList.remove('open'); }
+
+// ==================== ALATI / DEMO MODAL ====================
+function openDemoModal(toolName) {
+  const modal = document.getElementById('demo-modal');
+  const title = document.getElementById('demo-modal-title');
+  if (toolName === 'listing' || toolName === 'vendor-listing') {
+    title.textContent = 'Zatražite listing na Štok i Krilo';
+  } else {
+    title.textContent = toolName;
+  }
+  modal.classList.add('open');
+}
+function closeDemoModal(e) {
+  if (!e || e.target === document.getElementById('demo-modal')) {
+    document.getElementById('demo-modal').classList.remove('open');
+  }
+}
+function filterTools(category, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tool-card').forEach(card => {
+    const cats = card.dataset.category || 'sve';
+    if (category === 'sve' || cats.includes(category)) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 2800);
+}
+
+// ==================== KEYBOARD ====================
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeSearch();
+    closeArticle();
+    closeCompanyModal();
+    closeAdModal();
+    closePostAd();
+    closeNewsletterModal();
+    closeDemoModal();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+});
+
+// ==================== INIT ====================
+function initPortal() {
+  try { loadSavedPrices(); } catch(e) { console.error('loadSavedPrices:', e); }
+  try { buildTicker(); } catch(e) { console.error('buildTicker:', e); }
+  try { renderNews('sve'); } catch(e) { console.error('renderNews:', e); }
+  try { renderHero(); } catch(e) { console.error('renderHero:', e); }
+  try { fetchAllPrices(); } catch(e) { console.error('fetchAllPrices:', e); }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPortal);
+} else {
+  initPortal();
+}
+</script>
+
+<!-- ===================== ADMIN: PRICE EDITOR ===================== -->
+<div id="price-editor-overlay" class="modal-overlay" onclick="if(event.target===this)closePriceEditor()">
+  <div class="bg-white w-full max-w-2xl" style="margin:auto;">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      <div>
+        <div class="font-serif text-xl font-bold text-gray-950">Uredi cene</div>
+        <div class="text-xs text-gray-400 mt-0.5">Live indikatori se automatski ažuriraju. Ručne vrijednosti čuvaju se lokalno.</div>
+      </div>
+      <button onclick="closePriceEditor()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
+    </div>
+    <div class="px-6 py-4 overflow-y-auto" style="max-height:70vh;">
+      <div id="price-editor-body"></div>
+    </div>
+    <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100">
+      <button onclick="resetManualPrices()" class="text-xs text-gray-400 hover:text-gray-600">Resetuj na podrazumijevane</button>
+      <div class="flex gap-3">
+        <button onclick="closePriceEditor()" class="btn-outline text-sm">Otkaži</button>
+        <button onclick="savePriceEdits()" class="btn-primary text-sm">Sačuvaj</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
