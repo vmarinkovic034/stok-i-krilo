@@ -1233,6 +1233,16 @@ const prices = [
   { id: 'eurusd', group: 'VALUTE',   label: 'EUR / USD',      value: '1.0842', unit: '',         change: '+0.2%', up: true,  live: true,  fxCode: 'USD' },
 ];
 
+// ==================== NEWS EDITORIAL STANDARD ====================
+// Svaka vest u newsItems mora imati tri dela (dogovoreno sa urednikom):
+//   1. title — upadljiv, konkretan naslov (ne generički).
+//   2. desc  — kratak opis ŠTA se desilo: ko, šta, gde, kada, kako i zašto (2-3 rečenice).
+//   3. body  — puni tekst članka (nikad samo desc), koji se ZAVRŠAVA pasusom
+//              '— Šta ovo znači za Balkan? —' sa konkretnom poslovnom implikacijom
+//              za regionalnu industriju (proizvođače, distributere, izvoznike).
+// Svaka vest mora imati i realan 'source' + 'url' ka originalnom izvoru (nema
+// vesti bez proverljivog izvora), i tačan 'date' (ako je poznat samo mesec,
+// upiši samo mesec — ne izmišljati dan).
 const newsItems = [
   { cat: 'trziste', catLabel: 'TRŽIŠTE', date: '20. avg 2026', title: 'Aluminijum na LME prešao 2.700 EUR/t — troškovi rastu za sve koji kupuju profil', desc: 'Rast od 4,8% u 30 dana gura cene aluminijumskog profila na višemesečni maksimum. Proizvođači koji nisu zaključali cene isporuke do kraja kvartala osetiće pritisak na marže već u septembru.', read: '2 min', source: 'LME / analiza redakcije', url: 'https://www.lme.com/en/metals/ev/lme-aluminium', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=900&fit=crop&auto=format&q=75',
     body: 'Cena aluminijuma na London Metal Exchange (LME) probila je 2.700 EUR/t sredinom avgusta 2026 — rast od 4,8% u samo 30 dana i najviši nivo u poslednjih nekoliko meseci. Za industriju aluminijumske stolarije to nije apstraktan broj: aluminijum čini između 40% i 60% ukupnih troškova materijala kod proizvođača AL profila, prozora i fasadnih sistema.\n\nRast cene na LME se u kalkulacije fabrikanata obično prenosi sa zakašnjenjem od 4 do 8 nedelja, u zavisnosti od toga da li imaju ugovorene fiksne cene sa dobavljačima profila ili kupuju po tekućoj (spot) ceni. Proizvođači koji su zaključali cene isporuke do kraja trećeg kvartala 2026. za sada su zaštićeni — ali ugovori koji ističu u septembru i oktobru već uključuju novi, viši nivo.\n\nMatematika je jednostavna: skok cene od 5% na LME, bez zaštitnih mehanizama u ugovoru sa dobavljačem, direktno smanjuje maržu proizvođača za 2-3 procentna poena, jer se retko može odmah prevaliti na krajnjeg kupca kroz već ugovorene poslove.\n\n— Šta ovo znači za Balkan? —\nProizvođači AL stolarije u regionu koji rade sa dobavljačima profila po spot ceni (bez fiksiranih ugovora) treba da prate LME svakodnevno i da razmotre hedžing ili barem kratkoročno fiksiranje cena za narudžbe koje isporučuju u narednih 60-90 dana. Ko posluje sa fiksnim cenama do kraja godine ima prostor da iskoristi trenutnu situaciju i ponudi konkurentnije cene dok se tržište ne izravna.' },
