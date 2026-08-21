@@ -1253,33 +1253,42 @@ tailwind.config = {
       <button onclick="closePostAd()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
     </div>
     <div class="p-6">
-      <div class="space-y-4">
+      <p class="text-xs text-gray-500 mb-4">Oglas ide na pregled pre objave. Pojavljuje se u Window Market-u u roku od nekoliko dana.</p>
+      <form id="post-ad-form" onsubmit="submitAdForm(event)" class="space-y-4">
         <div>
           <label class="text-xs font-semibold text-gray-500 block mb-1">KATEGORIJA</label>
-          <select class="w-full border border-gray-300 px-4 py-2.5 text-sm bg-white">
-            <option>Prodaja opreme</option><option>Kupovina materijala</option><option>Posao</option><option>Zastupništvo</option><option>Partnerstvo</option>
+          <select required name="kategorija" class="w-full border border-gray-300 px-4 py-2.5 text-sm bg-white">
+            <option value="prodaja">Prodaja opreme</option>
+            <option value="kupovina">Kupovina materijala</option>
+            <option value="posao">Posao</option>
+            <option value="zastupnistvo">Zastupništvo</option>
+            <option value="partnerstvo">Partnerstvo</option>
           </select>
         </div>
         <div>
           <label class="text-xs font-semibold text-gray-500 block mb-1">NASLOV OGLASA</label>
-          <input type="text" placeholder="Unesite naslov oglasa" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
+          <input required type="text" name="naslov" placeholder="Unesite naslov oglasa" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
         </div>
         <div>
           <label class="text-xs font-semibold text-gray-500 block mb-1">OPIS</label>
-          <textarea rows="4" placeholder="Kratki opis…" class="w-full border border-gray-300 px-4 py-2.5 text-sm resize-none"></textarea>
+          <textarea required name="opis" rows="4" placeholder="Kratki opis…" class="w-full border border-gray-300 px-4 py-2.5 text-sm resize-none"></textarea>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="text-xs font-semibold text-gray-500 block mb-1">LOKACIJA</label>
-            <input type="text" placeholder="Grad, Država" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
+            <input required type="text" name="lokacija" placeholder="Grad, Država" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
           </div>
           <div>
             <label class="text-xs font-semibold text-gray-500 block mb-1">CENA (opciono)</label>
-            <input type="text" placeholder="npr. 15.000 EUR" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
+            <input type="text" name="cena" placeholder="npr. 15.000 EUR" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
           </div>
         </div>
-        <button class="btn-primary w-full py-3" onclick="showToast('Oglas je primljen. Bićete kontaktirani.'); closePostAd()">POŠALJI OGLAS</button>
-      </div>
+        <div>
+          <label class="text-xs font-semibold text-gray-500 block mb-1">EMAIL ZA KONTAKT</label>
+          <input required type="email" name="email" placeholder="vas@email.com" class="w-full border border-gray-300 px-4 py-2.5 text-sm" />
+        </div>
+        <button type="submit" class="btn-primary w-full py-3">POŠALJI OGLAS</button>
+      </form>
     </div>
   </div>
 </div>
@@ -2647,6 +2656,7 @@ async function fetchCompaniesFromSheet() {
       .filter(c => c.name);
     if (fromSheet.length) {
       allCompanies = fromSheet;
+      rebuildSearchIndex();
       if (document.getElementById('page-kompanije').classList.contains('active')) {
         filterCompanies();
       }
@@ -2803,7 +2813,59 @@ function closeCompanyModal(e) {
 }
 
 // ==================== ADS ====================
+// Oglasi se prikazuju iz Google Sheet-a (live, samoupis) uz fallback na
+// hardkodovani niz `ads` ako Sheet nije dostupan.
+const ADS_SHEET_ID = '1EepHMyEcWNkrvTW4MuSBMh85K9DpyfynnhDYEZ7jdNw';
+const ADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/' + ADS_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=Sheet1';
+// Apps Script Web App URL koji prima nove oglase (upisuje red sa Odobreno=NE).
+const AD_FORM_ENDPOINT = '';
+
+const AD_TYPE_LABELS = { prodaja: 'PRODAJA', kupovina: 'KUPOVINA', posao: 'POSAO', zastupnistvo: 'ZASTUPNIŠTVO', partnerstvo: 'PARTNERSTVO' };
+
+let allAds = ads.slice();
+let currentAdList = ads.slice();
+
+async function fetchAdsFromSheet() {
+  try {
+    const res = await fetch(ADS_CSV_URL, { cache: 'no-store' });
+    if (!res.ok) return;
+    const text = await res.text();
+    const rows = parseCsv(text);
+    if (rows.length < 2) return;
+    const header = rows[0].map(h => h.trim().toLowerCase());
+    const idx = (needle) => header.findIndex(h => h.startsWith(needle));
+    const iCat = idx('kategorija'), iTitle = idx('naslov'), iDesc = idx('opis'), iLoc = idx('lokacija'),
+          iPrice = idx('cena'), iDate = idx('datum'), iApproved = idx('odobreno'), iEmail = idx('email');
+    const fromSheet = rows.slice(1)
+      .filter(r => iApproved >= 0 && (r[iApproved] || '').trim().toUpperCase() === 'DA')
+      .map(r => {
+        const type = (r[iCat] || '').trim().toLowerCase();
+        return {
+          type,
+          typeLabel: AD_TYPE_LABELS[type] || type.toUpperCase(),
+          title: (r[iTitle] || '').trim(),
+          desc: (r[iDesc] || '').trim(),
+          location: (r[iLoc] || '').trim(),
+          price: (r[iPrice] || '').trim() || null,
+          date: (r[iDate] || '').trim(),
+          email: (r[iEmail] || '').trim() || null
+        };
+      })
+      .filter(a => a.title);
+    if (fromSheet.length) {
+      allAds = fromSheet;
+      rebuildSearchIndex();
+      if (document.getElementById('page-oglasi').classList.contains('active')) {
+        const activeBtn = document.querySelector('#ad-filters .filter-btn.active');
+        const activeType = activeBtn ? activeBtn.getAttribute('onclick').match(/filterAds\('(\w+)'/)[1] : 'svi';
+        renderAds(activeType === 'svi' ? allAds : allAds.filter(a => a.type === activeType));
+      }
+    }
+  } catch (e) { console.error('fetchAdsFromSheet:', e); }
+}
+
 function renderAds(data) {
+  currentAdList = data;
   const grid = document.getElementById('ads-grid');
   grid.innerHTML = data.map((a, i) => `
     <div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover">
@@ -2825,12 +2887,41 @@ function renderAds(data) {
 function filterAds(type, btn) {
   document.querySelectorAll('#ad-filters .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  const filtered = type === 'svi' ? ads : ads.filter(a => a.type === type);
+  const filtered = type === 'svi' ? allAds : allAds.filter(a => a.type === type);
   renderAds(filtered);
 }
 
+async function submitAdForm(e) {
+  e.preventDefault();
+  const form = e.target;
+  const btn = form.querySelector('button[type="submit"]');
+  if (!AD_FORM_ENDPOINT) {
+    showToast('Objava oglasa trenutno nije aktivna. Pokušajte kasnije.');
+    return;
+  }
+  const fd = new FormData(form);
+  const params = new URLSearchParams();
+  for (const [k, v] of fd.entries()) params.append(k, v);
+  params.append('datum', new Date().toLocaleDateString('sr-RS'));
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = 'Šalje se…';
+  try {
+    await fetch(AD_FORM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: params });
+    showToast('Hvala! Oglas je poslat na pregled.');
+    form.reset();
+    closePostAd();
+  } catch (err) {
+    console.error('submitAdForm:', err);
+    showToast('Greška pri slanju. Pokušajte ponovo.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
 function openAd(i) {
-  const a = ads[i];
+  const a = currentAdList[i];
   document.getElementById('ad-modal-content').innerHTML = `
     <div class="mb-4">
       <span class="tag text-brand">${a.typeLabel}</span>
@@ -2842,7 +2933,7 @@ function openAd(i) {
       <div><div class="text-xs text-gray-400">Datum</div><div class="text-sm font-medium">${a.date}</div></div>
       ${a.price ? `<div><div class="text-xs text-gray-400">Cena</div><div class="text-sm font-bold text-brand">${a.price}</div></div>` : ''}
     </div>
-    <button class="btn-primary w-full" onclick="showToast('Vaš upit je prosleđen oglašivaču.'); closeAdModal()">Pošalji upit</button>
+    ${a.email ? `<a href="mailto:${a.email}?subject=${encodeURIComponent('Upit: ' + a.title)}" class="btn-primary w-full block text-center" style="text-decoration:none;" onclick="closeAdModal()">Pošalji upit</a>` : `<button class="btn-outline w-full" disabled>Kontakt nije dostupan</button>`}
   `;
   document.getElementById('ad-modal').classList.add('open');
 }
@@ -2921,12 +3012,16 @@ function filterEvents(country, btn) {
 }
 
 // ==================== SEARCH ====================
-const allSearchItems = [
-  ...newsItems.map(n => ({ type: 'Vest', title: n.title, sub: n.catLabel, page: 'home' })),
-  ...companies.map(c => ({ type: 'Kompanija', title: c.name, sub: `${c.city} · ${c.cat}`, page: 'kompanije' })),
-  ...ads.map(a => ({ type: 'Oglas', title: a.title, sub: a.location, page: 'oglasi' })),
-  ...eduItems.map(e => ({ type: 'Edukacija', title: e.title, sub: e.catLabel, page: 'edukacija' })),
-];
+let allSearchItems = [];
+function rebuildSearchIndex() {
+  allSearchItems = [
+    ...newsItems.map(n => ({ type: 'Vest', title: n.title, sub: n.catLabel, page: 'home' })),
+    ...allCompanies.map(c => ({ type: 'Kompanija', title: c.name, sub: `${c.city} · ${c.cat}`, page: 'kompanije' })),
+    ...allAds.map(a => ({ type: 'Oglas', title: a.title, sub: a.location, page: 'oglasi' })),
+    ...eduItems.map(e => ({ type: 'Edukacija', title: e.title, sub: e.catLabel, page: 'edukacija' })),
+  ];
+}
+rebuildSearchIndex();
 
 function openSearch() { document.getElementById('search-modal').classList.add('open'); setTimeout(() => document.getElementById('search-input').focus(), 100); }
 function closeSearch(e) {
@@ -3085,7 +3180,7 @@ function showPage(name) {
     target.classList.add('active');
     if (name === 'cene') { setTimeout(() => { renderPriceCards(); updateChart(); }, 50); }
     if (name === 'kompanije') renderCompanies(allCompanies);
-    if (name === 'oglasi') renderAds(ads);
+    if (name === 'oglasi') renderAds(allAds);
     if (name === 'edukacija') renderEdu(eduItems);
     if (name === 'sajmovi') renderEvents(events);
     if (name === 'tenderi') { if (!_tendersLoaded) loadTenders(); }
@@ -3165,6 +3260,7 @@ function initPortal() {
   try { renderHero(); } catch(e) { console.error('renderHero:', e); }
   try { fetchAllPrices(); } catch(e) { console.error('fetchAllPrices:', e); }
   try { fetchCompaniesFromSheet(); } catch(e) { console.error('fetchCompaniesFromSheet:', e); }
+  try { fetchAdsFromSheet(); } catch(e) { console.error('fetchAdsFromSheet:', e); }
   try {
     const m = location.hash.match(/^#vest-(\d+)$/);
     if (m) {
