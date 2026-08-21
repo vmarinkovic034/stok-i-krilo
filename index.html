@@ -2443,24 +2443,32 @@ function genData(n, base, vol) {
   return d;
 }
 
-function genLabels(n) {
+function genLabels(n, period) {
   const labels = [];
-  const now = new Date(2025, 0, 15);
+  const now = new Date();
   for (let i = n - 1; i >= 0; i--) {
     const d = new Date(now);
-    d.setDate(now.getDate() - i);
-    labels.push(d.toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' }));
+    if (period === '1D') {
+      d.setHours(now.getHours() - i, 0, 0, 0);
+      labels.push(d.toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' }));
+    } else if (period === '1Y') {
+      d.setDate(now.getDate() - i * 7);
+      labels.push(d.toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' }));
+    } else {
+      d.setDate(now.getDate() - i);
+      labels.push(d.toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' }));
+    }
   }
   return labels;
 }
 
-const periodConfig = { '1D': { n: 24, vol: 4, subtitle: 'Sat po sat, poslednja 24h' }, '30D': { n: 30, vol: 18, subtitle: 'Dnevni podaci, poslenjih 30 dana' }, '90D': { n: 90, vol: 22, subtitle: 'Dnevni podaci, poslenjih 90 dana' }, '1Y': { n: 260, vol: 28, subtitle: 'Nedeljni podaci, poslenjih 12 meseci' } };
+const periodConfig = { '1D': { n: 24, vol: 4, subtitle: 'Sat po sat, poslednja 24h' }, '30D': { n: 30, vol: 18, subtitle: 'Dnevni podaci, poslenjih 30 dana' }, '90D': { n: 90, vol: 22, subtitle: 'Dnevni podaci, poslenjih 90 dana' }, '1Y': { n: 52, vol: 28, subtitle: 'Nedeljni podaci, poslenjih 12 meseci' } };
 
 function updateChart() {
   const p = prices.find(x => x.id === activePriceId);
   const baseVal = parseFloat(p.value.replace(',', '.'));
   const cfg = periodConfig[activePeriod];
-  const labels = genLabels(cfg.n);
+  const labels = genLabels(cfg.n, activePeriod);
   const data = genData(cfg.n, baseVal, cfg.vol);
   data[data.length - 1] = baseVal;
   document.getElementById('chart-subtitle').textContent = cfg.subtitle;
