@@ -2170,7 +2170,10 @@ function closePriceEditor() {
 }
 
 // ==================== LIVE PRICE FETCH ====================
-const CORS_PROXY = 'https://corsproxy.io/?';
+// NAPOMENA: corsproxy.io je prestao da radi besplatno za produkcione domene (samo localhost).
+// r.jina.ai je besplatan reader proxy koji vraća sadržaj bez CORS ogranicenja - odgovor
+// dolazi umotan u tekst ("Markdown Content:\n" + telo), pa ga parsiramo posebno (vidi _fetchViaJina).
+const CORS_PROXY = 'https://r.jina.ai/';
 const YF_BASE    = 'https://query1.finance.yahoo.com/v8/finance/chart/';
 let _pricesRefreshTimer = null;
 
@@ -2178,6 +2181,15 @@ function _fetchTimeout(url, ms) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
   return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(t));
+}
+
+async function _fetchViaJina(targetUrl, ms) {
+  const r = await _fetchTimeout(CORS_PROXY + targetUrl, ms);
+  const text = await r.text();
+  const marker = 'Markdown Content:\n';
+  const idx = text.indexOf(marker);
+  const jsonStr = idx >= 0 ? text.slice(idx + marker.length) : text;
+  return JSON.parse(jsonStr);
 }
 
 async function fetchAllPrices() {
@@ -2215,9 +2227,7 @@ async function fetchAllPrices() {
 
   await Promise.allSettled(metalJobs.map(async ({ id, ticker, convFn }) => {
     try {
-      const url = CORS_PROXY + encodeURIComponent(YF_BASE + ticker);
-      const r   = await _fetchTimeout(url, 9000);
-      const d   = await r.json();
+      const d = await _fetchViaJina(YF_BASE + ticker, 12000);
       const meta = d?.chart?.result?.[0]?.meta;
       if (!meta) return;
       const current  = meta.regularMarketPrice;
@@ -2232,57 +2242,56 @@ async function fetchAllPrices() {
     } catch(e) { console.warn(ticker + ' fetch error:', e.message); }
   }));
 
-  // ── 3. Statistički indeksi: Eurostat (staklo) + DBnomics/Destatis (PVC) ──
+  // ── 3. Statisticki indeksi: Eurostat PPI (proizvodjacke cene u industriji, EU27) ──
+  // Napomena: dataset sts_inppd_m nema fine NACE potklase (npr. C23.1 za staklo posebno
+  // ne postoji u ovom datasetu) - koristimo najblize dostupne dvocifrene/trocifrene sifre:
+  // C23 = "Ostali nemetalni mineralni proizvodi" (uklj. staklo) za staklo,
+  // C22 = "Guma i plasticni proizvodi" (uklj. PVC granulat) za PVC.
+  async function fetchEurostatPPI(naceCode) {
+    const url = 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inppd_m'
+      + '?indic_bt=PRC_PRR_DOM&s_adj=NSA&unit=I15&geo=EU27_2020&lang=en&format=JSON&nace_r2=' + naceCode;
+    const r = await _fetchTimeout(url, 8000);
+    const d = await r.json();
+    if (!d.value) return null;
+    const vals = d.value;
+    const keys = Object.keys(vals).map(Number).sort((a, b) => a - b);
+    const last  = vals[keys[keys.length - 1]];
+    const prev2 = vals[keys[keys.length - 2]];
+    if (!last || !prev2) return null;
+    return { last, chg: (last - prev2) / prev2 * 100 };
+  }
+
   try {
-    const glassUrl = 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inppd_m?nace_r2=C23.1&indic=PRIN&s_adj=NSA&unit=I15&geo=EU27_2020&lang=en&format=JSON';
-    const gr = await _fetchTimeout(glassUrl, 8000);
-    const gd = await gr.json();
-    if (gd.value) {
-      const vals  = gd.value;
-      const keys  = Object.keys(vals).map(Number).sort((a,b) => a - b);
-      const last  = vals[keys[keys.length - 1]];
-      const prev2 = vals[keys[keys.length - 2]];
-      if (last && prev2) {
-        const chg = ((last - prev2) / prev2 * 100);
-        const p   = prices.find(x => x.id === 'glass');
-        if (p) {
-          p.value   = last.toFixed(1);
-          p.unit    = 'INDEX (EU27)';
-          p.change  = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-          p.up      = chg >= 0;
-          p.fetched = true;
-          p.live    = true;
-          p.note    = 'Eurostat PPI, NACE C23.1';
-        }
+    const res = await fetchEurostatPPI('C23');
+    if (res) {
+      const p = prices.find(x => x.id === 'glass');
+      if (p) {
+        p.value   = res.last.toFixed(1);
+        p.unit    = 'INDEX (EU27)';
+        p.change  = (res.chg >= 0 ? '+' : '') + res.chg.toFixed(2) + '%';
+        p.up      = res.chg >= 0;
+        p.fetched = true;
+        p.live    = true;
+        p.note    = 'Eurostat PPI, NACE C23 (nemetalni min. proizvodi, uklj. staklo)';
       }
     }
   } catch(e) { console.warn('Eurostat glass PPI error:', e.message); }
 
-  // DBnomics / Destatis - PVC Erzeugerpreisindex GP09-20 (Platten, Folien, PVC)
   try {
-    const pvcUrl = 'https://api.db.nomics.world/v22/series/DESTATIS/61241BM002?series_ids=GP09-20.DG.PRE001&observations=1';
-    const pr  = await _fetchTimeout(pvcUrl, 8000);
-    const pd  = await pr.json();
-    const obs = pd?.series?.docs?.[0]?.period_start_day;
-    const pvals = pd?.series?.docs?.[0]?.value;
-    if (pvals && pvals.length >= 2) {
-      const last = pvals[pvals.length - 1];
-      const prev = pvals[pvals.length - 2];
-      if (last !== null && prev !== null) {
-        const chg = ((last - prev) / prev * 100);
-        const p   = prices.find(x => x.id === 'pvc');
-        if (p) {
-          p.value   = last.toFixed(1);
-          p.unit    = 'INDEX (DE)';
-          p.change  = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-          p.up      = chg >= 0;
-          p.fetched = true;
-          p.live    = true;
-          p.note    = 'Destatis PPI, GP09-20';
-        }
+    const res = await fetchEurostatPPI('C22');
+    if (res) {
+      const p = prices.find(x => x.id === 'pvc');
+      if (p) {
+        p.value   = res.last.toFixed(1);
+        p.unit    = 'INDEX (EU27)';
+        p.change  = (res.chg >= 0 ? '+' : '') + res.chg.toFixed(2) + '%';
+        p.up      = res.chg >= 0;
+        p.fetched = true;
+        p.live    = true;
+        p.note    = 'Eurostat PPI, NACE C22 (guma i plasticni proizvodi, uklj. PVC)';
       }
     }
-  } catch(e) { console.warn('DBnomics PVC error:', e.message); }
+  } catch(e) { console.warn('Eurostat PVC PPI error:', e.message); }
 
   // ── 4. Refresh UI ──
   const now     = new Date();
