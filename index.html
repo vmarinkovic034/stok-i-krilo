@@ -2724,14 +2724,45 @@ function openArticle(i) {
     <div class="text-gray-400 text-xs mb-6 pb-4 border-b border-gray-100">Redakcija Štok &amp; Krilo · ${n.date || ''} · Izvor: ${sourceHtml}</div>
     <div class="text-gray-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">${body}</div>
     <div class="mt-8 pt-6 border-t border-gray-100 flex flex-wrap gap-3">
-      <button class="btn-primary" onclick="showToast('Link kopiran.'); closeArticle()">Podeli članak</button>
+      <button class="btn-primary" onclick="shareArticle(${i})">Podeli članak</button>
       <button class="btn-outline" onclick="closeArticle()">Zatvori</button>
     </div>
   `;
   document.getElementById('article-modal').classList.add('open');
+  history.replaceState(null, '', '#vest-' + i);
+}
+
+function shareArticle(i) {
+  const n = newsItems[i];
+  if (!n) return;
+  const url = location.origin + location.pathname + '#vest-' + i;
+  const doFallbackCopy = () => {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Link kopiran: ' + url);
+    }).catch(() => {
+      showToast(doFallbackCopy() ? 'Link kopiran: ' + url : 'Nije uspelo kopiranje. Link: ' + url);
+    });
+  } else {
+    showToast(doFallbackCopy() ? 'Link kopiran: ' + url : 'Nije uspelo kopiranje. Link: ' + url);
+  }
 }
 function closeArticle(e) {
-  if (!e || e.currentTarget === e.target) document.getElementById('article-modal').classList.remove('open');
+  if (!e || e.currentTarget === e.target) {
+    document.getElementById('article-modal').classList.remove('open');
+    if (location.hash.startsWith('#vest-')) history.replaceState(null, '', location.pathname);
+  }
 }
 
 // ==================== NEWSLETTER ====================
@@ -2834,6 +2865,16 @@ function initPortal() {
   try { renderNews('sve'); } catch(e) { console.error('renderNews:', e); }
   try { renderHero(); } catch(e) { console.error('renderHero:', e); }
   try { fetchAllPrices(); } catch(e) { console.error('fetchAllPrices:', e); }
+  try {
+    const m = location.hash.match(/^#vest-(\d+)$/);
+    if (m) {
+      const idx = parseInt(m[1], 10);
+      if (newsItems[idx]) {
+        showPage('home');
+        setTimeout(() => openArticle(idx), 50);
+      }
+    }
+  } catch(e) { console.error('deep-link vest:', e); }
 }
 
 if (document.readyState === 'loading') {
