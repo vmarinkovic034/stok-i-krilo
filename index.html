@@ -2711,6 +2711,10 @@ function doSearch() {
 }
 
 // ==================== ARTICLE MODAL ====================
+function articleUrl(i) {
+  return location.origin + location.pathname + '#vest-' + i;
+}
+
 function openArticle(i) {
   const n = newsItems[i];
   if (!n) return;
@@ -2723,19 +2727,73 @@ function openArticle(i) {
     <h2 class="font-serif text-2xl sm:text-3xl font-bold text-gray-950 mb-4 leading-tight">${n.title}</h2>
     <div class="text-gray-400 text-xs mb-6 pb-4 border-b border-gray-100">Redakcija Štok &amp; Krilo · ${n.date || ''} · Izvor: ${sourceHtml}</div>
     <div class="text-gray-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">${body}</div>
-    <div class="mt-8 pt-6 border-t border-gray-100 flex flex-wrap gap-3">
-      <button class="btn-primary" onclick="shareArticle(${i})">Podeli članak</button>
-      <button class="btn-outline" onclick="closeArticle()">Zatvori</button>
+    <div class="mt-8 pt-6 border-t border-gray-100">
+      <div class="text-xs text-gray-400 font-semibold tracking-wide mb-3">PODELI ČLANAK</div>
+      <div class="flex flex-wrap items-center gap-2 mb-4">
+        <button title="WhatsApp" onclick="shareTo('whatsapp', ${i})" class="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-85 transition" style="background:#25D366">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.07c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.11-1.81-.11-.42-.13-.95-.3-1.64-.6-2.88-1.24-4.76-4.15-4.9-4.34-.14-.19-1.17-1.56-1.17-2.98 0-1.42.75-2.11 1.01-2.4.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.65.5.24.58.82 2 .89 2.15.07.15.12.32.02.51-.1.19-.15.31-.29.48-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.44.29.15.46.13.63-.08.17-.2.72-.84.91-1.13.19-.29.38-.24.63-.14.26.1 1.64.77 1.92.91.29.15.48.22.55.34.07.13.07.72-.17 1.4z"/></svg>
+        </button>
+        <button title="Viber" onclick="shareTo('viber', ${i})" class="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-85 transition" style="background:#7360F2">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.4 2C8.7 2 6.3 2.6 4.9 3.9 3.7 5 3.3 6.6 3.2 8.6c-.1 1.9-.1 5.4.1 7.3.2 1.7.6 3 1.7 4 1 .9 2.3 1.4 4.1 1.6.3 0 .5.2.5.5v2.4c0 .4.5.6.8.3l2.7-2.6c.2-.2.4-.2.7-.2 1.6 0 3.7-.1 5.3-.6 1.6-.5 2.9-1.7 3.2-3.9.3-2.2.3-5.9 0-8.1-.3-2.2-1.6-3.4-3.2-3.9C17.6 3.3 15.5 2 11.4 2zm.3 2.1c3.6 0 5.6.9 6.4 1.6.9.7 1.5 1.5 1.7 3.2.3 2 .3 5.4 0 7.4-.2 1.5-1 2.2-2.2 2.6-1.3.4-3.1.5-4.7.5-.7 0-1.3.3-1.8.7l-1.4 1.4v-1.3c0-.6-.4-1-1-1.1-1.5-.1-2.5-.5-3.2-1.1-.7-.7-1-1.5-1.2-2.9-.2-1.8-.2-5.2-.1-7 .1-1.7.4-2.8 1.2-3.6C6.3 5 8.1 4.1 11.7 4.1zm-.2 2.4c-.3 0-.5.2-.5.5s.2.5.5.5c2.5.1 4 1.6 4.1 4.2 0 .3.2.5.5.5s.5-.2.5-.5c-.1-3.1-2-5.1-5.1-5.2zm-.1 1.7c-.3 0-.5.2-.5.5s.2.5.5.5c1.4.1 2 .7 2.1 2.1 0 .3.2.5.5.5s.5-.2.5-.5c-.1-1.9-1.2-3-3.1-3.1zm-2.1.4c-.2 0-.4.1-.6.3l-.6.6c-.2.2-.3.6-.1.9.4.9 1 1.9 1.9 2.8.9.9 1.9 1.5 2.8 1.9.3.1.6.1.9-.1l.6-.6c.3-.3.3-.7.1-1l-.7-1c-.2-.3-.6-.4-.9-.2l-.5.3c-.6-.3-1.1-.8-1.5-1.2-.4-.4-.8-.9-1.1-1.5l.3-.5c.2-.3.1-.7-.2-.9l-1-.7c-.1-.1-.2-.1-.3-.1z"/></svg>
+        </button>
+        <button title="Facebook" onclick="shareTo('facebook', ${i})" class="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-85 transition" style="background:#1877F2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z"/></svg>
+        </button>
+        <button title="LinkedIn" onclick="shareTo('linkedin', ${i})" class="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-85 transition" style="background:#0A66C2">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.11 20.45H3.56V9h3.56v11.45z"/></svg>
+        </button>
+        <button title="X (Twitter)" onclick="shareTo('x', ${i})" class="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-85 transition" style="background:#000">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.5 8.57L23.2 22h-6.85l-5.37-7.02L4.83 22H1.7l8.02-9.17L1 2h7.02l4.85 6.42L18.9 2zm-1.2 18h1.9L7.4 3.9H5.36L17.7 20z"/></svg>
+        </button>
+        <button title="Email" onclick="shareTo('email', ${i})" class="w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-85 transition" style="background:#4b5563">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h17A1.5 1.5 0 0 1 22 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 18.5v-13zm2.2.3 7.8 6.1 7.8-6.1H4.2zM20 7.2l-7.4 5.8a1 1 0 0 1-1.2 0L4 7.2V18h16V7.2z"/></svg>
+        </button>
+        <button title="Kopiraj link" onclick="shareArticle(${i})" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-600 border border-gray-200 hover:bg-gray-50 transition">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <button class="btn-outline" onclick="closeArticle()">Zatvori</button>
+      </div>
     </div>
   `;
   document.getElementById('article-modal').classList.add('open');
   history.replaceState(null, '', '#vest-' + i);
 }
 
-function shareArticle(i) {
+function shareTo(platform, i) {
   const n = newsItems[i];
   if (!n) return;
-  const url = location.origin + location.pathname + '#vest-' + i;
+  const url = articleUrl(i);
+  const text = n.title + ' - Štok i Krilo';
+  let target = '';
+  switch (platform) {
+    case 'whatsapp':
+      target = 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + url);
+      break;
+    case 'viber':
+      target = 'viber://forward?text=' + encodeURIComponent(text + ' ' + url);
+      break;
+    case 'facebook':
+      target = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url);
+      break;
+    case 'linkedin':
+      target = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url);
+      break;
+    case 'x':
+      target = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url);
+      break;
+    case 'email':
+      target = 'mailto:?subject=' + encodeURIComponent(n.title) + '&body=' + encodeURIComponent(text + '\n\n' + url);
+      break;
+    default:
+      return;
+  }
+  window.open(target, '_blank', 'noopener,noreferrer');
+}
+
+function shareArticle(i) {
+  const url = articleUrl(i);
   const doFallbackCopy = () => {
     const ta = document.createElement('textarea');
     ta.value = url;
