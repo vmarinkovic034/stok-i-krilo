@@ -171,7 +171,7 @@ tailwind.config = {
   <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
     <div class="ad-leaderboard">
       <!-- Sponzor: Sunce Marinković -->
-      <div class="flex items-center gap-4 flex-1 min-w-0" onclick="showToast('Sunce Marinković — poseta sajtu')">
+      <div class="flex items-center gap-4 flex-1 min-w-0" onclick="window.open('https://suncemarinkovic.com','_blank')">
         <img src="assets/sponsors/sunce-logo.png" alt="Sunce Marinković" class="h-10 w-auto flex-shrink-0" />
         <div class="min-w-0">
           <div class="text-sm font-semibold text-gray-900">Sunce Marinković</div>
@@ -181,7 +181,7 @@ tailwind.config = {
       </div>
       <div class="hidden sm:block w-px bg-gray-200 self-stretch"></div>
       <!-- Sponzor: Okvirio -->
-      <div class="flex items-center gap-4 flex-1 min-w-0" onclick="showToast('Okvir.io — poseta sajtu')">
+      <div class="flex items-center gap-4 flex-1 min-w-0" onclick="window.open('https://okvir.io','_blank')">
         <img src="assets/sponsors/okvirio-logo.png" alt="Okvir.io" class="h-8 w-auto flex-shrink-0" />
         <div class="min-w-0">
           <div class="text-sm font-semibold text-gray-900">Okvir.io</div>
@@ -516,7 +516,7 @@ tailwind.config = {
       <aside class="lg:col-span-1">
         <div class="sticky" style="top:88px;">
           <div class="ad-label" style="position:static; display:inline-block; margin-bottom:10px; background:transparent; padding:0;">SPONZOR</div>
-          <div class="ad-card p-5 text-center" onclick="showToast('Sunce Marinković — poseta sajtu')">
+          <div class="ad-card p-5 text-center" onclick="window.open('https://suncemarinkovic.com','_blank')">
             <img src="assets/sponsors/sunce-logo.png" alt="Sunce Marinković" class="h-12 w-auto mx-auto mb-3" />
             <div class="text-sm font-semibold text-gray-900 mb-1">Sunce Marinković</div>
             <div class="text-xs text-gray-500 mb-3 leading-relaxed">Prozori, vrata i klizne stene.</div>
@@ -1981,7 +1981,7 @@ function filterTenders() {
 // ── SPONZORISANA KARTICA U LISTI TENDERA ────────────────────────────────
 function renderSponsoredTenderCard() {
   return `
-    <div class="native-ad-card" onclick="showToast('Okvir.io — poseta sajtu')">
+    <div class="native-ad-card" onclick="window.open('https://okvir.io','_blank')">
       <div class="flex items-start gap-4">
         <img src="assets/sponsors/okvirio-logo.png" alt="Okvir.io" class="h-10 w-auto flex-shrink-0" />
         <div class="flex-1 min-w-0">
