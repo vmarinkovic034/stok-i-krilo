@@ -1169,32 +1169,39 @@ tailwind.config = {
             <option>Albanija</option>
             <option>Kosovo</option>
           </select>
-          <select required name="kategorija" class="border border-gray-300 px-3 py-2 text-sm bg-white sm:col-span-2">
-            <option value="">Kategorija *</option>
-            <option>PVC stolarija</option>
-            <option>AL stolarija</option>
-            <option>PVC/AL stolarija</option>
-            <option>AL profili</option>
-            <option>PVC profili</option>
-            <option>PVC/AL profili</option>
-            <option>PVC/AL sistemi</option>
-            <option>AL/PVC stolarija</option>
-            <option>Drvo-ALU stolarija</option>
-            <option>ALU ulazna vrata</option>
-            <option>Drveni prozori</option>
-            <option>Vrata</option>
-            <option>Staklo</option>
-            <option>Staklo / AL stolarija</option>
-            <option>Okov</option>
-            <option>Roletne</option>
-            <option>Garažna vrata</option>
-            <option>Roletne / garažna vrata</option>
-            <option>Fasade / alubond</option>
-            <option>Ograde</option>
-            <option>Arhitektonski biro</option>
-            <option>Mašine</option>
-            <option>Distributeri</option>
-          </select>
+          <div class="sm:col-span-2 relative" id="cat-multiselect">
+            <input type="hidden" name="kategorija" id="cat-multiselect-value" required />
+            <button type="button" onclick="toggleCatDropdown(event)" class="w-full text-left border border-gray-300 px-3 py-2 text-sm bg-white flex items-center justify-between">
+              <span id="cat-multiselect-label" class="text-gray-400">Kategorija * (izaberi do 3)</span>
+              <span class="text-gray-400 text-xs">▾</span>
+            </button>
+            <div id="cat-dropdown-panel" class="hidden absolute z-10 mt-1 w-full max-h-64 overflow-y-auto bg-white border border-gray-300 shadow-lg">
+              <div class="px-3 py-2 text-xs text-gray-400 border-b border-gray-100">Izaberi do 3 kategorije</div>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="PVC stolarija" onchange="onCatCheckboxChange(this)"> PVC stolarija</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="AL stolarija" onchange="onCatCheckboxChange(this)"> AL stolarija</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="PVC/AL stolarija" onchange="onCatCheckboxChange(this)"> PVC/AL stolarija</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="AL profili" onchange="onCatCheckboxChange(this)"> AL profili</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="PVC profili" onchange="onCatCheckboxChange(this)"> PVC profili</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="PVC/AL profili" onchange="onCatCheckboxChange(this)"> PVC/AL profili</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="PVC/AL sistemi" onchange="onCatCheckboxChange(this)"> PVC/AL sistemi</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="AL/PVC stolarija" onchange="onCatCheckboxChange(this)"> AL/PVC stolarija</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Drvo-ALU stolarija" onchange="onCatCheckboxChange(this)"> Drvo-ALU stolarija</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="ALU ulazna vrata" onchange="onCatCheckboxChange(this)"> ALU ulazna vrata</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Drveni prozori" onchange="onCatCheckboxChange(this)"> Drveni prozori</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Vrata" onchange="onCatCheckboxChange(this)"> Vrata</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Staklo" onchange="onCatCheckboxChange(this)"> Staklo</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Staklo / AL stolarija" onchange="onCatCheckboxChange(this)"> Staklo / AL stolarija</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Okov" onchange="onCatCheckboxChange(this)"> Okov</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Roletne" onchange="onCatCheckboxChange(this)"> Roletne</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Garažna vrata" onchange="onCatCheckboxChange(this)"> Garažna vrata</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Roletne / garažna vrata" onchange="onCatCheckboxChange(this)"> Roletne / garažna vrata</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Fasade / alubond" onchange="onCatCheckboxChange(this)"> Fasade / alubond</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Ograde" onchange="onCatCheckboxChange(this)"> Ograde</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Arhitektonski biro" onchange="onCatCheckboxChange(this)"> Arhitektonski biro</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Mašine" onchange="onCatCheckboxChange(this)"> Mašine</label>
+              <label class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"><input type="checkbox" class="cat-checkbox" value="Distributeri" onchange="onCatCheckboxChange(this)"> Distributeri</label>
+            </div>
+          </div>
           <input name="proizvodi" placeholder="Proizvodi (odvojeno sa ;)" class="border border-gray-300 px-3 py-2 text-sm sm:col-span-2" />
           <input name="sajt" placeholder="Sajt (https://…)" class="border border-gray-300 px-3 py-2 text-sm sm:col-span-2" />
           <input required type="email" name="email" placeholder="Email za kontakt *" class="border border-gray-300 px-3 py-2 text-sm sm:col-span-2" />
@@ -2662,7 +2669,7 @@ function renderCompanies(data) {
       </div>
       <div class="font-serif font-bold text-gray-900 text-base mb-1">${c.name}</div>
       <div class="text-xs text-gray-500 mb-2">${c.city} · ${c.country}</div>
-      <div class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-0.5 mb-3">${c.cat}</div>
+      <div class="flex flex-wrap gap-1 mb-3">${c.cat.split(';').map(x => x.trim()).filter(Boolean).map(x => `<span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-0.5">${x}</span>`).join('')}</div>
       <div class="flex flex-wrap gap-1">
         ${c.products.map(p => `<span class="text-xs border border-gray-100 px-2 py-0.5 text-gray-500">${p}</span>`).join('')}
       </div>
@@ -2677,9 +2684,41 @@ function filterCompanies() {
   const filtered = allCompanies.filter(c =>
     (!q || c.name.toLowerCase().includes(q) || c.cat.toLowerCase().includes(q)) &&
     (!country || c.country === country) &&
-    (!cat || c.cat === cat)
+    (!cat || c.cat.split(';').map(x => x.trim()).includes(cat))
   );
   renderCompanies(filtered);
+}
+
+function toggleCatDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('cat-dropdown-panel').classList.toggle('hidden');
+}
+document.addEventListener('click', (e) => {
+  const panel = document.getElementById('cat-dropdown-panel');
+  const wrap = document.getElementById('cat-multiselect');
+  if (panel && !panel.classList.contains('hidden') && wrap && !wrap.contains(e.target)) {
+    panel.classList.add('hidden');
+  }
+});
+function onCatCheckboxChange(checkbox) {
+  const checked = Array.from(document.querySelectorAll('.cat-checkbox:checked'));
+  if (checked.length > 3) {
+    checkbox.checked = false;
+    showToast('Možeš izabrati najviše 3 kategorije.');
+    return;
+  }
+  const values = checked.map(c => c.value);
+  document.getElementById('cat-multiselect-value').value = values.join('; ');
+  const label = document.getElementById('cat-multiselect-label');
+  if (values.length) {
+    label.textContent = values.join(', ');
+    label.classList.remove('text-gray-400');
+    label.classList.add('text-gray-800');
+  } else {
+    label.textContent = 'Kategorija * (izaberi do 3)';
+    label.classList.add('text-gray-400');
+    label.classList.remove('text-gray-800');
+  }
 }
 
 function openAddCompanyModal() { document.getElementById('add-company-modal').classList.add('open'); }
@@ -2706,6 +2745,12 @@ async function submitCompanyForm(e) {
     await fetch(COMPANY_FORM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: params });
     showToast('Hvala! Prijava je poslata na pregled.');
     form.reset();
+    document.querySelectorAll('.cat-checkbox').forEach(c => c.checked = false);
+    document.getElementById('cat-multiselect-value').value = '';
+    const label = document.getElementById('cat-multiselect-label');
+    label.textContent = 'Kategorija * (izaberi do 3)';
+    label.classList.add('text-gray-400');
+    label.classList.remove('text-gray-800');
     closeAddCompanyModal();
   } catch (err) {
     console.error('submitCompanyForm:', err);
@@ -2734,7 +2779,7 @@ function openCompany(i) {
     <div class="grid grid-cols-2 gap-6 mb-6">
       <div>
         <div class="text-xs font-bold text-gray-500 tracking-wider mb-2">KATEGORIJA</div>
-        <div class="text-sm text-gray-800">${c.cat}</div>
+        <div class="flex flex-wrap gap-1">${c.cat.split(';').map(x => x.trim()).filter(Boolean).map(x => `<span class="text-xs bg-gray-100 px-2 py-0.5 text-gray-600">${x}</span>`).join('')}</div>
       </div>
       <div>
         <div class="text-xs font-bold text-gray-500 tracking-wider mb-2">PROIZVODI</div>
