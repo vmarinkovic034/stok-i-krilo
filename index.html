@@ -2722,7 +2722,9 @@ function openArticle(i) {
   const sourceHtml = n.url
     ? '<a href="' + n.url + '" target="_blank" rel="noopener noreferrer" class="text-brand hover:underline">' + (n.source || 'Izvor') + ' ↗</a>'
     : (n.source || 'Redakcija');
+  const heroImg = n.img ? '<img src="' + n.img + '" alt="' + n.title.replace(/"/g, '&quot;') + '" class="w-full h-56 sm:h-72 object-cover rounded-lg mb-6" loading="lazy">' : '';
   document.getElementById('article-content').innerHTML = `
+    ${heroImg}
     <div class="tag text-brand mb-3">${n.catLabel || ''}</div>
     <h2 class="font-serif text-2xl sm:text-3xl font-bold text-gray-950 mb-4 leading-tight">${n.title}</h2>
     <div class="text-gray-400 text-xs mb-6 pb-4 border-b border-gray-100">Redakcija Štok &amp; Krilo · ${n.date || ''} · Izvor: ${sourceHtml}</div>
