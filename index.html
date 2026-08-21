@@ -172,20 +172,20 @@ tailwind.config = {
     <div class="ad-leaderboard">
       <!-- Sponzor: Sunce Marinković -->
       <div class="flex items-center gap-4 flex-1 min-w-0" onclick="showToast('Sunce Marinković — poseta sajtu')">
-        <div class="w-12 h-12 flex items-center justify-center flex-shrink-0 font-bold text-sm" style="background:#fff7e6; color:#b45309;">SM</div>
+        <img src="assets/sponsors/sunce-logo.png" alt="Sunce Marinković" class="h-10 w-auto flex-shrink-0" />
         <div class="min-w-0">
           <div class="text-sm font-semibold text-gray-900">Sunce Marinković</div>
-          <div class="text-xs text-gray-500 truncate">Roletne i senčila po meri — brza ugradnja širom regiona</div>
+          <div class="text-xs text-gray-500 truncate">Prozori, vrata i klizne stene</div>
         </div>
         <span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>
       </div>
       <div class="hidden sm:block w-px bg-gray-200 self-stretch"></div>
       <!-- Sponzor: Okvirio -->
-      <div class="flex items-center gap-4 flex-1 min-w-0" onclick="showToast('Okvirio — poseta sajtu')">
-        <div class="w-12 h-12 flex items-center justify-center flex-shrink-0 font-bold text-sm" style="background:#e8f0f8; color:#1a3a5c;">OK</div>
+      <div class="flex items-center gap-4 flex-1 min-w-0" onclick="showToast('Okvir.io — poseta sajtu')">
+        <img src="assets/sponsors/okvirio-logo.png" alt="Okvir.io" class="h-8 w-auto flex-shrink-0" />
         <div class="min-w-0">
-          <div class="text-sm font-semibold text-gray-900">Okvirio</div>
-          <div class="text-xs text-gray-500 truncate">Softver za kalkulaciju i proizvodnju stolarije — probajte besplatno</div>
+          <div class="text-sm font-semibold text-gray-900">Okvir.io</div>
+          <div class="text-xs text-gray-500 truncate">Konfigurator za cene prozora i vrata — probajte besplatno</div>
         </div>
         <span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>
       </div>
@@ -517,9 +517,9 @@ tailwind.config = {
         <div class="sticky" style="top:88px;">
           <div class="ad-label" style="position:static; display:inline-block; margin-bottom:10px; background:transparent; padding:0;">SPONZOR</div>
           <div class="ad-card p-5 text-center" onclick="showToast('Sunce Marinković — poseta sajtu')">
-            <div class="w-14 h-14 flex items-center justify-center mx-auto mb-3 font-bold text-sm" style="background:#fff7e6; color:#b45309;">SM</div>
+            <img src="assets/sponsors/sunce-logo.png" alt="Sunce Marinković" class="h-12 w-auto mx-auto mb-3" />
             <div class="text-sm font-semibold text-gray-900 mb-1">Sunce Marinković</div>
-            <div class="text-xs text-gray-500 mb-3 leading-relaxed">Roletne i senčila po meri. Isporuka i ugradnja širom regiona — brzo i pouzdano.</div>
+            <div class="text-xs text-gray-500 mb-3 leading-relaxed">Prozori, vrata i klizne stene.</div>
             <span class="text-xs text-brand font-semibold hover:underline cursor-pointer">Zatraži ponudu →</span>
           </div>
           <div class="ad-card p-4 text-center mt-4 border-dashed border-gray-300 bg-gray-50" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">
@@ -1981,15 +1981,15 @@ function filterTenders() {
 // ── SPONZORISANA KARTICA U LISTI TENDERA ────────────────────────────────
 function renderSponsoredTenderCard() {
   return `
-    <div class="native-ad-card" onclick="showToast('Okvirio — poseta sajtu')">
+    <div class="native-ad-card" onclick="showToast('Okvir.io — poseta sajtu')">
       <div class="flex items-start gap-4">
-        <div class="w-14 h-14 flex items-center justify-center flex-shrink-0 font-bold text-xs" style="background:#e8f0f8; color:#1a3a5c;">OK</div>
+        <img src="assets/sponsors/okvirio-logo.png" alt="Okvir.io" class="h-10 w-auto flex-shrink-0" />
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
             <span class="text-xs font-bold tracking-widest text-gray-400">SPONZOR</span>
           </div>
-          <div class="text-sm font-semibold text-gray-900 mb-1">Okvirio — ispratite svaki tender bez tabela i papira</div>
-          <div class="text-xs text-gray-500 leading-relaxed">Softver za kalkulaciju ponuda, praćenje rokova i upravljanje proizvodnjom stolarije. Napravljeno za proizvođače na Balkanu.</div>
+          <div class="text-sm font-semibold text-gray-900 mb-1">Okvir.io — konfigurator za cene prozora i vrata</div>
+          <div class="text-xs text-gray-500 leading-relaxed">Napravite ponudu za nekoliko minuta. Konfigurator cena prilagođen proizvođačima stolarije na Balkanu.</div>
           <span class="text-xs text-brand font-semibold mt-2 inline-block hover:underline">Probaj besplatno →</span>
         </div>
       </div>
