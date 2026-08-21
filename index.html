@@ -642,6 +642,10 @@ tailwind.config = {
         <option>Distributeri</option>
       </select>
     </div>
+    <div class="flex items-center justify-between mb-4">
+      <div class="text-xs text-gray-400" id="company-count-label"></div>
+      <button class="btn-primary text-xs py-2 px-4" onclick="openAddCompanyModal()">+ Dodaj svoju kompaniju</button>
+    </div>
     <div class="company-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="company-grid"></div>
 
     <!-- AD SLOT - KOMPANIJE STRANICA -->
@@ -1136,6 +1140,72 @@ tailwind.config = {
       <button onclick="closeCompanyModal()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
     </div>
     <div class="p-6 sm:p-8" id="company-modal-content"></div>
+  </div>
+</div>
+
+<!-- ADD COMPANY MODAL -->
+<div class="modal-overlay" id="add-company-modal" onclick="closeAddCompanyModal(event)">
+  <div class="bg-white w-full max-w-xl rounded-sm" onclick="event.stopPropagation()">
+    <div class="flex justify-end p-4 border-b border-gray-100">
+      <button onclick="closeAddCompanyModal()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
+    </div>
+    <div class="p-6 sm:p-8">
+      <h2 class="font-serif text-2xl font-bold text-gray-950 mb-1">Dodaj svoju kompaniju</h2>
+      <p class="text-sm text-gray-500 mb-6">Prijava ide na pregled pre objave. Javljamo se ili se firma pojavljuje u direktorijumu u roku od nekoliko dana.</p>
+      <form id="add-company-form" onsubmit="submitCompanyForm(event)">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <input required name="naziv" placeholder="Naziv firme *" class="border border-gray-300 px-3 py-2 text-sm sm:col-span-2" />
+          <input required name="grad" placeholder="Grad *" class="border border-gray-300 px-3 py-2 text-sm" />
+          <select required name="drzava" class="border border-gray-300 px-3 py-2 text-sm bg-white">
+            <option value="">Država *</option>
+            <option>Srbija</option>
+            <option>Hrvatska</option>
+            <option>Bosna i Hercegovina</option>
+            <option>Slovenija</option>
+            <option>Crna Gora</option>
+            <option>Severna Makedonija</option>
+            <option>Bugarska</option>
+            <option>Rumunija</option>
+            <option>Albanija</option>
+            <option>Kosovo</option>
+          </select>
+          <select required name="kategorija" class="border border-gray-300 px-3 py-2 text-sm bg-white sm:col-span-2">
+            <option value="">Kategorija *</option>
+            <option>PVC stolarija</option>
+            <option>AL stolarija</option>
+            <option>PVC/AL stolarija</option>
+            <option>AL profili</option>
+            <option>PVC profili</option>
+            <option>PVC/AL profili</option>
+            <option>PVC/AL sistemi</option>
+            <option>AL/PVC stolarija</option>
+            <option>Drvo-ALU stolarija</option>
+            <option>ALU ulazna vrata</option>
+            <option>Drveni prozori</option>
+            <option>Vrata</option>
+            <option>Staklo</option>
+            <option>Staklo / AL stolarija</option>
+            <option>Okov</option>
+            <option>Roletne</option>
+            <option>Garažna vrata</option>
+            <option>Roletne / garažna vrata</option>
+            <option>Fasade / alubond</option>
+            <option>Ograde</option>
+            <option>Arhitektonski biro</option>
+            <option>Mašine</option>
+            <option>Distributeri</option>
+          </select>
+          <input name="proizvodi" placeholder="Proizvodi (odvojeno sa ;)" class="border border-gray-300 px-3 py-2 text-sm sm:col-span-2" />
+          <input name="sajt" placeholder="Sajt (https://…)" class="border border-gray-300 px-3 py-2 text-sm sm:col-span-2" />
+          <input required type="email" name="email" placeholder="Email za kontakt *" class="border border-gray-300 px-3 py-2 text-sm sm:col-span-2" />
+          <textarea name="opis" placeholder="Kratak opis firme (2-3 rečenice)" rows="3" class="border border-gray-300 px-3 py-2 text-sm sm:col-span-2"></textarea>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          <button type="submit" class="btn-primary">Pošalji prijavu</button>
+          <button type="button" class="btn-outline" onclick="closeAddCompanyModal()">Otkaži</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -2507,8 +2577,81 @@ function setPeriod(period, btn) {
 }
 
 // ==================== COMPANIES ====================
+// Kompanije se prikazuju iz Google Sheet-a (live, samoupis) uz fallback na
+// hardkodovani niz `companies` ako Sheet nije dostupan (npr. offline test).
+const COMPANIES_SHEET_ID = '1Vj73Qih8vqJibrTFtE_JoaGzgYREIL23NpZfEnqmJpA';
+const COMPANIES_CSV_URL = 'https://docs.google.com/spreadsheets/d/' + COMPANIES_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=Sheet1';
+// Apps Script Web App URL koji prima nove prijave (upisuje red u Sheet sa Odobreno=NE).
+// Ostaje prazan dok se ne deploy-uje Apps Script (vidi uputstvo poslato uz kod).
+const COMPANY_FORM_ENDPOINT = '';
+
+let allCompanies = companies.slice();
+let currentCompanyList = companies.slice();
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(field); field = '';
+        if (row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else field += c;
+    }
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+async function fetchCompaniesFromSheet() {
+  try {
+    const res = await fetch(COMPANIES_CSV_URL, { cache: 'no-store' });
+    if (!res.ok) return;
+    const text = await res.text();
+    const rows = parseCsv(text);
+    if (rows.length < 2) return;
+    const header = rows[0].map(h => h.trim().toLowerCase());
+    const idx = (needle) => header.findIndex(h => h.startsWith(needle));
+    const iName = idx('naziv'), iCity = idx('grad'), iCountry = idx('država'), iCat = idx('kategorija'),
+          iProd = idx('proizvodi'), iUrl = idx('sajt'), iDesc = idx('opis'), iVer = idx('verifikovano'),
+          iApproved = idx('odobreno');
+    const fromSheet = rows.slice(1)
+      .filter(r => iApproved >= 0 && (r[iApproved] || '').trim().toUpperCase() === 'DA')
+      .map(r => ({
+        name: (r[iName] || '').trim(),
+        city: (r[iCity] || '').trim(),
+        country: (r[iCountry] || '').trim(),
+        cat: (r[iCat] || '').trim(),
+        products: (r[iProd] || '').split(';').map(s => s.trim()).filter(Boolean),
+        verified: (r[iVer] || '').trim().toUpperCase() === 'DA',
+        url: (r[iUrl] || '').trim(),
+        desc: (r[iDesc] || '').trim()
+      }))
+      .filter(c => c.name);
+    if (fromSheet.length) {
+      allCompanies = fromSheet;
+      if (document.getElementById('page-kompanije').classList.contains('active')) {
+        filterCompanies();
+      }
+    }
+  } catch (e) { console.error('fetchCompaniesFromSheet:', e); }
+}
+
 function renderCompanies(data) {
+  currentCompanyList = data;
   const grid = document.getElementById('company-grid');
+  const label = document.getElementById('company-count-label');
+  if (label) label.textContent = data.length + (data.length === 1 ? ' kompanija' : ' kompanija u direktorijumu');
   grid.innerHTML = data.map((c, i) => `
     <div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover" onclick="openCompany(${i})">
       <div class="flex items-start justify-between mb-3">
@@ -2531,7 +2674,7 @@ function filterCompanies() {
   const q = document.getElementById('company-search').value.toLowerCase();
   const country = document.getElementById('company-country').value;
   const cat = document.getElementById('company-cat').value;
-  const filtered = companies.filter(c =>
+  const filtered = allCompanies.filter(c =>
     (!q || c.name.toLowerCase().includes(q) || c.cat.toLowerCase().includes(q)) &&
     (!country || c.country === country) &&
     (!cat || c.cat === cat)
@@ -2539,8 +2682,42 @@ function filterCompanies() {
   renderCompanies(filtered);
 }
 
+function openAddCompanyModal() { document.getElementById('add-company-modal').classList.add('open'); }
+function closeAddCompanyModal(e) {
+  if (!e || e.currentTarget === e.target) document.getElementById('add-company-modal').classList.remove('open');
+}
+
+async function submitCompanyForm(e) {
+  e.preventDefault();
+  const form = e.target;
+  const btn = form.querySelector('button[type="submit"]');
+  if (!COMPANY_FORM_ENDPOINT) {
+    showToast('Prijava trenutno nije aktivna. Pokušajte kasnije.');
+    return;
+  }
+  const fd = new FormData(form);
+  const params = new URLSearchParams();
+  for (const [k, v] of fd.entries()) params.append(k, v);
+  params.append('datum', new Date().toLocaleDateString('sr-RS'));
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = 'Šalje se…';
+  try {
+    await fetch(COMPANY_FORM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: params });
+    showToast('Hvala! Prijava je poslata na pregled.');
+    form.reset();
+    closeAddCompanyModal();
+  } catch (err) {
+    console.error('submitCompanyForm:', err);
+    showToast('Greška pri slanju. Pokušajte ponovo.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
 function openCompany(i) {
-  const c = companies[i];
+  const c = currentCompanyList[i];
   document.getElementById('company-modal-content').innerHTML = `
     <div class="flex items-start gap-4 mb-6">
       <div class="w-16 h-16 bg-brand-pale flex items-center justify-center flex-shrink-0">
@@ -2862,7 +3039,7 @@ function showPage(name) {
   if (target) {
     target.classList.add('active');
     if (name === 'cene') { setTimeout(() => { renderPriceCards(); updateChart(); }, 50); }
-    if (name === 'kompanije') renderCompanies(companies);
+    if (name === 'kompanije') renderCompanies(allCompanies);
     if (name === 'oglasi') renderAds(ads);
     if (name === 'edukacija') renderEdu(eduItems);
     if (name === 'sajmovi') renderEvents(events);
@@ -2942,6 +3119,7 @@ function initPortal() {
   try { renderNews('sve'); } catch(e) { console.error('renderNews:', e); }
   try { renderHero(); } catch(e) { console.error('renderHero:', e); }
   try { fetchAllPrices(); } catch(e) { console.error('fetchAllPrices:', e); }
+  try { fetchCompaniesFromSheet(); } catch(e) { console.error('fetchCompaniesFromSheet:', e); }
   try {
     const m = location.hash.match(/^#vest-(\d+)$/);
     if (m) {
