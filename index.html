@@ -225,9 +225,9 @@ tailwind.config = {
           <div class="text-xs font-semibold mt-1" style="color:#16a34a;">+4.8% za 30 dana</div>
         </div>
         <div class="text-center sm:text-left">
-          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950">1.240</div>
+          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950" id="stat-companies">—</div>
           <div class="text-sm text-gray-500 mt-1">Kompanija u direktorijumu</div>
-          <div class="text-xs font-semibold mt-1 text-gray-400">Balkan region</div>
+          <div class="text-xs font-semibold mt-1 text-gray-400">Verifikovano ručno</div>
         </div>
         <div class="text-center sm:text-left">
           <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950">117.25</div>
@@ -369,26 +369,6 @@ tailwind.config = {
     </div>
   </section>
 
-  <!-- BALKAN WINDOW INDEX TEASER -->
-  <section class="border-b border-gray-100" style="background:linear-gradient(135deg,#0f2540 0%,#1a3a5c 100%);">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-8">
-        <div class="flex-1">
-          <div class="tag text-gray-400 mb-3">EKSKLUZIVNO</div>
-          <div class="font-bold text-white text-sm tracking-widest mb-2">BALKAN WINDOW INDEX</div>
-          <div class="flex items-end gap-4 mb-3">
-            <span class="font-serif text-7xl font-bold text-white">72.4</span>
-            <span class="text-2xl font-semibold mb-2" style="color:#4ade80;">+3.2%</span>
-          </div>
-          <p class="text-gray-400 text-sm max-w-md leading-relaxed">"Indikator poslovne aktivnosti industrije prozora, vrata, stakla i fasada na Balkanu."</p>
-        </div>
-        <div class="flex-shrink-0">
-          <button class="btn-outline text-white border-white hover:bg-white hover:text-brand" onclick="showPage('analize')">Pogledaj indeks →</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- NEWSLETTER BLOCK -->
   <section class="bg-white border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
@@ -473,7 +453,7 @@ tailwind.config = {
           <div class="text-blue-500 text-xl flex-shrink-0">ℹ</div>
           <div>
             <div class="text-sm font-semibold text-blue-800 mb-1">EU tenderi (HR, SI, RO, BG, IT, DE, AT, FR) + Švajcarska</div>
-            <div class="text-xs text-blue-700">Registrujte besplatni TED API key na <span class="font-mono bg-blue-100 px-1 rounded">developer.ted.europa.eu</span> i ubacite ga u portal za live EU tendere. Trenutno prikazani podaci su indikativni.</div>
+            <div class="text-xs text-blue-700">Registrujte besplatni TED API key na <span class="font-mono bg-blue-100 px-1 rounded">developer.ted.europa.eu</span> i ubacite ga u portal za live EU tendere.</div>
           </div>
           <button onclick="document.getElementById('ted-info-box').style.display='none'" class="text-blue-400 hover:text-blue-600 text-lg flex-shrink-0 ml-auto">×</button>
         </div>
@@ -493,8 +473,8 @@ tailwind.config = {
         <!-- EMPTY STATE -->
         <div id="tender-empty" class="hidden text-center py-16 text-gray-400">
           <div class="text-4xl mb-3">📋</div>
-          <div class="text-lg font-medium">Nema rezultata</div>
-          <div class="text-sm mt-1">Promijenite filtere ili pretragu</div>
+          <div class="text-lg font-medium">Trenutno nema aktivnih tendera</div>
+          <div class="text-sm mt-1">Podaci se povlače automatski sa nabavke.gov.rs i TED-a. Promenite filtere ili proverite kasnije.</div>
         </div>
 
         <!-- SOURCE INFO -->
@@ -721,26 +701,6 @@ tailwind.config = {
     </div>
     <div class="space-y-8">
       <div class="border-b border-gray-100 pb-8">
-        <div class="tag text-brand mb-2">TRŽIŠTE</div>
-        <h2 class="font-serif text-2xl font-bold text-gray-950 mb-3">Balkan Window Index - Q4 2024: Indikator poslovne aktivnosti industrije</h2>
-        <p class="text-gray-600 leading-relaxed mb-4">Balkan Window Index (BWI) za Q4 2024 iznosi 72.4, što predstavlja rast od 3.2% u odnosu na prethodni kvartal. Indeks prati aktivnost u šest ključnih segmenata: proizvodnja PVC profila, AL ekstruzija, staklo i IGU, okov i hardware, montažne usluge, i maloprodaja stolarije.</p>
-        <div class="grid grid-cols-3 gap-4 mb-4">
-          <div class="bg-gray-50 p-4 text-center">
-            <div class="font-serif text-3xl font-bold text-gray-950">72.4</div>
-            <div class="text-xs text-gray-500 mt-1">BWI Q4 2024</div>
-          </div>
-          <div class="bg-gray-50 p-4 text-center">
-            <div class="font-serif text-3xl font-bold" style="color:#16a34a;">+3.2%</div>
-            <div class="text-xs text-gray-500 mt-1">Kvartal na kvartal</div>
-          </div>
-          <div class="bg-gray-50 p-4 text-center">
-            <div class="font-serif text-3xl font-bold text-gray-950">70.1</div>
-            <div class="text-xs text-gray-500 mt-1">BWI Q3 2024</div>
-          </div>
-        </div>
-        <button class="text-brand text-sm font-semibold hover:underline">Pročitaj celu analizu →</button>
-      </div>
-      <div class="border-b border-gray-100 pb-8">
         <div class="tag text-up mb-2">CENE SIROVINA</div>
         <h2 class="font-serif text-2xl font-bold text-gray-950 mb-3">Šta rast cene aluminijuma znači za proizvođače AL stolarije</h2>
         <p class="text-gray-600 leading-relaxed mb-4">LME cena aluminijuma porasla je za 4.8% u poslednjih 30 dana. Analiziramo direktan uticaj na kalkulacije, moguće strategije zaštite i kada očekivati da se rast prenese na krajnje kupce.</p>
@@ -829,32 +789,6 @@ tailwind.config = {
           </div>
         </div>
 
-        <!-- WinDoor -->
-        <div class="tool-card" data-category="erp kalkulacija">
-          <div class="bg-white border border-gray-200 p-6 h-full flex flex-col" style="border-top: 3px solid #1a3a5c;">
-            <div class="flex items-start justify-between mb-4">
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-xs font-bold tracking-widest text-white bg-brand px-2 py-0.5">FEATURED</span>
-                  <span class="text-xs font-bold tracking-widest text-gray-400">ERP · Kalkulacija</span>
-                </div>
-                <h3 class="font-serif text-xl font-bold text-gray-950">WinDoor</h3>
-              </div>
-              <div class="flex-shrink-0 w-10 h-10 bg-gray-100 flex items-center justify-center text-brand font-bold text-sm">WD</div>
-            </div>
-            <p class="text-gray-600 text-sm leading-relaxed mb-4 flex-1">ERP rješenje razvijeno specifično za manje i srednje proizvođače PVC i AL stolarije. Brz onboarding, kalkulacija po šabalonima, upravljanje montažom i reklamacijama.</p>
-            <div class="flex flex-wrap gap-2 mb-5">
-              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">PVC / AL</span>
-              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">Montaža</span>
-              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">Reklamacije</span>
-              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">SRB / BIH / HR</span>
-            </div>
-            <div class="flex gap-2">
-              <button class="btn-primary text-xs flex-1" onclick="openDemoModal('WinDoor')">Zatraži demo</button>
-              <button class="btn-outline text-xs px-3">Web →</button>
-            </div>
-          </div>
-        </div>
 
       </div>
     </div>
@@ -880,78 +814,6 @@ tailwind.config = {
             <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Automatizacija</span>
           </div>
           <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('Lisec Software')">Zatraži informacije →</button>
-        </div>
-
-        <!-- ProFenster -->
-        <div class="tool-card bg-white border border-gray-200 p-5 card-hover" data-category="kalkulacija crm">
-          <div class="flex items-start justify-between mb-3">
-            <div>
-              <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">Kalkulacija · CRM</div>
-              <h3 class="font-bold text-gray-950">ProFenster</h3>
-            </div>
-            <div class="flex-shrink-0 w-9 h-9 bg-gray-100 flex items-center justify-center text-brand font-bold text-xs">PF</div>
-          </div>
-          <p class="text-gray-500 text-sm leading-relaxed mb-4">Web-based platforma za kalkulaciju, ponude i praćenje naloga za manje radionice. Bez instalacije, plaćanje po korisniku. Podržava srpski, bosanski i hrvatski.</p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Web app</span>
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">SRB / BIH / HR</span>
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">SaaS</span>
-          </div>
-          <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('ProFenster')">Zatraži informacije →</button>
-        </div>
-
-        <!-- FacadeCalc -->
-        <div class="tool-card bg-white border border-gray-200 p-5 card-hover" data-category="kalkulacija energija">
-          <div class="flex items-start justify-between mb-3">
-            <div>
-              <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">Kalkulacija · Energetika</div>
-              <h3 class="font-bold text-gray-950">FacadeCalc Pro</h3>
-            </div>
-            <div class="flex-shrink-0 w-9 h-9 bg-gray-100 flex items-center justify-center text-brand font-bold text-xs">FC</div>
-          </div>
-          <p class="text-gray-500 text-sm leading-relaxed mb-4">Alat za proračun termičkih karakteristika fasadnih sistema. Generira izvještaje prema EN 13830 i lokalnim standardima za energetske certifikate.</p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">EN 13830</span>
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">U-vrijednost</span>
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Izvještaji</span>
-          </div>
-          <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('FacadeCalc Pro')">Zatraži informacije →</button>
-        </div>
-
-        <!-- AlCRM -->
-        <div class="tool-card bg-white border border-gray-200 p-5 card-hover" data-category="crm">
-          <div class="flex items-start justify-between mb-3">
-            <div>
-              <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">CRM / Prodaja</div>
-              <h3 class="font-bold text-gray-950">AlCRM Industry</h3>
-            </div>
-            <div class="flex-shrink-0 w-9 h-9 bg-gray-100 flex items-center justify-center text-brand font-bold text-xs">AC</div>
-          </div>
-          <p class="text-gray-500 text-sm leading-relaxed mb-4">CRM prilagođen distributerima i predstavnicima profilnih sistema. Praćenje projekata po gradilištu, ofertiranje, servisni nalozi i historija klijenta.</p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Distributeri</span>
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Projekti</span>
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Mobile app</span>
-          </div>
-          <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('AlCRM Industry')">Zatraži informacije →</button>
-        </div>
-
-        <!-- GlassCut -->
-        <div class="tool-card bg-white border border-gray-200 p-5 card-hover" data-category="cnc">
-          <div class="flex items-start justify-between mb-3">
-            <div>
-              <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">CNC / Produkcija</div>
-              <h3 class="font-bold text-gray-950">GlassCut Optimizer</h3>
-            </div>
-            <div class="flex-shrink-0 w-9 h-9 bg-gray-100 flex items-center justify-center text-brand font-bold text-xs">GC</div>
-          </div>
-          <p class="text-gray-500 text-sm leading-relaxed mb-4">Optimizator rezanja stakla za manje radionice. Minimizuje otpad, generiše planove rezanja i izvozi u format kompatibilan s CNC mašinama.</p>
-          <div class="flex flex-wrap gap-1.5 mb-4">
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Optimizacija</span>
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Staklo</span>
-            <span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5">Desktop app</span>
-          </div>
-          <button class="text-brand text-xs font-semibold hover:underline" onclick="openDemoModal('GlassCut Optimizer')">Zatraži informacije →</button>
         </div>
 
         <!-- Placeholder / Vendor CTA -->
@@ -1091,7 +953,6 @@ tailwind.config = {
     </div>
     <div class="border-t border-gray-800 pt-6 flex flex-wrap justify-between items-center gap-2">
       <div class="text-gray-600 text-xs">© 2026 ŠTOK I KRILO. Sva prava zadržana. Izdavač: GP GALAXY d.o.o. Kragujevac.</div>
-      <div class="text-gray-600 text-xs">Demo verzija - Podaci su ilustrativni</div>
     </div>
   </div>
 </footer>
@@ -1406,253 +1267,8 @@ const events = [
 // ==================== TENDERI ====================
 const TED_API_KEY = 'dec3c29a94794d2896513c7a7f29da92'; // dodati key od developer.ted.europa.eu
 
-const tenderPlaceholders = [
-  // ── SRBIJA ──
-  { id:'rs1', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
-    title:'Nabavka i ugradnja PVC stolarije za stambeni objekat', buyer:'JKP Gradsko stambeno Beograd',
-    location:'Beograd', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Otvoreni postupak', value:'4.200.000 RSD', valueEur:'~35.800 EUR',
-    published:'5. avg 2026', deadline:'5. sep 2026', daysLeft:16,
-    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
-  { id:'rs2', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
-    title:'Zamena prozora i vrata na objektu Osnovne škole "Dositej Obradović"', buyer:'Grad Novi Sad',
-    location:'Novi Sad', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Otvoreni postupak', value:'1.850.000 RSD', valueEur:'~15.800 EUR',
-    published:'7. avg 2026', deadline:'28. avg 2026', daysLeft:8,
-    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
-  { id:'rs3', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
-    title:'Isporuka i montaža aluminijumske fasade na poslovnoj zgradi', buyer:'Grad Niš - Direkcija za izgradnju',
-    location:'Niš', type:'fasada', typeLabel:'Fasade',
-    cpv:'44112400', cpvLabel:'Fasadni radovi',
-    procedure:'Otvoreni postupak', value:'12.500.000 RSD', valueEur:'~106.500 EUR',
-    published:'3. avg 2026', deadline:'8. sep 2026', daysLeft:19,
-    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
-  { id:'rs4', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
-    title:'Rekonstrukcija stolarije i fasade zdravstvenog centra', buyer:'Dom zdravlja Kragujevac',
-    location:'Kragujevac', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421000', cpvLabel:'Stolarski radovi',
-    procedure:'Otvoreni postupak', value:'3.600.000 RSD', valueEur:'~30.700 EUR',
-    published:'8. avg 2026', deadline:'29. avg 2026', daysLeft:9,
-    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
-  { id:'rs5', country:'srbija', countryLabel:'Srbija', flag:'🇷🇸',
-    title:'Nabavka kaljenog i termoizolacionog stakla za opštinske objekte', buyer:'Opština Čačak',
-    location:'Čačak', type:'staklo', typeLabel:'Staklo',
-    cpv:'44221000', cpvLabel:'Prozori, vrata i staklo',
-    procedure:'Otvoreni postupak', value:'980.000 RSD', valueEur:'~8.350 EUR',
-    published:'9. avg 2026', deadline:'3. sep 2026', daysLeft:14,
-    url:'https://portal.ujn.gov.rs', live:false, src:'placeholder' },
+const tenderPlaceholders = []; // bez izmisljenih tendera - prikazuju se samo stvarni sa nabavke.gov.rs i TED-a
 
-  // ── HRVATSKA ──
-  { id:'hr1', country:'hrvatska', countryLabel:'Hrvatska', flag:'🇭🇷',
-    title:'Dobava i ugradnja PVC stolarije na stambenim zgradama', buyer:'Grad Zagreb - Gradski ured za prostorno uređenje',
-    location:'Zagreb', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Otvoreni postupak (EU)', value:'95.000 EUR', valueEur:'95.000 EUR',
-    published:'6. avg 2026', deadline:'10. sep 2026', daysLeft:21,
-    url:'https://eojn.nn.hr', live:false, src:'placeholder' },
-  { id:'hr2', country:'hrvatska', countryLabel:'Hrvatska', flag:'🇭🇷',
-    title:'Zamjena fasadne aluminijumske stolarije na školi', buyer:'Osnovna škola Split 3, Split',
-    location:'Split', type:'fasada', typeLabel:'Fasade',
-    cpv:'44221000', cpvLabel:'Prozori i vrata',
-    procedure:'Otvoreni postupak (EU)', value:'48.000 EUR', valueEur:'48.000 EUR',
-    published:'4. avg 2026', deadline:'2. sep 2026', daysLeft:13,
-    url:'https://eojn.nn.hr', live:false, src:'placeholder' },
-  { id:'hr3', country:'hrvatska', countryLabel:'Hrvatska', flag:'🇭🇷',
-    title:'Isporuka i montaža PVC i aluminijumske stolarije za Dom kulture', buyer:'Grad Rijeka',
-    location:'Rijeka', type:'montaza', typeLabel:'Montaža',
-    cpv:'45421000', cpvLabel:'Stolarski radovi',
-    procedure:'Otvoreni postupak (EU)', value:'62.000 EUR', valueEur:'62.000 EUR',
-    published:'2. avg 2026', deadline:'6. sep 2026', daysLeft:17,
-    url:'https://eojn.nn.hr', live:false, src:'placeholder' },
-
-  // ── SLOVENIJA ──
-  { id:'si1', country:'slovenija', countryLabel:'Slovenija', flag:'🇸🇮',
-    title:'Dobava in montaža PVC stavbnega pohištva na stanovanjskih objektih', buyer:'Mestna občina Ljubljana',
-    location:'Ljubljana', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Vgradnja oken in vrat',
-    procedure:'Odprti postopek (EU)', value:'185.000 EUR', valueEur:'185.000 EUR',
-    published:'7. avg 2026', deadline:'15. sep 2026', daysLeft:26,
-    url:'https://www.enarocanje.si', live:false, src:'placeholder' },
-  { id:'si2', country:'slovenija', countryLabel:'Slovenija', flag:'🇸🇮',
-    title:'Zamenjava oken in vrat v šolski stavbi - energetska prenova', buyer:'OŠ Frana Erjavca, Maribor',
-    location:'Maribor', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421000', cpvLabel:'Mizarska dela',
-    procedure:'Odprti postopek (EU)', value:'72.000 EUR', valueEur:'72.000 EUR',
-    published:'5. avg 2026', deadline:'1. sep 2026', daysLeft:12,
-    url:'https://www.enarocanje.si', live:false, src:'placeholder' },
-
-  // ── BIH ──
-  { id:'ba1', country:'bih', countryLabel:'Bosna i Hercegovina', flag:'🇧🇦',
-    title:'Nabavka i ugradnja stolarije za stambeni kompleks "Ilidža"', buyer:'Zavod za izgradnju Kantona Sarajevo',
-    location:'Sarajevo', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Otvoreni postupak', value:'280.000 KM', valueEur:'~143.000 EUR',
-    published:'6. avg 2026', deadline:'9. sep 2026', daysLeft:20,
-    url:'https://www.ejn.gov.ba', live:false, src:'placeholder' },
-  { id:'ba2', country:'bih', countryLabel:'Bosna i Hercegovina', flag:'🇧🇦',
-    title:'Rekonstrukcija prozora i vrata na Upravnoj zgradi opštine', buyer:'Opština Banja Luka',
-    location:'Banja Luka', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'44221000', cpvLabel:'Prozori, vrata i slično',
-    procedure:'Otvoreni postupak', value:'95.000 KM', valueEur:'~48.500 EUR',
-    published:'8. avg 2026', deadline:'27. avg 2026', daysLeft:7,
-    url:'https://www.ejn.gov.ba', live:false, src:'placeholder' },
-
-  // ── BUGARSKA ──
-  { id:'bg1', country:'bugarska', countryLabel:'Bugarska', flag:'🇧🇬',
-    title:'Доставка и монтаж на алуминиева и PVC дограма за административна сграда', buyer:'Sofijska opština',
-    location:'Sofija', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Montaža prozora i vrata',
-    procedure:'Otvoreni postupak (EU)', value:'185.000 BGN', valueEur:'~94.500 EUR',
-    published:'4. avg 2026', deadline:'4. sep 2026', daysLeft:15,
-    url:'https://app.eop.bg', live:false, src:'placeholder' },
-  { id:'bg2', country:'bugarska', countryLabel:'Bugarska', flag:'🇧🇬',
-    title:'Смяна на прозорци и врати в многофамилна жилищна сграда', buyer:'Opština Plovdiv',
-    location:'Plovdiv', type:'montaza', typeLabel:'Montaža',
-    cpv:'45421000', cpvLabel:'Stolarski radovi',
-    procedure:'Otvoreni postupak (EU)', value:'62.000 BGN', valueEur:'~31.700 EUR',
-    published:'7. avg 2026', deadline:'30. avg 2026', daysLeft:10,
-    url:'https://app.eop.bg', live:false, src:'placeholder' },
-
-  // ── RUMUNIJA ──
-  { id:'ro1', country:'rumunija', countryLabel:'Rumunija', flag:'🇷🇴',
-    title:'Furnizare și montaj tâmplărie PVC pentru blocuri de locuințe', buyer:'Asociația de proprietari Sector 3, București',
-    location:'Bukurešt', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Otvoreni postupak (EU)', value:'220.000 RON', valueEur:'~44.200 EUR',
-    published:'3. avg 2026', deadline:'3. sep 2026', daysLeft:14,
-    url:'https://www.e-licitatie.ro', live:false, src:'placeholder' },
-  { id:'ro2', country:'rumunija', countryLabel:'Rumunija', flag:'🇷🇴',
-    title:'Înlocuire tâmplărie exterioară și reabilitare fațadă - școală', buyer:'Consiliul Județean Cluj',
-    location:'Cluj-Napoca', type:'fasada', typeLabel:'Fasade',
-    cpv:'44112400', cpvLabel:'Fasadni radovi',
-    procedure:'Otvoreni postupak (EU)', value:'95.000 EUR', valueEur:'95.000 EUR',
-    published:'5. avg 2026', deadline:'10. sep 2026', daysLeft:21,
-    url:'https://www.e-licitatie.ro', live:false, src:'placeholder' },
-
-  // ── MAKEDONIJA ──
-  { id:'mk1', country:'makedonija', countryLabel:'Severna Makedonija', flag:'🇲🇰',
-    title:'Набавка и монтажа на ПВЦ и АЛУ столарија за спортски центар', buyer:'Град Скопје',
-    location:'Skoplje', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Otvoreni postupak', value:'4.800.000 MKD', valueEur:'~78.000 EUR',
-    published:'6. avg 2026', deadline:'7. sep 2026', daysLeft:18,
-    url:'https://www.e-nabavki.gov.mk', live:false, src:'placeholder' },
-
-  // ── ALBANIJA ──
-  { id:'al1', country:'albanija', countryLabel:'Albanija', flag:'🇦🇱',
-    title:'Furnizim dhe instalim i dritareve dhe dyerve PVC për ndërtesë administrative', buyer:'Bashkia Tiranë',
-    location:'Tirana', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Otvoreni postupak', value:'12.500.000 ALL', valueEur:'~101.200 EUR',
-    published:'5. avg 2026', deadline:'31. avg 2026', daysLeft:11,
-    url:'https://www.app.gov.al', live:false, src:'placeholder' },
-
-  // ── KOSOVO ──
-  { id:'xk1', country:'kosovo', countryLabel:'Kosovo', flag:'🇽🇰',
-    title:'Furnizimi dhe montimi i dritareve PVC dhe dyerve alumin për shkollë', buyer:'Komuna e Prishtinës',
-    location:'Priština', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421000', cpvLabel:'Stolarski radovi',
-    procedure:'Otvoreni postupak', value:'85.000 EUR', valueEur:'85.000 EUR',
-    published:'4. avg 2026', deadline:'28. avg 2026', daysLeft:8,
-    url:'https://skpp.rks-gov.net', live:false, src:'placeholder' },
-
-  // ── NEMAČKA ──
-  { id:'de1', country:'nemacka', countryLabel:'Nemačka', flag:'🇩🇪',
-    title:'Lieferung und Montage von PVC-Fenstern und -Türen für Wohnkomplex', buyer:'Stadtbaugesellschaft München',
-    location:'Minhen', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Offenes Verfahren (EU)', value:'420.000 EUR', valueEur:'420.000 EUR',
-    published:'6. avg 2026', deadline:'15. sep 2026', daysLeft:26,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-  { id:'de2', country:'nemacka', countryLabel:'Nemačka', flag:'🇩🇪',
-    title:'Aluminium-Fassadensystem für Bürogebäude - Neubau', buyer:'Freie und Hansestadt Hamburg',
-    location:'Hamburg', type:'fasada', typeLabel:'Fasade',
-    cpv:'44112400', cpvLabel:'Fasadni radovi',
-    procedure:'Offenes Verfahren (EU)', value:'1.250.000 EUR', valueEur:'1.250.000 EUR',
-    published:'4. avg 2026', deadline:'10. sep 2026', daysLeft:21,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-  { id:'de3', country:'nemacka', countryLabel:'Nemačka', flag:'🇩🇪',
-    title:'Fenstersanierung an Schulgebäuden - energetische Modernisierung', buyer:'Kreis Düsseldorf',
-    location:'Diseldorf', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421000', cpvLabel:'Stolarski radovi',
-    procedure:'Offenes Verfahren (EU)', value:'680.000 EUR', valueEur:'680.000 EUR',
-    published:'7. avg 2026', deadline:'5. sep 2026', daysLeft:16,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-
-  // ── AUSTRIJA ──
-  { id:'at1', country:'austrija', countryLabel:'Austrija', flag:'🇦🇹',
-    title:'Lieferung und Einbau von Holz-Alu-Fenster für Wohnanlage', buyer:'Wiener Wohnen GmbH',
-    location:'Beč', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Offenes Verfahren (EU)', value:'560.000 EUR', valueEur:'560.000 EUR',
-    published:'5. avg 2026', deadline:'8. sep 2026', daysLeft:19,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-  { id:'at2', country:'austrija', countryLabel:'Austrija', flag:'🇦🇹',
-    title:'Austausch von Aluminiumfenstern an öffentlichen Gebäuden - Graz', buyer:'Stadt Graz',
-    location:'Grac', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'44221000', cpvLabel:'Prozori i vrata',
-    procedure:'Offenes Verfahren (EU)', value:'320.000 EUR', valueEur:'320.000 EUR',
-    published:'3. avg 2026', deadline:'1. sep 2026', daysLeft:12,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-
-  // ── ITALIJA ──
-  { id:'it1', country:'italija', countryLabel:'Italija', flag:'🇮🇹',
-    title:'Fornitura e posa in opera di infissi in PVC per edilizia residenziale pubblica', buyer:'ALER Milano',
-    location:'Milano', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Procedura aperta (EU)', value:'780.000 EUR', valueEur:'780.000 EUR',
-    published:'8. avg 2026', deadline:'18. sep 2026', daysLeft:29,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-  { id:'it2', country:'italija', countryLabel:'Italija', flag:'🇮🇹',
-    title:'Sostituzione infissi e riqualificazione energetica facciate - scuole', buyer:'Comune di Roma',
-    location:'Rim', type:'fasada', typeLabel:'Fasade',
-    cpv:'44112400', cpvLabel:'Fasadni radovi',
-    procedure:'Procedura aperta (EU)', value:'1.450.000 EUR', valueEur:'1.450.000 EUR',
-    published:'6. avg 2026', deadline:'12. sep 2026', daysLeft:23,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-  { id:'it3', country:'italija', countryLabel:'Italija', flag:'🇮🇹',
-    title:'Fornitura serramenti in alluminio per complesso residenziale', buyer:'Comune di Torino',
-    location:'Torino', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'44221200', cpvLabel:'Aluminijumska stolarija',
-    procedure:'Procedura aperta (EU)', value:'490.000 EUR', valueEur:'490.000 EUR',
-    published:'4. avg 2026', deadline:'3. sep 2026', daysLeft:14,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-
-  // ── FRANCUSKA ──
-  { id:'fr1', country:'francuska', countryLabel:'Francuska', flag:'🇫🇷',
-    title:'Fourniture et pose de menuiseries PVC pour logements sociaux', buyer:'Paris Habitat',
-    location:'Pariz', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Appel d\'offres ouvert (EU)', value:'920.000 EUR', valueEur:'920.000 EUR',
-    published:'7. avg 2026', deadline:'16. sep 2026', daysLeft:27,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-  { id:'fr2', country:'francuska', countryLabel:'Francuska', flag:'🇫🇷',
-    title:'Remplacement des menuiseries extérieures - rénovation énergétique', buyer:'Métropole de Lyon',
-    location:'Lion', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'44221000', cpvLabel:'Prozori i vrata',
-    procedure:'Appel d\'offres ouvert (EU)', value:'380.000 EUR', valueEur:'380.000 EUR',
-    published:'5. avg 2026', deadline:'4. sep 2026', daysLeft:15,
-    url:'https://ted.europa.eu', live:false, src:'placeholder' },
-
-  // ── ŠVAJCARSKA ──
-  { id:'ch1', country:'svajcarska', countryLabel:'Švajcarska', flag:'🇨🇭',
-    title:'Lieferung und Montage Holz-Metall-Fenster für Schulhaus Zürich', buyer:'Stadt Zürich - Hochbaudepartement',
-    location:'Cirih', type:'stolarija', typeLabel:'Stolarija',
-    cpv:'45421100', cpvLabel:'Ugradnja prozora i vrata',
-    procedure:'Offenes Verfahren (CH)', value:'680.000 CHF', valueEur:'~720.000 EUR',
-    published:'6. avg 2026', deadline:'11. sep 2026', daysLeft:22,
-    url:'https://www.simap.ch', live:false, src:'placeholder' },
-  { id:'ch2', country:'svajcarska', countryLabel:'Švajcarska', flag:'🇨🇭',
-    title:'Remplacement fenêtres et portes aluminium - bâtiment administratif', buyer:'Canton de Vaud',
-    location:'Lozana', type:'fasada', typeLabel:'Fasade',
-    cpv:'44221000', cpvLabel:'Prozori i vrata',
-    procedure:'Appel d\'offres (CH)', value:'290.000 CHF', valueEur:'~307.000 EUR',
-    published:'4. avg 2026', deadline:'2. sep 2026', daysLeft:13,
-    url:'https://www.simap.ch', live:false, src:'placeholder' },
-
-];
 
 let _allTenders = [];
 let _tendersLoaded = false;
@@ -1884,7 +1500,7 @@ async function loadTenders() {
   document.getElementById('tender-updated').textContent =
     (liveCount > 0 ? '● ' : '') +
     'Ažurirano: ' + now.toLocaleTimeString('sr-Latn', {hour:'2-digit', minute:'2-digit'}) +
-    (liveCount > 0 ? ` · ${liveCount} live` : ' · demo podaci');
+    (liveCount > 0 ? ` · ${liveCount} live` : '');
 
   renderTenderStats(tenders);
   filterTenders();
@@ -1973,7 +1589,7 @@ function renderTenderCard(t) {
     : '';
   const liveBadge = t.live
     ? '<span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded"><span class="w-1.5 h-1.5 bg-green-500 rounded-full inline-block"></span>LIVE</span>'
-    : '<span class="inline-flex items-center gap-1 bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded">DEMO</span>';
+    : '';
 
   const typeColors = {
     stolarija:'bg-blue-100 text-blue-700', fasada:'bg-purple-100 text-purple-700',
@@ -3021,13 +2637,22 @@ document.addEventListener('keydown', e => {
 });
 
 // ==================== INIT ====================
+function updateCompanyStat() {
+  const el = document.getElementById('stat-companies');
+  if (!el) return;
+  const n = (typeof allCompanies !== 'undefined' && allCompanies && allCompanies.length)
+    ? allCompanies.length : companies.length;
+  el.textContent = n;
+}
+
 function initPortal() {
+  try { updateCompanyStat(); } catch(e) { console.error('updateCompanyStat:', e); }
   try { loadSavedPrices(); } catch(e) { console.error('loadSavedPrices:', e); }
   try { buildTicker(); } catch(e) { console.error('buildTicker:', e); }
   try { renderNews('sve'); } catch(e) { console.error('renderNews:', e); }
   try { renderHero(); } catch(e) { console.error('renderHero:', e); }
   try { fetchAllPrices(); } catch(e) { console.error('fetchAllPrices:', e); }
-  try { fetchCompaniesFromSheet(); } catch(e) { console.error('fetchCompaniesFromSheet:', e); }
+  try { Promise.resolve(fetchCompaniesFromSheet()).then(updateCompanyStat).catch(()=>{}); } catch(e) { console.error('fetchCompaniesFromSheet:', e); }
   try {
     const m = location.hash.match(/^#vest-(\d+)$/);
     if (m) {
