@@ -5,11 +5,20 @@
 1. **Svakog radnog dana u 05:00 UTC** Netlify pokreće `generate-drafts`.
 2. Funkcija povlači izvore (DGB, GLASWELT, OknoNet, Window+Door), preskače ono što je već obrađeno.
 3. Claude piše srpsku verziju sa pasusom „Šta ovo znači za Balkan?".
-4. Tekstovi se snimaju kao **nacrti** — ne idu na sajt.
-5. Urednik otvara `/admin.html`, čita i klikne **Odobri** ili **Odbaci**.
-6. Odobrene vesti se pojavljuju na portalu preko `/api/news`.
+4. **Automatska provera kvaliteta** (`_kvalitet.mjs`) proverava svaki tekst:
+   - **Izmišljeni brojevi** — svaki broj u tekstu mora da postoji u izvornom tekstu. Ako ne postoji, nacrt se označava crveno.
+   - **Prazan Balkan pasus** — mora da traži konkretnu radnju (proveri / uporedi / izračunaj / pitaj / prebroj...). Ako ne traži, označava se.
+   - **Floskule** — lista od ~35 praznih fraza („u današnje vreme", „ostaje da se vidi", „pratiti trendove"...).
+   - **Ijekavica** — portal je na ekavici.
+   Ako provera nađe ozbiljan problem, ide **jedan automatski popravni krug**: modelu se vraćaju konkretne zamerke i on prepisuje tekst. Zadržava se bolja verzija.
+5. Tekstovi se snimaju kao **nacrti** — ne idu na sajt.
+6. Urednik otvara `/admin.html`, čita i klikne **Odobri** ili **Odbaci**.
+7. Odobrene vesti se pojavljuju na portalu preko `/api/news`.
 
-Ništa se ne objavljuje bez ljudskog odobrenja.
+Ništa se ne objavljuje bez ljudskog odobrenja. Svaki nacrt u adminu ima ocenu 0-100 i obojenu ivicu:
+**zelena** = provera čista · **žuta** = pregledati · **crvena** = obavezno pročitaj pre odobravanja.
+
+Ocena nije garancija kvaliteta — ona hvata mehaničke greške. Prosuđivanje da li je pasus stvarno koristan i dalje je tvoje.
 
 ## Šta treba podesiti (jednokratno)
 

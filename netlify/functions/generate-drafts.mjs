@@ -1,10 +1,13 @@
 // ==========================================================================
 // ŠTOK I KRILO — dnevno povlačenje izvora + pisanje nacrta (Claude)
-// Pokreće se automatski svakog radnog dana u 05:00 UTC.
-// Ručno: GET /.netlify/functions/generate-drafts?token=ADMIN_TOKEN
-// Nacrti NE idu na sajt dok ih urednik ne odobri na /admin.html
+// Radnim danima 05:00 UTC. Ručno: ?token=ADMIN_TOKEN
+//
+// TOK: povuci izvore -> Claude piše -> automatska provera kvaliteta ->
+//      ako ima problema, JEDAN popravni krug -> nacrt ide uredniku.
+// Ništa ne ide na sajt bez ljudskog odobrenja.
 // ==========================================================================
 import { fetchAll, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, CAT_IMG, json } from './_lib.mjs';
+import { proveri, MARKER } from './_kvalitet.mjs';
 
 const MODEL = 'claude-sonnet-5';
 const MAX_NOVIH = 5;
@@ -12,74 +15,115 @@ const MAX_NOVIH = 5;
 const MESECI = ['jan','feb','mar','apr','maj','jun','jul','avg','sep','okt','nov','dec'];
 const danas = () => { const d = new Date(); return d.getDate() + '. ' + MESECI[d.getMonth()] + ' ' + d.getFullYear(); };
 
-const SISTEM = `Ti si urednik portala ŠTOK I KRILO — industrijskog informacionog portala za sektor prozora, vrata, stakla i fasada na Balkanu. Izdavač je GP GALAXY iz Kragujevca. Čitaoci su vlasnici i direktori proizvodnje stolarije (5-80 zaposlenih), distributeri sistema, monteri i arhitekte u Srbiji, BiH, Hrvatskoj, Crnoj Gori i Severnoj Makedoniji.
+// ── SISTEMSKI PROMPT ──────────────────────────────────────────────────────
+const SISTEM = `Ti si urednik portala ŠTOK I KRILO — industrijskog informacionog portala za sektor prozora, vrata, stakla i fasada na Balkanu. Izdavač je GP GALAXY iz Kragujevca, a iza portala stoji čovek koji vodi proizvodnju stolarije. To je važno: ne pišeš kao novinar koji prepričava saopštenje, nego kao čovek iz fabrike koji je vest pročitao i kaže kolegi šta ona znači.
 
-Pišeš na srpskom, latinicom, ekavicom. Nikad ijekavica.
+ČITALAC: vlasnik ili direktor proizvodnje stolarije, 5-80 zaposlenih, Srbija / BiH / Hrvatska / Crna Gora / Severna Makedonija. Nema vremena. Zanima ga samo jedno — da li ovo utiče na njegov novac.
 
-STIL:
-- jasno, praktično, bez marketinških floskula i motivacionih fraza
-- kratke rečenice, konkretni brojevi
-- pišeš kao čovek iz fabrike, ne kao novinar koji prepričava saopštenje
-- bez emodžija, bez uzvičnika, bez "revolucionarno", "inovativno rešenje", "u današnje vreme"
+JEZIK: srpski, latinica, EKAVICA. Nikad ijekavica (ne "rješenje", "vrijednost", "prije" — nego "rešenje", "vrednost", "pre").
 
-PRAVILA:
-1. NIKAD ne izmišljaj brojeve, imena, datume ni citate. Koristi samo ono što piše u izvoru.
-2. Ako izvor ne daje podatak, ne pominji ga.
-3. Ne prevodi doslovno — prepiši za balkanskog čitaoca.
-4. Svaki tekst se ZAVRŠAVA pasusom koji počinje redom "- Šta ovo znači za Balkan? -" i sadrži konkretnu poslovnu implikaciju i jednu akciju koju čitalac može da uradi ove nedelje. Ne uopštenu konstataciju.
-5. Ako vest nema nikakvu vezu s balkanskim proizvođačem (npr. lokalni UK događaj bez šire poruke), vrati je sa "skip": true.
+═══ APSOLUTNA PRAVILA ═══
+1. NIJEDAN BROJ, IME, DATUM ILI CITAT koji nije doslovno u izvornom tekstu. Ako izvor ne daje cifru, ne piši cifru. Bolje "porastao je" nego izmišljen procenat.
+2. Ne prevodi doslovno. Prepiši za balkanskog čitaoca.
+3. Svaki tekst se ZAVRŠAVA pasusom koji počinje tačno redom: ${MARKER}
 
-Vraćaš ISKLJUČIVO validan JSON, bez markdown ograda.`;
+═══ PASUS "ŠTA OVO ZNAČI ZA BALKAN?" — OVO JE CEO PROIZVOD ═══
+Ovo je jedini razlog zbog kog portal postoji. Vest svako može da prepiše; ovaj pasus ne može.
+
+MORA da sadrži:
+  (a) konkretnu poslovnu posledicu za balkanskog proizvođača — na maržu, rok, kupca ili rizik
+  (b) JEDNU radnju koju čitalac može da uradi OVE NEDELJE, u imperativu, sa proverljivim ishodom
+  (c) pošteno priznanje kad vest NE utiče direktno na region — pa objašnjenje zašto je ipak vredi znati
+
+ZABRANJENO u tom pasusu:
+  - "vredi pratiti", "ostaje da se vidi", "treba se prilagoditi", "važno je pratiti trendove"
+  - opšte konstatacije bez adresata ("industrija mora da se menja")
+  - savet koji čitalac ne može da izvrši bez novog budžeta ili nove firme
+
+DOBAR PRIMER (ovako treba):
+"Cross-selling na postojeću porudžbinu je najjeftiniji rast koji balkanski proizvođač može da ostvari. Kupac koji već naručuje prozore za kuću na primorju je najlakši mogući kupac za škure i komarnike. Ne treba ti nova akvizicija — treba ti da to bude u ponudi i da prodavac zna da pita. Proveri koliko tvojih porudžbina sadrži više od jedne kategorije proizvoda. Ako je manje od trećine, tu ti stoji novac."
+
+DOBAR PRIMER (kad vest ne utiče direktno):
+"Srbija i Severna Makedonija su još u fazi rasta novogradnje, pa se ovo ne tiče nas neposredno. Ali mehanizam je isti svuda: kada poskupi kredit, prvo stane novogradnja, a tek posle nekoliko kvartala i zamena. Ako ti više od polovine prihoda dolazi od manje od pet kupaca, to je danas najveći rizik u tvom poslu — bez obzira što tržište trenutno raste. Prebroj to večeras."
+
+LOŠ PRIMER (nikad ovako):
+"Ovaj trend pokazuje da se industrija menja i da je važno pratiti nova rešenja. Balkanski proizvođači treba da se prilagode i iskoriste prilike koje donosi digitalizacija."
+
+═══ STIL ═══
+Kratke rečenice. Konkretni brojevi tamo gde ih izvor daje. Bez emodžija, uzvičnika i reči: revolucionarno, inovativno, ključno, holistički, sinergija, u današnje vreme, dodata vrednost.
+
+Ako vest nema NIKAKVU upotrebnu vrednost za balkanskog proizvođača — vrati "skip": true. Bolje četiri dobre vesti nego pet, od kojih je jedna prazna.
+
+Vraćaš ISKLJUČIVO validan JSON niz, bez markdown ograda.`;
 
 const KORISNIK = (items) => `Za svaku stavku ispod napiši vest za portal.
 
 IZVORNE STAVKE:
 ${JSON.stringify(items, null, 1)}
 
-Vrati JSON niz. Za svaku stavku objekat:
+Vrati JSON niz, isti redosled kao ulaz. Za svaku stavku:
 {
   "skip": false,
   "cat": "trziste" | "kompanije" | "proizvodnja" | "tehnologija" | "proizvodi" | "standardi" | "investicije",
   "catLabel": "TRŽIŠTE" | "INDUSTRIJA" | "PROIZVODNJA" | "TEHNOLOGIJA" | "OKOV" | "NOVI PROIZVOD" | "STANDARDI" | "INVESTICIJA" | "REGULATIVA" | "OBRAZOVANJE",
   "title": "naslov na srpskom, konkretan, do 95 znakova",
   "desc": "2-3 rečenice: ko, šta, gde, kada, zašto",
-  "body": "pun tekst, 3-6 pasusa razdvojenih sa \\\\n\\\\n, ZAVRŠAVA se pasusom '- Šta ovo znači za Balkan? -'",
+  "body": "3-6 pasusa razdvojenih sa \\\\n\\\\n, poslednji pasus počinje sa '${MARKER}'",
   "read": "3 min"
 }
+Za preskakanje: {"skip": true, "razlog": "..."}`;
 
-Ako stavku treba preskočiti: {"skip": true, "razlog": "kratko zašto"}.
-Redosled izlaza mora odgovarati redosledu ulaza.`;
-
-async function pisi(items, apiKey) {
+async function claude(messages, apiKey, maxTokens = 8000) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 8000,
-      system: SISTEM,
-      messages: [{ role: 'user', content: KORISNIK(items) }],
-    }),
+    headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, system: SISTEM, messages }),
     signal: AbortSignal.timeout(120000),
   });
   if (!res.ok) throw new Error('Anthropic API ' + res.status + ': ' + (await res.text()).slice(0, 300));
   const data = await res.json();
-  let txt = (data.content || []).map(c => c.text || '').join('').trim();
-  txt = txt.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-  const a = txt.indexOf('['), b = txt.lastIndexOf(']');
+  return (data.content || []).map(c => c.text || '').join('').trim();
+}
+
+function parsirajNiz(txt) {
+  let t = txt.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  const a = t.indexOf('['), b = t.lastIndexOf(']');
   if (a < 0 || b < 0) throw new Error('Odgovor nije JSON niz');
-  return JSON.parse(txt.slice(a, b + 1));
+  return JSON.parse(t.slice(a, b + 1));
+}
+
+// Jedan popravni krug: modelu se vraćaju konkretna upozorenja iz provere.
+async function popravi(vest, izvor, upozorenja, apiKey) {
+  const zamerke = upozorenja.map(u => '- [' + u.tip + '] ' + u.tekst).join('\n');
+  const txt = await claude([{
+    role: 'user',
+    content: `Ovaj tekst nije prošao uredničku proveru. Popravi ga.
+
+ZAMERKE:
+${zamerke}
+
+IZVORNI TEKST (jedini dozvoljeni izvor činjenica i brojeva):
+"""${(izvor.excerpt || izvor.summary || '').slice(0, 2500)}"""
+Naslov izvora: ${izvor.title}
+
+TVOJ TEKST:
+${JSON.stringify({ title: vest.title, desc: vest.desc, body: vest.body }, null, 1)}
+
+Ako je zamerka "broj-bez-izvora": obriši ili zameni opisom svaki broj kojeg nema u izvornom tekstu. Ne izmišljaj zamenu.
+Ako je zamerka "bez-akcije" ili "plitko": prepiši poslednji pasus tako da traži jednu konkretnu radnju u imperativu, sa proverljivim ishodom.
+Ako je zamerka "floskula": izbaci te fraze i zameni ih konkretnom tvrdnjom ili ih ukloni.
+Ako je zamerka "jezik": prebaci u ekavicu.
+
+Vrati JSON niz sa TAČNO JEDNIM objektom: [{"cat","catLabel","title","desc","body","read"}]`,
+  }], apiKey, 4000);
+  const arr = parsirajNiz(txt);
+  return arr && arr[0] ? arr[0] : null;
 }
 
 export default async (req) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   const admin = process.env.ADMIN_TOKEN;
 
-  // Ručno pokretanje traži token; scheduled poziv nema query string.
   const url = new URL(req.url);
   const manual = url.searchParams.has('token');
   if (manual && (!admin || url.searchParams.get('token') !== admin)) {
@@ -103,16 +147,35 @@ export default async (req) => {
   }));
 
   let napisano;
-  try { napisano = await pisi(ulaz, apiKey); }
+  try { napisano = parsirajNiz(await claude([{ role: 'user', content: KORISNIK(ulaz) }], apiKey)); }
   catch (e) { return json({ error: 'Pisanje nije uspelo: ' + e.message, povuceno: all.length, greske: errors }, 502); }
 
   const now = new Date().toISOString();
   const dodati = [];
-  napisano.forEach((w, i) => {
+  let popravljeno = 0;
+
+  for (let i = 0; i < napisano.length; i++) {
+    const w0 = napisano[i];
     const src = novi[i];
-    if (!src) return;
-    if (w && w.skip) { seen.push(src.url); return; }
-    if (!w || !w.title || !w.body) return;
+    if (!src) continue;
+    if (w0 && w0.skip) { seen.push(src.url); continue; }
+    if (!w0 || !w0.title || !w0.body) { seen.push(src.url); continue; }
+
+    const izvorTekst = (src.excerpt || '') + '\n' + (src.summary || '') + '\n' + (src.title || '');
+    let w = w0;
+    let p = proveri(w, izvorTekst);
+
+    // Jedan popravni krug ako ima ozbiljnih zamerki
+    if (p.status === 'problem') {
+      try {
+        const w2 = await popravi(w, src, p.upozorenja, apiKey);
+        if (w2 && w2.body && w2.title) {
+          const p2 = proveri(w2, izvorTekst);
+          if (p2.ocena > p.ocena) { w = { ...w, ...w2 }; p = p2; popravljeno++; }
+        }
+      } catch (e) { console.log('popravka nije uspela: ' + e.message); }
+    }
+
     dodati.push({
       id: 'd' + Date.now().toString(36) + i,
       status: 'nacrt',
@@ -127,20 +190,24 @@ export default async (req) => {
       source: src.source,
       url: src.url,
       img: CAT_IMG[w.cat] || CAT_IMG.trziste,
+      provera: p,
     });
     seen.push(src.url);
-  });
+  }
 
   await writeJSON(KEY_DRAFTS, [...dodati, ...drafts].slice(0, 100));
   await writeJSON(KEY_SEEN, seen.slice(-800));
 
   return json({
-    ok: true, povuceno: all.length, novih: novi.length,
-    nacrta: dodati.length, preskoceno: novi.length - dodati.length,
+    ok: true,
+    povuceno: all.length,
+    novih: novi.length,
+    nacrta: dodati.length,
+    popravljeno,
+    preskoceno: novi.length - dodati.length,
     greske: errors,
-    naslovi: dodati.map(d => d.title),
+    pregled: dodati.map(d => ({ naslov: d.title, ocena: d.provera.ocena, status: d.provera.status })),
   });
 };
 
-// Svakog radnog dana u 05:00 UTC (07:00 po lokalnom vremenu leti)
 export const config = { schedule: '0 5 * * 1-5' };
