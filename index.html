@@ -1125,52 +1125,113 @@ const prices = [
 // NIKAD ne kopirati tekst izvora u celini. Uvek navesti izvor i link.
 
 const NEWS_SOURCES = [
-  // ── UK / fenestration ──
+  // ══ TIER 1 — čitati svake nedelje ══════════════════════════════════════
+  { name: 'GLASWELT', short: 'GW', url: 'https://www.glaswelt.de/',
+    feed: 'https://www.glaswelt.de/rss', feedVerified: false,
+    region: 'Nemačka', lang: 'de', tier: 1,
+    focus: 'Nezavisan stručni časopis 50+ godina, 12 izdanja godišnje. Najveći portal u branši za prozore, fasade, staklo i zaštitu od sunca.',
+    use: 'ŠTA STIŽE. Nemački sistemi (Rehau, VEKA, Schüco, Siegenia, Roto, Winkhaus) dominiraju Balkanom - sve najavljeno tamo stiže ovde za 12-24 meseca.' },
+  { name: 'OknoNet', short: 'ON', url: 'https://oknonet.pl/',
+    feed: 'https://oknonet.pl/rss', feedVerified: false,
+    region: 'Poljska', lang: 'pl', tier: 1,
+    focus: '60-70k jedinstvenih posetilaca mesečno. Jedina redakcija koja je podržavajući član Poljskog udruženja proizvođača prozora i vrata.',
+    use: 'KOLIKO ĆE KOŠTATI. Poljska je najveći izvoznik prozora u EU - poljske cene diktiraju pritisak na maržu balkanskih proizvođača.' },
+  { name: 'Guidafinestra / Nuova Finestra', short: 'GF', url: 'https://www.guidafinestra.it/',
+    feed: 'https://www.guidafinestra.it/feed/', feedVerified: false,
+    region: 'Italija', lang: 'it', tier: 1,
+    focus: 'Portal časopisa Nuova Finestra (38 godina). Community italijanskih serramentista, video magazin Tg del Serramento.',
+    use: 'ČIME ĆEŠ PROIZVODITI. Balkan kupuje italijanske mašine - Elumatec, Emmegi, Fom, Graf Synergy.' },
   { name: 'Double Glazing Blogger', short: 'DGB', url: 'https://www.doubleglazingblogger.com/',
     feed: 'https://www.doubleglazingblogger.com/feed/', feedVerified: true,
-    region: 'UK', focus: 'Dnevne vesti, mišljenja i analize za industriju prozora i vrata. Najbrži izvor za tržišne komentare i reakcije montažera.' },
-  { name: 'Glass Times', short: 'GT', url: 'https://glasstimes.co.uk/',
-    feed: 'https://glasstimes.co.uk/feed/', feedVerified: false,
-    region: 'UK', focus: 'Vodeći britanski stručni časopis za staklo i stolariju.' },
-  { name: 'Glass News', short: 'GN', url: 'https://www.glassnews.co.uk/',
-    feed: 'https://www.glassnews.co.uk/feed/', feedVerified: false,
-    region: 'UK', focus: 'Novine industrije stakla i stolarije, distribucija 10.000+ firmi u UK.' },
-  { name: 'The Installer', short: 'TI', url: 'https://www.theinstaller.pro/',
-    feed: null, feedVerified: false,
-    region: 'UK', focus: 'Vesti za montažere i fabrikante stolarije.' },
-  { name: 'Window News', short: 'WN', url: 'https://www.windownews.co.uk/',
-    feed: null, feedVerified: false,
-    region: 'UK', focus: 'Agregator vesti iz industrije prozora i staklarstva.' },
-
-  // ── SAD ──
+    region: 'UK', lang: 'en', tier: 1,
+    focus: 'Dnevne vesti, mišljenja i analize za britansku industriju prozora i vrata.',
+    use: 'KAKO SE PRODAJE. Komercijalna logika, cene, ponašanje montažera, greške u prodaji. Manje tehnike, više biznisa.' },
   { name: 'Window + Door', short: 'W+D', url: 'https://www.windowanddoor.com/',
     feed: null, feedVerified: false,
-    region: 'SAD', focus: 'Zvanično glasilo FGIA/WDMA. Najbolji izvor za standarde i regulativu.' },
-  { name: 'Glass Magazine', short: 'GM', url: 'https://www.glassmagazine.com/',
-    feed: null, feedVerified: false,
-    region: 'SAD', focus: 'Arhitektonsko staklo, fasade, tržišni podaci.' },
+    region: 'SAD', lang: 'en', tier: 1,
+    focus: 'Zvanično glasilo FGIA/WDMA. Vesti, tržišni trendovi, kolumne o standardima i pravnim pitanjima.',
+    use: 'STANDARDI I REGULATIVA. Ono što FGIA objavi često se kasnije preslikava u EN norme.' },
 
-  // ── Evropa / globalno ──
+  // ══ TIER 2 — jednom mesečno ════════════════════════════════════════════
+  { name: 'USGlass / USGNN', short: 'USG', url: 'https://www.usglassmag.com/',
+    feed: null, feedVerified: false,
+    region: 'SAD', lang: 'en', tier: 2,
+    focus: '40.000+ pretplatnika, dnevni USGNN newsletter. Jedini mesečnik posvećen isključivo staklu i staklarstvu u Severnoj Americi.',
+    use: 'Arhitektonsko staklo i fasadni sistemi. Relevantno za firme koje rade fasade.' },
   { name: 'glassonweb', short: 'GOW', url: 'https://www.glassonweb.com/news',
     feed: null, feedVerified: false,
-    region: 'Evropa / globalno', focus: 'Vesti o staklu i stolariji, tehnologija i tržišni izveštaji za Evropu i Tursku.' },
+    region: 'Evropa / Turska', lang: 'en', tier: 2,
+    focus: 'Vesti o staklu i stolariji, tehnologija i tržišni izveštaji za Evropu i Tursku.',
+    use: 'Turska je direktna konkurencija Balkanu u profilima i staklu - ovde se prati.' },
   { name: 'glassglobal', short: 'GG', url: 'https://www.glassglobal.com/news/',
     feed: null, feedVerified: false,
-    region: 'Globalno', focus: 'Investicije, nove fabrike i kapaciteti u industriji stakla.' },
+    region: 'Globalno', lang: 'en', tier: 2,
+    focus: 'Investicije, nove fabrike, peći i kapaciteti u industriji stakla.',
+    use: 'Rano upozorenje: otvaranje ili zatvaranje kapaciteta float stakla pomera cenu za 6-12 meseci.' },
+  { name: 'Glass Times', short: 'GT', url: 'https://glasstimes.co.uk/',
+    feed: 'https://glasstimes.co.uk/feed/', feedVerified: false,
+    region: 'UK', lang: 'en', tier: 2,
+    focus: 'Vodeći britanski stručni časopis za staklo i stolariju.',
+    use: 'Rezerva uz DGB - preklapa se, ne čitati oba dnevno.' },
+  { name: 'Glass News', short: 'GN', url: 'https://www.glassnews.co.uk/',
+    feed: 'https://www.glassnews.co.uk/feed/', feedVerified: false,
+    region: 'UK', lang: 'en', tier: 2,
+    focus: 'Jedine novine industrije stakla i stolarije u UK, distribucija 10.000+ firmi, e-izdanje na 8.000+ adresa.',
+    use: 'Rezerva uz DGB.' },
+  { name: 'The Installer', short: 'TI', url: 'https://www.theinstaller.pro/',
+    feed: null, feedVerified: false,
+    region: 'UK', lang: 'en', tier: 2,
+    focus: 'Vesti za montažere i fabrikante stolarije.',
+    use: 'Perspektiva montažera - korisno za sadržaj namenjen montažerskim firmama.' },
+  { name: 'Window News', short: 'WN', url: 'https://www.windownews.co.uk/',
+    feed: null, feedVerified: false,
+    region: 'UK', lang: 'en', tier: 2,
+    focus: 'Agregator vesti iz industrije prozora i staklarstva.',
+    use: 'Brz pregled više UK izvora odjednom.' },
+  { name: 'Świat Szkła', short: 'SS', url: 'https://swiat-szkla.pl/',
+    feed: null, feedVerified: false,
+    region: 'Poljska', lang: 'pl', tier: 2,
+    focus: 'Mesečnik za profesionalce iz industrije stakla, prozora i fasada.',
+    use: 'Tehnički dublje od OknoNeta - norme, proračuni, materijali.' },
+  { name: 'Forum Branżowe', short: 'FB', url: 'https://forumbranzowe.com/',
+    feed: null, feedVerified: false,
+    region: 'Poljska', lang: 'pl', tier: 2,
+    focus: 'Prvi poljski servis vesti za stolariju: prozori, vrata, kapije, roletne, automatika.',
+    use: 'Roletne, garažna vrata i automatika - segment koji drugi izvori slabo pokrivaju.' },
+  { name: 'Glass Magazine', short: 'GM', url: 'https://www.glassmagazine.com/',
+    feed: null, feedVerified: false,
+    region: 'SAD', lang: 'en', tier: 2,
+    focus: 'Arhitektonsko staklo, fasade, tržišni podaci, Glass Magazine Awards.',
+    use: 'Trendovi u arhitektonskom staklu.' },
 
-  // ── Region ──
+  // ══ REGION ═════════════════════════════════════════════════════════════
   { name: 'Prozori + Vrata', short: 'P+V', url: 'https://www.prozorivrata.com/',
     feed: 'https://www.prozorivrata.com/feed/', feedVerified: false,
-    region: 'Srbija / Hrvatska', focus: 'Regionalni B2B časopis i portal. Koristiti kao izvor događaja, ne prepisivati tekstove.' },
+    region: 'Srbija / Hrvatska', lang: 'sr', tier: 3,
+    focus: 'Regionalni B2B časopis i portal od 2012 (HR od 2016). Direktan konkurent.',
+    use: 'Pratiti šta rade i koje događaje pokrivaju. NIKAD ne prepisivati tekstove - samo koristiti kao trag do originalnog izvora.' },
   { name: 'eKapija', short: 'eK', url: 'https://www.ekapija.com/',
     feed: null, feedVerified: false,
-    region: 'Srbija', focus: 'Poslovne vesti, investicije i najave gradnje u Srbiji.' },
+    region: 'Srbija', lang: 'sr', tier: 3,
+    focus: 'Poslovne vesti, investicije, najave gradnje i javne nabavke u Srbiji.',
+    use: 'Investicije i najave gradnje = budući kupci pre nego što postanu kupci.' },
 
-  // ── Sirovine / makro ──
+  // ══ SIROVINE / MAKRO ═══════════════════════════════════════════════════
   { name: 'London Metal Exchange (LME)', short: 'LME', url: 'https://www.lme.com/',
     feed: null, feedVerified: false,
-    region: 'Globalno', focus: 'Referentne cene aluminijuma. Osnov za sve analize troška ulaza.' },
+    region: 'Globalno', lang: 'en', tier: 1,
+    focus: 'Referentne cene aluminijuma i drugih metala.',
+    use: 'Osnov za svaku analizu troška ulaza. Broj je javan - vrednost je u tumačenju za balkanskog proizvođača.' },
 ];
+
+// Kako se izvori koriste u praksi (uredničko pravilo):
+//   Glaswelt      -> šta stiže (tehnologija i sistemi, 12-24 meseca unapred)
+//   OknoNet       -> koliko će koštati (poljski cenovni pritisak)
+//   Guidafinestra -> čime ćeš proizvoditi (mašine)
+//   DGB           -> kako se prodaje (komercijalna logika i greške)
+// Uređivačka razlika u odnosu na konkurenciju: konkurent objavljuje saopštenja
+// brendova; mi objavljujemo ono što se dešava PRE nego što brend napravi saopštenje.
+
 const newsItems = [
   { cat: 'tehnologija', catLabel: 'TEHNOLOGIJA', date: '21. avg 2026', title: 'Saint-Gobain potpisao ugovor s Microsoftom za uvođenje AI u građevinske materijale', desc: 'Saint-Gobain je 28. jula potpisao okvirni sporazum s Microsoftom o širenju digitalnih tehnologija i veštačke inteligencije kroz sve operacije grupe. Cilj su produktivnost, održivost i razvoj rešenja s nižim ugljeničnim otiskom.', read: '3 min', source: 'Double Glazing Blogger', url: 'https://www.doubleglazingblogger.com/2026/08/saint-gobain-signs-microsoft-agreement-to-accelerate-ai-use-in-construction/', img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&fit=crop&auto=format&q=75',
     body: 'Saint-Gobain, jedan od najvećih svetskih proizvođača građevinskih materijala i stakla, potpisao je okvirni sporazum s Microsoftom o proširenju upotrebe digitalnih tehnologija i veštačke inteligencije kroz poslovanje grupe.\n\nSporazum, objavljen 28. jula, pokriva tri pravca: povećanje produktivnosti u proizvodnji, smanjenje ugljeničnog otiska proizvodnih linija, i razvoj rešenja za data centre - segment koji poslednjih godina postaje ozbiljan kupac fasadnih i staklenih sistema.\n\nZa industriju stakla ovo nije marketinška vest. Saint-Gobain je vlasnik velikog dela evropskih kapaciteta float stakla, a svaka optimizacija peći i linija za obradu direktno se prenosi na cenu i raspoloživost stakla nizvodno.\n\n- Šta ovo znači za Balkan? -\nBalkanski proizvođači stolarije kupuju staklo od distributera koji ga uzimaju upravo od ovakvih grupacija. Ako AI optimizacija smanji škart i produži vek peći, to se dugoročno vidi kao stabilnija cena IGU jedinica. Kratkoročno ne menja ništa - ali je signal u kom pravcu ide struktura troškova kod dobavljača. Vredi to imati u vidu pri pregovoru o višegodišnjim ugovorima s distributerima stakla.' },
