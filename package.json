@@ -1,0 +1,10 @@
+{
+  "name": "stok-i-krilo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Industrijski informacioni portal za sektor prozora, vrata i fasada na Balkanu.",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

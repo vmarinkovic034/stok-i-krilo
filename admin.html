@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Uredništvo — ŠTOK I KRILO</title>
+<style>
+  :root { --brand:#1a3a5c; --ink:#0b1220; --mut:#6b7280; --line:#e5e7eb; --bg:#f6f7f9; }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+  header{background:var(--brand);color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  header h1{font-size:17px;margin:0;letter-spacing:.14em;font-weight:700}
+  header .sub{font-size:12px;opacity:.7;letter-spacing:.1em}
+  .wrap{max-width:920px;margin:0 auto;padding:24px 16px 60px}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+  button{font:inherit;cursor:pointer;border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:2px}
+  button:hover{background:#f0f2f5}
+  .primary{background:var(--brand);color:#fff;border-color:var(--brand);font-weight:600}
+  .primary:hover{background:#12283f}
+  .danger{color:#b91c1c;border-color:#fca5a5}
+  .danger:hover{background:#fef2f2}
+  .card{background:#fff;border:1px solid var(--line);border-radius:2px;padding:18px;margin-bottom:14px}
+  .card.pub{border-left:3px solid #16a34a}
+  .meta{font-size:11px;letter-spacing:.12em;color:var(--mut);text-transform:uppercase;margin-bottom:8px}
+  .card h2{font-size:19px;margin:0 0 8px;line-height:1.3}
+  .desc{color:#374151;margin:0 0 10px}
+  .body{white-space:pre-wrap;color:#374151;font-size:14px;background:#fafafa;border:1px solid var(--line);padding:12px;margin:10px 0;max-height:200px;overflow:auto}
+  .body.open{max-height:none}
+  .src{font-size:12px;color:var(--mut);word-break:break-all;margin-bottom:12px}
+  .src a{color:var(--brand)}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  input[type=password],input[type=text]{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:2px;min-width:260px}
+  .empty{text-align:center;color:var(--mut);padding:50px 20px;background:#fff;border:1px dashed var(--line)}
+  .note{font-size:13px;color:var(--mut);margin-bottom:16px}
+  #msg{padding:10px 14px;margin-bottom:14px;font-size:14px;display:none;border-radius:2px}
+  .ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+  .err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+  h3.sec{font-size:12px;letter-spacing:.16em;color:var(--mut);margin:32px 0 12px;text-transform:uppercase}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>ŠTOK &amp; KRILO</h1>
+    <div class="sub">UREDNIŠTVO — ODOBRAVANJE VESTI</div>
+  </div>
+  <div id="hdr"></div>
+</header>
+
+<div class="wrap">
+  <div id="login">
+    <p class="note">Unesi urednički token (ADMIN_TOKEN iz Netlify podešavanja).</p>
+    <div class="bar">
+      <input type="password" id="tok" placeholder="Urednički token" autocomplete="current-password">
+      <button class="primary" onclick="prijava()">Uđi</button>
+    </div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div id="msg"></div>
+    <div class="bar">
+      <button class="primary" onclick="povuci()">Povuci nove vesti sada</button>
+      <button onclick="ucitaj()">Osveži listu</button>
+      <button onclick="odjava()">Odjava</button>
+    </div>
+    <p class="note">Nacrti ne idu na sajt dok ih ne odobriš. Pročitaj tekst, posebno pasus „Šta ovo znači za Balkan?" i proveri da nijedan broj nije izmišljen.</p>
+    <h3 class="sec">Nacrti na čekanju (<span id="cnt-d">0</span>)</h3>
+    <div id="drafts"></div>
+    <h3 class="sec">Objavljeno (<span id="cnt-a">0</span>)</h3>
+    <div id="approved"></div>
+  </div>
+</div>
+
+<script>
+const S = { tok: sessionStorage.getItem('sik_admin') || '' };
+
+function msg(t, ok = true) {
+  const el = document.getElementById('msg');
+  el.textContent = t; el.className = ok ? 'ok' : 'err'; el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+async function api(method, body) {
+  const r = await fetch('/api/drafts', {
+    method,
+    headers: { 'x-admin-token': S.tok, 'content-type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+  return d;
+}
+
+function prijava() {
+  const v = document.getElementById('tok').value.trim();
+  if (!v) return;
+  S.tok = v; sessionStorage.setItem('sik_admin', v);
+  ucitaj();
+}
+function odjava() { sessionStorage.removeItem('sik_admin'); location.reload(); }
+
+function kartica(d, objavljena) {
+  return '<div class="card' + (objavljena ? ' pub' : '') + '">' +
+    '<div class="meta">' + esc(d.catLabel) + ' · ' + esc(d.date) + ' · ' + esc(d.source) + '</div>' +
+    '<h2>' + esc(d.title) + '</h2>' +
+    '<p class="desc">' + esc(d.desc) + '</p>' +
+    '<div class="body" onclick="this.classList.toggle(\'open\')" title="Klikni za ceo tekst">' + esc(d.body) + '</div>' +
+    '<div class="src">Izvor: <a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.url) + '</a></div>' +
+    '<div class="acts">' + (objavljena
+      ? '<button class="danger" onclick="akcija(\'unpublish\',\'' + d.id + '\')">Skini sa sajta</button>'
+      : '<button class="primary" onclick="akcija(\'approve\',\'' + d.id + '\')">Odobri i objavi</button>' +
+        '<button class="danger" onclick="akcija(\'reject\',\'' + d.id + '\')">Odbaci</button>') +
+    '</div></div>';
+}
+
+async function ucitaj() {
+  try {
+    const d = await api('GET');
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('cnt-d').textContent = d.drafts.length;
+    document.getElementById('cnt-a').textContent = d.approved.length;
+    document.getElementById('drafts').innerHTML = d.drafts.length
+      ? d.drafts.map(x => kartica(x, false)).join('')
+      : '<div class="empty">Nema nacrta na čekanju. Klikni „Povuci nove vesti sada".</div>';
+    document.getElementById('approved').innerHTML = d.approved.length
+      ? d.approved.map(x => kartica(x, true)).join('')
+      : '<div class="empty">Još ništa nije objavljeno preko uredništva.</div>';
+  } catch (e) {
+    msg('Greška: ' + e.message, false);
+    if (/401|Neovla/.test(e.message)) { sessionStorage.removeItem('sik_admin'); S.tok = ''; }
+  }
+}
+
+async function akcija(action, id) {
+  if (action === 'reject' && !confirm('Odbaciti ovaj nacrt?')) return;
+  try { const r = await api('POST', { action, id }); msg(r.objavljeno ? 'Objavljeno: ' + r.objavljeno : (r.odbaceno ? 'Odbačeno.' : 'Vraćeno u nacrte.')); ucitaj(); }
+  catch (e) { msg('Greška: ' + e.message, false); }
+}
+
+async function povuci() {
+  msg('Povlačim izvore i pišem nacrte — može potrajati do dva minuta…');
+  try {
+    const r = await fetch('/.netlify/functions/generate-drafts?token=' + encodeURIComponent(S.tok));
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    msg('Povučeno ' + d.povuceno + ' stavki, novih nacrta: ' + (d.nacrta || 0) + (d.poruka ? ' — ' + d.poruka : ''));
+    ucitaj();
+  } catch (e) { msg('Greška: ' + e.message, false); }
+}
+
+if (S.tok) ucitaj();
+</script>
+</body>
+</html>

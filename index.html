@@ -2782,8 +2782,30 @@ function updateCompanyStat() {
   el.textContent = n;
 }
 
+// ==================== ODOBRENE VESTI IZ UREDNISTVA ====================
+// Nacrte pise scheduled funkcija, urednik ih odobrava na /admin.html.
+// Ovde se samo prikazuju vec odobrene - nista se ne objavljuje automatski.
+async function fetchApprovedNews() {
+  try {
+    const r = await fetch('/api/news', { cache: 'no-cache' });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (!d || !Array.isArray(d.items) || !d.items.length) return;
+    const postojeci = new Set(newsItems.map(n => n.url));
+    const novi = d.items.filter(n => n && n.title && n.body && n.url && !postojeci.has(n.url));
+    if (!novi.length) return;
+    newsItems.unshift(...novi);
+    try { renderNews('sve'); } catch (e) { console.error('renderNews (approved):', e); }
+    try { renderHero(); } catch (e) { console.error('renderHero (approved):', e); }
+    console.log('Ucitano odobrenih vesti: ' + novi.length);
+  } catch (e) {
+    console.log('Odobrene vesti nisu dostupne (portal radi i bez njih):', e.message);
+  }
+}
+
 function initPortal() {
   try { updateCompanyStat(); } catch(e) { console.error('updateCompanyStat:', e); }
+  try { fetchApprovedNews(); } catch(e) { console.error('fetchApprovedNews:', e); }
   try { loadSavedPrices(); } catch(e) { console.error('loadSavedPrices:', e); }
   try { buildTicker(); } catch(e) { console.error('buildTicker:', e); }
   try { renderNews('sve'); } catch(e) { console.error('renderNews:', e); }

@@ -1,0 +1,20 @@
+# ŠTOK I KRILO — Netlify konfiguracija
+# Sajt je statican (index.html u rootu). Build komanda namerno prazna.
+
+[build]
+  command = ""
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/news"
+  to = "/.netlify/functions/news"
+  status = 200
+
+[[redirects]]
+  from = "/api/drafts"
+  to = "/.netlify/functions/drafts"
+  status = 200
