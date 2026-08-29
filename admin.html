@@ -170,15 +170,17 @@ async function akcija(action, id) {
 }
 
 async function povuciPodkaste() {
-  msg('Skidam i transkribujem epizode — ovo traje 3-6 minuta. Ne zatvaraj stranicu.');
   try {
     const r = await fetch('/.netlify/functions/run-podcasts-background?token=' + encodeURIComponent(S.tok));
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
-    msg('Epizoda pregledano: ' + d.epizoda + ', novih nacrta: ' + (d.nacrta || 0) +
-        (d.preskoceno && d.preskoceno.length ? ' — preskočeno: ' + d.preskoceno.length : '') +
-        (d.poruka ? ' — ' + d.poruka : ''));
-    ucitaj();
+    if (r.status === 202) {
+      msg('Pokrenuto u pozadini. Transkripcija traje 3-6 minuta — klikni „Osveži listu" za par minuta. Slobodno zatvori stranicu.');
+      // tiho proveravaj svakih 45 sekundi, najviše 8 puta
+      let n = 0;
+      const t = setInterval(() => { if (++n > 8) return clearInterval(t); ucitaj(); }, 45000);
+      return;
+    }
+    const d = await r.json().catch(() => ({}));
+    throw new Error(d.error || ('HTTP ' + r.status));
   } catch (e) { msg('Greška: ' + e.message, false); }
 }
 
