@@ -47,6 +47,7 @@
   .flag b{font-weight:700;letter-spacing:.06em;font-size:11px;text-transform:uppercase;display:block;margin-bottom:2px}
   .score{float:right;font-size:12px;font-weight:700;letter-spacing:.05em}
   .score.problem{color:#dc2626} .score.pregledati{color:#b45309} .score.cisto{color:#15803d}
+  .tip-pod{background:var(--brand);color:#fff;padding:2px 6px;border-radius:2px;font-size:10px;letter-spacing:.1em}
   .clean{font-size:13px;color:#15803d;background:#f0fdf4;border:1px solid #bbf7d0;padding:8px 11px;margin-bottom:12px;border-radius:2px}
 </style>
 </head>
@@ -72,6 +73,7 @@
     <div id="msg"></div>
     <div class="bar">
       <button class="primary" onclick="povuci()">Povuci nove vesti sada</button>
+      <button onclick="povuciPodkaste()">Obradi nove podkaste</button>
       <button onclick="ucitaj()">Osveži listu</button>
       <button onclick="odjava()">Odjava</button>
     </div>
@@ -127,7 +129,9 @@ function kartica(d, objavljena) {
   const oc = d.provera ? d.provera.ocena : null;
   return '<div class="card' + (objavljena ? ' pub' : (st ? ' ' + st : '')) + '">' +
     (oc !== null ? '<span class="score ' + esc(st) + '">' + oc + '/100</span>' : '') +
-    '<div class="meta">' + esc(d.catLabel) + ' · ' + esc(d.date) + ' · ' + esc(d.source) + '</div>' +
+    '<div class="meta">' + (d.tip === 'podkast' ? '<span class="tip-pod">PODKAST</span> ' : '') +
+      esc(d.catLabel) + ' · ' + esc(d.date) + ' · ' + esc(d.source) +
+      (d.epizoda ? ' · ep. „' + esc(d.epizoda).slice(0, 70) + '"' : '') + '</div>' +
     '<h2>' + esc(d.title) + '</h2>' +
     (objavljena ? '' : flags(d)) +
     '<p class="desc">' + esc(d.desc) + '</p>' +
@@ -163,6 +167,19 @@ async function akcija(action, id) {
   if (action === 'reject' && !confirm('Odbaciti ovaj nacrt?')) return;
   try { const r = await api('POST', { action, id }); msg(r.objavljeno ? 'Objavljeno: ' + r.objavljeno : (r.odbaceno ? 'Odbačeno.' : 'Vraćeno u nacrte.')); ucitaj(); }
   catch (e) { msg('Greška: ' + e.message, false); }
+}
+
+async function povuciPodkaste() {
+  msg('Skidam i transkribujem epizode — ovo traje 3-6 minuta. Ne zatvaraj stranicu.');
+  try {
+    const r = await fetch('/.netlify/functions/run-podcasts-background?token=' + encodeURIComponent(S.tok));
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    msg('Epizoda pregledano: ' + d.epizoda + ', novih nacrta: ' + (d.nacrta || 0) +
+        (d.preskoceno && d.preskoceno.length ? ' — preskočeno: ' + d.preskoceno.length : '') +
+        (d.poruka ? ' — ' + d.poruka : ''));
+    ucitaj();
+  } catch (e) { msg('Greška: ' + e.message, false); }
 }
 
 async function povuci() {

@@ -53,3 +53,48 @@ U `netlify/functions/_lib.mjs`, niz `SOURCES`. Ako izvor ima RSS — dodaj `rss`
 ## Ako nešto ne radi
 
 Netlify → **Logs → Functions** → `scheduled-drafts` (automatsko) ili `run-drafts` (ručno dugme). Funkcija loguje svaki izvor posebno, pa se odmah vidi koji je pao. Ako jedan izvor blokira pristup, ostali i dalje rade.
+
+
+---
+
+# Podkasti kao izvor vesti
+
+## Kako radi
+
+1. **Ponedeljkom u 04:00 UTC** funkcija `scheduled-podcasts` čita RSS feedove osam podkasta.
+2. Za najnovije epizode skida MP3 i šalje ga na **Groq Whisper turbo** za transkripciju (~0,05 EUR po epizodi).
+3. Claude iz transkripta izvlači **jednu tvrdnju** koja je vest za balkanskog proizvođača i piše kratak tekst od 3-4 pasusa.
+4. Transkript se **ne čuva i ne objavljuje** — koristi se samo da bi model razumeo o čemu se priča.
+5. Nacrt ide u istu urednički red kao i ostale vesti, sa oznakom PODKAST.
+
+Ručno: dugme **„Obradi nove podkaste"** u `/admin.html`. Traje 3-6 minuta.
+
+## Uredničko pravilo — zašto je ovo dozvoljeno
+
+Ne prenosi se epizoda. Prenosi se **tvrdnja sa pripisivanjem**, kao u svakom novinarstvu:
+„Na podkastu X, N.N. iz firme Y kaže da…" + link na original.
+
+Automatska provera odbija tekst koji:
+- ne imenuje podkast (`pripisivanje`)
+- ima više od jednog direktnog citata (`citati`)
+- je duži od 3.200 znakova (`predugo` — vest o epizodi nije zamena za epizodu)
+- sadrži broj koji nije izgovoren u transkriptu (`broj-bez-izvora`)
+
+## Dodatna env varijabla
+
+| Ime | Vrednost |
+|---|---|
+| `GROQ_API_KEY` | Sa console.groq.com → API Keys. Secret, scope Functions. |
+
+Bez nje podkast funkcije vraćaju jasnu grešku, a ostatak portala radi normalno.
+
+## Trošak
+
+Transkripcija ~0,05 EUR po epizodi. Tri epizode nedeljno ≈ **manje od 1 EUR mesečno**.
+Epizode duže od 24 MB se seku na prvih 24 MB (Groq limit) — obično 25-50 minuta razgovora, dovoljno za suštinu.
+
+## Podkasti u listi
+
+Clear Impact · GlassTalk · From the Fabricator · Two PiGs in a Pod · Powder Coater Podcast · All Things Facades · Marketing Passivhaus · Window Cast (NGA)
+
+Feedovi provereni. Neaktivni (Glazing Insider, The Shapemakers, Everything Building Envelope) namerno izostavljeni.

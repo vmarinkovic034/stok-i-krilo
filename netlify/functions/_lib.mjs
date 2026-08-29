@@ -127,3 +127,65 @@ export const CAT_IMG = {
 export const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
 });
+
+// ── PODKASTI ──────────────────────────────────────────────────────────────
+// Feedovi provereni preko iTunes API-ja. Datum = poslednja epizoda u trenutku
+// dodavanja. Neaktivni izbačeni (Glazing Insider, Shapemakers, Everything
+// Building Envelope - svi stali 2025. ili ranije).
+export const PODCASTS = [
+  { id: 'clearimpact', name: 'Clear Impact Podcast', feed: 'https://feeds.castos.com/kdrw0',
+    fokus: 'Prozori, vrata, komponente, vođenje proizvodne firme. Vodi ga čovek iz industrije.', tier: 1 },
+  { id: 'glasstalk', name: 'GlassTalk', feed: 'https://feeds.captivate.fm/glasstalk/',
+    fokus: 'Staklo i staklarstvo, tehnologija obrade.', tier: 1 },
+  { id: 'fabricator', name: 'From the Fabricator', feed: 'https://rss.buzzsprout.com/1619728.rss',
+    fokus: 'Za fabrikante stakla i stolarije - proizvodnja i operativa.', tier: 1 },
+  { id: 'twopigs', name: 'Two PiGs in a Pod', feed: 'https://feed.podbean.com/twopigsinapod/feed.xml',
+    fokus: 'Ljudi iz britanske glazing industrije, karijere i firme.', tier: 2 },
+  { id: 'powdercoater', name: 'Powder Coater Podcast', feed: 'https://www.rosskote.com/feed.xml',
+    fokus: 'Plastifikacija aluminijuma - direktno relevantno za AL stolariju.', tier: 1 },
+  { id: 'facades', name: 'All Things Facades', feed: 'https://anchor.fm/s/ed8beac8/podcast/rss',
+    fokus: 'Fasadni sistemi i omotač zgrade.', tier: 2 },
+  { id: 'passivhaus', name: 'Marketing Passivhaus', feed: 'https://feeds.transistor.fm/marketing-passivhaus',
+    fokus: 'Energetska efikasnost i kako se ona prodaje krajnjem kupcu.', tier: 2 },
+  { id: 'windowcast', name: 'Window Cast (NGA)', feed: 'https://anchor.fm/s/e3ffd85c/podcast/rss',
+    fokus: 'Glasilo National Glass Association. Retko izlazi, ali kvalitetno.', tier: 2 },
+];
+
+// Iz podcast RSS-a vadi epizode zajedno sa linkom na audio fajl (enclosure).
+export async function fetchPodcastEpisodes(pod, limit = 3) {
+  const res = await fetch(pod.feed, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(20000) });
+  if (!res.ok) throw new Error(res.status + ' ' + pod.feed);
+  const xml = await res.text();
+  const out = [];
+  for (const m of xml.matchAll(/<item[\s>][\s\S]*?<\/item>/gi)) {
+    const it = m[0];
+    const g = (re) => strip((it.match(re) || [])[1]);
+    const audio = (it.match(/<enclosure[^>]+url=["']([^"']+)["']/i) || [])[1];
+    const title = g(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    const link = g(/<link[^>]*>([\s\S]*?)<\/link>/i) || audio;
+    if (!title || !audio) continue;
+    out.push({
+      podcast: pod.name, podcastId: pod.id, tip: 'podkast',
+      title, url: link, audio,
+      summary: g(/<description[^>]*>([\s\S]*?)<\/description>/i).slice(0, 1500),
+      published: g(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i),
+    });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+export async function fetchAllPodcasts(perShow = 2) {
+  const all = [], errors = [];
+  for (const p of PODCASTS) {
+    try {
+      const eps = await fetchPodcastEpisodes(p, perShow);
+      all.push(...eps);
+      console.log('[pod:' + p.id + '] ' + eps.length + ' epizoda');
+    } catch (e) {
+      errors.push('pod:' + p.id + ': ' + e.message);
+      console.log('[pod:' + p.id + '] GRESKA: ' + e.message);
+    }
+  }
+  return { all, errors };
+}
