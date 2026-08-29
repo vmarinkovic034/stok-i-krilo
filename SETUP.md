@@ -2,7 +2,7 @@
 
 ## Kako radi
 
-1. **Svakog radnog dana u 05:00 UTC** Netlify pokreće `generate-drafts`.
+1. **Svakog radnog dana u 05:00 UTC** Netlify pokreće `scheduled-drafts`.
 2. Funkcija povlači izvore (DGB, GLASWELT, OknoNet, Window+Door), preskače ono što je već obrađeno.
 3. Claude piše srpsku verziju sa pasusom „Šta ovo znači za Balkan?".
 4. **Automatska provera kvaliteta** (`_kvalitet.mjs`) proverava svaki tekst:
@@ -52,4 +52,4 @@ U `netlify/functions/_lib.mjs`, niz `SOURCES`. Ako izvor ima RSS — dodaj `rss`
 
 ## Ako nešto ne radi
 
-Netlify → **Logs → Functions → generate-drafts**. Funkcija loguje svaki izvor posebno, pa se odmah vidi koji je pao. Ako jedan izvor blokira pristup, ostali i dalje rade.
+Netlify → **Logs → Functions** → `scheduled-drafts` (automatsko) ili `run-drafts` (ručno dugme). Funkcija loguje svaki izvor posebno, pa se odmah vidi koji je pao. Ako jedan izvor blokira pristup, ostali i dalje rade.

@@ -168,7 +168,7 @@ async function akcija(action, id) {
 async function povuci() {
   msg('Povlačim izvore i pišem nacrte — može potrajati do dva minuta…');
   try {
-    const r = await fetch('/.netlify/functions/generate-drafts?token=' + encodeURIComponent(S.tok));
+    const r = await fetch('/.netlify/functions/run-drafts?token=' + encodeURIComponent(S.tok));
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
     msg('Povučeno ' + d.povuceno + ' stavki, novih nacrta: ' + (d.nacrta || 0) + (d.poruka ? ' — ' + d.poruka : ''));

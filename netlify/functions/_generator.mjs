@@ -1,6 +1,6 @@
 // ==========================================================================
 // ŠTOK I KRILO — dnevno povlačenje izvora + pisanje nacrta (Claude)
-// Radnim danima 05:00 UTC. Ručno: ?token=ADMIN_TOKEN
+// Čista logika. Poziva je scheduled-drafts.mjs (automatski) i run-drafts.mjs (ručno).
 //
 // TOK: povuci izvore -> Claude piše -> automatska provera kvaliteta ->
 //      ako ima problema, JEDAN popravni krug -> nacrt ide uredniku.
@@ -120,15 +120,8 @@ Vrati JSON niz sa TAČNO JEDNIM objektom: [{"cat","catLabel","title","desc","bod
   return arr && arr[0] ? arr[0] : null;
 }
 
-export default async (req) => {
+export async function generisi({ }= {}) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  const admin = process.env.ADMIN_TOKEN;
-
-  const url = new URL(req.url);
-  const manual = url.searchParams.has('token');
-  if (manual && (!admin || url.searchParams.get('token') !== admin)) {
-    return json({ error: 'Neispravan token' }, 401);
-  }
   if (!apiKey) return json({ error: 'Nedostaje ANTHROPIC_API_KEY u Netlify env varijablama' }, 500);
 
   const { all, errors } = await fetchAll(4);
@@ -210,4 +203,3 @@ export default async (req) => {
   });
 };
 
-export const config = { schedule: '0 5 * * 1-5' };
