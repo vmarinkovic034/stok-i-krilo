@@ -44,6 +44,14 @@ const ZEMLJE = ['HRV','SVN','ROU','BGR','ITA','DEU','AUT','CHE','GRC','HUN'];
 // Samo CPV kodovi koji su stvarno stolarija / fasada / staklo
 const CPV_OK = ['44221','45421','441124'];
 
+// TED vraća classification-cpv kao niz - treba pogledati SVE kodove, ne samo prvi
+const sviCpv = (v) => {
+  if (v == null) return [];
+  if (Array.isArray(v)) return v.flatMap(sviCpv);
+  if (typeof v === 'object') return Object.values(v).flatMap(sviCpv);
+  return [String(v)];
+};
+
 const tekst = (v) => {
   if (v == null) return '';
   if (typeof v === 'string') return v;
@@ -82,7 +90,9 @@ async function ted(dijag) {
     dijag.ted = 'ok, ' + n.length + ' zapisa';
     const mapirani = n.map((x, i) => {
       const c = String(tekst(x['buyer-country']) || '').toUpperCase().slice(0, 3);
-      const [tip, tipL] = tipZaCpv(tekst(x['classification-cpv']));
+      const cpvSvi = sviCpv(x['classification-cpv']);
+      const nas = cpvSvi.find(c => CPV_OK.some(p => c.startsWith(p)));
+      const [tip, tipL] = tipZaCpv(nas || cpvSvi[0]);
       const z = ZASTAVE[c];
       if (!z) return null;
       const rok = tekst(x['deadline-receipt-request']) || tekst(x['deadline-receipt-tender-date-lot']);
@@ -91,21 +101,21 @@ async function ted(dijag) {
         title: tekst(x['notice-title']).slice(0, 200) || 'Nabavka',
         buyer: tekst(x['buyer-name']) || 'Naručilac',
         location: z[1], type: tip, typeLabel: tipL,
-        cpv: tekst(x['classification-cpv']), cpvLabel: tipL,
+        cpv: nas || cpvSvi[0] || '', cpvLabel: tipL,
         procedure: 'EU postupak',
         value: tekst(x['total-value']) || '', valueEur: '',
         published: datum(x['publication-date']), deadline: datum(rok), daysLeft: dana(rok),
         url: (x.links && (x.links.pdf?.ENG || x.links.html?.ENG)) ||
              ('https://ted.europa.eu/en/notice/-/detail/' + (x['publication-number'] || '')),
         live: true, src: 'TED EU',
-        _cpv: tekst(x['classification-cpv']),
+        _cpv: cpvSvi.join(' '), _ima: !!nas,
         _pub: x['publication-date'] || '',
       };
     }).filter(Boolean);
 
     // Zadrži samo stvarnu stolariju/fasadu/staklo i nešto što još nije isteklo
-    const cisti = mapirani
-      .filter(t => CPV_OK.some(p => String(t._cpv).startsWith(p)))
+    const poCpv = mapirani.filter(t => t._ima);
+    const cisti = poCpv
       .filter(t => t.daysLeft !== null && t.daysLeft > 0)
       .sort((a, b) => String(b._pub).localeCompare(String(a._pub)));
 
@@ -114,9 +124,9 @@ async function ted(dijag) {
       poZemlji[t.country] = (poZemlji[t.country] || 0) + 1;
       return poZemlji[t.country] <= 6;
     }).slice(0, 40)
-      .map(({ _cpv, _pub, ...rest }) => rest);
+      .map(({ _cpv, _pub, _ima, ...rest }) => rest);
 
-    dijag.ted = 'ok, ' + n.length + ' zapisa -> ' + cisti.length + ' relevantnih -> ' + uravnotezeni.length + ' prikazano';
+    dijag.ted = 'ok, ' + n.length + ' zapisa -> ' + poCpv.length + ' po CPV-u -> ' + cisti.length + ' sa aktivnim rokom -> ' + uravnotezeni.length + ' prikazano';
     dijag.zemlje = poZemlji;
     return uravnotezeni;
   } catch (e) { dijag.ted = 'greška: ' + e.message; return []; }
