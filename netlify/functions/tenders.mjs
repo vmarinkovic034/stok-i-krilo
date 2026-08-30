@@ -32,9 +32,17 @@ const tipZaCpv = (c) => {
   if (s.startsWith('44221')) return ['stolarija', 'Stolarija'];
   return ['ostalo', 'Ostalo'];
 };
-const ZASTAVE = { HR:['hrvatska','Hrvatska','🇭🇷'], SI:['slovenija','Slovenija','🇸🇮'], RO:['rumunija','Rumunija','🇷🇴'],
-  BG:['bugarska','Bugarska','🇧🇬'], IT:['italija','Italija','🇮🇹'], DE:['nemacka','Nemačka','🇩🇪'],
-  AT:['austrija','Austrija','🇦🇹'], FR:['francuska','Francuska','🇫🇷'], RS:['srbija','Srbija','🇷🇸'] };
+// TED vraća ISO3 kodove (HRV, SVN, DEU...)
+const ZASTAVE = {
+  HRV:['hrvatska','Hrvatska','🇭🇷'], SVN:['slovenija','Slovenija','🇸🇮'], ROU:['rumunija','Rumunija','🇷🇴'],
+  BGR:['bugarska','Bugarska','🇧🇬'], ITA:['italija','Italija','🇮🇹'], DEU:['nemacka','Nemačka','🇩🇪'],
+  AUT:['austrija','Austrija','🇦🇹'], CHE:['svajcarska','Švajcarska','🇨🇭'], GRC:['grcka','Grčka','🇬🇷'],
+  HUN:['madjarska','Mađarska','🇭🇺'], SRB:['srbija','Srbija','🇷🇸'],
+};
+// Zemlje koje prikazujemo - region + zapadna Evropa gde balkanske firme realno izvoze
+const ZEMLJE = ['HRV','SVN','ROU','BGR','ITA','DEU','AUT','CHE','GRC','HUN'];
+// Samo CPV kodovi koji su stvarno stolarija / fasada / staklo
+const CPV_OK = ['44221','45421','44112','44163'];
 
 const tekst = (v) => {
   if (v == null) return '';
@@ -52,10 +60,10 @@ async function ted(dijag) {
 
   const od = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10).replace(/-/g, '');
   const body = {
-    query: `classification-cpv IN (${CPV.map(c => `"${c}"`).join(' ')}) AND publication-date >= ${od}`,
+    query: `classification-cpv IN (${CPV.map(c => `"${c}"`).join(' ')}) AND buyer-country IN (${ZEMLJE.map(c => `"${c}"`).join(' ')}) AND publication-date >= ${od}`,
     fields: ['publication-number','notice-title','buyer-name','buyer-country','classification-cpv',
              'deadline-receipt-request','publication-date','total-value','links'],
-    page: 1, limit: 40,
+    page: 1, limit: 100,
     scope: 'ACTIVE',
   };
 
@@ -71,10 +79,11 @@ async function ted(dijag) {
     const d = JSON.parse(raw);
     const n = d.notices || d.results || d.items || [];
     dijag.ted = 'ok, ' + n.length + ' zapisa';
-    return n.map((x, i) => {
-      const c = String(x['buyer-country'] || '').slice(0, 2).toUpperCase();
+    const mapirani = n.map((x, i) => {
+      const c = String(tekst(x['buyer-country']) || '').toUpperCase().slice(0, 3);
       const [tip, tipL] = tipZaCpv(tekst(x['classification-cpv']));
-      const z = ZASTAVE[c] || ['ostalo', c || 'EU', '🇪🇺'];
+      const z = ZASTAVE[c];
+      if (!z) return null;
       const rok = x['deadline-receipt-request'];
       return {
         id: 'ted' + i, country: z[0], countryLabel: z[1], flag: z[2],
@@ -88,8 +97,21 @@ async function ted(dijag) {
         url: (x.links && (x.links.pdf?.ENG || x.links.html?.ENG)) ||
              ('https://ted.europa.eu/en/notice/-/detail/' + (x['publication-number'] || '')),
         live: true, src: 'TED EU',
+        _cpv: tekst(x['classification-cpv']),
+        _pub: x['publication-date'] || '',
       };
-    });
+    }).filter(Boolean);
+
+    // Zadrži samo stvarnu stolariju/fasadu/staklo i nešto što još nije isteklo
+    const cisti = mapirani
+      .filter(t => CPV_OK.some(p => String(t._cpv).startsWith(p)))
+      .filter(t => t.daysLeft === null || t.daysLeft > 0)
+      .sort((a, b) => String(b._pub).localeCompare(String(a._pub)))
+      .slice(0, 40)
+      .map(({ _cpv, _pub, ...rest }) => rest);
+
+    dijag.ted = 'ok, ' + n.length + ' zapisa -> ' + cisti.length + ' relevantnih';
+    return cisti;
   } catch (e) { dijag.ted = 'greška: ' + e.message; return []; }
 }
 
@@ -128,7 +150,7 @@ async function srbija(dijag) {
       });
     } catch (e) { dijag['rs:' + u.slice(8, 40)] = 'greška: ' + e.message; }
   }
-  if (!dijag.srbija) dijag.srbija = 'nijedan endpoint nije vratio podatke';
+  if (!dijag.srbija) dijag.srbija = 'Portal javnih nabavki nema javni API (403/401 na sve pokušaje). Srpski tenderi se za sada unose ručno.';
   return [];
 }
 
