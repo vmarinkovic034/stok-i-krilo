@@ -88,6 +88,12 @@ async function ted(dijag) {
     const d = JSON.parse(raw);
     const n = d.notices || d.results || d.items || [];
     dijag.ted = 'ok, ' + n.length + ' zapisa';
+    dijag.uzorakPolja = n[0] ? Object.keys(n[0]) : [];
+    dijag.uzorakRok = n.slice(0, 3).map(x => ({
+      dr: x['deadline-receipt-request'],
+      dt: x['deadline-receipt-tender-date-lot'],
+    }));
+
     const mapirani = n.map((x, i) => {
       const c = String(tekst(x['buyer-country']) || '').toUpperCase().slice(0, 3);
       const cpvSvi = sviCpv(x['classification-cpv']);
