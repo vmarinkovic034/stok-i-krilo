@@ -18,3 +18,8 @@
   from = "/api/drafts"
   to = "/.netlify/functions/drafts"
   status = 200
+
+[[redirects]]
+  from = "/api/tenders"
+  to = "/.netlify/functions/tenders"
+  status = 200
