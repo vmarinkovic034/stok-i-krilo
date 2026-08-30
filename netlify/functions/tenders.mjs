@@ -62,8 +62,9 @@ async function ted(dijag) {
   const body = {
     query: `classification-cpv IN (${CPV.map(c => `"${c}"`).join(' ')}) AND buyer-country IN (${ZEMLJE.map(c => `"${c}"`).join(' ')}) AND publication-date >= ${od}`,
     fields: ['publication-number','notice-title','buyer-name','buyer-country','classification-cpv',
-             'deadline-receipt-request','publication-date','total-value','links'],
-    page: 1, limit: 100,
+             'deadline-receipt-request','deadline-date-lot','publication-date','total-value',
+             'estimated-value-cur-lot','place-of-performance','links'],
+    page: 1, limit: 250,
     scope: 'ACTIVE',
   };
 
@@ -84,7 +85,7 @@ async function ted(dijag) {
       const [tip, tipL] = tipZaCpv(tekst(x['classification-cpv']));
       const z = ZASTAVE[c];
       if (!z) return null;
-      const rok = x['deadline-receipt-request'];
+      const rok = tekst(x['deadline-receipt-request']) || tekst(x['deadline-date-lot']);
       return {
         id: 'ted' + i, country: z[0], countryLabel: z[1], flag: z[2],
         title: tekst(x['notice-title']).slice(0, 200) || 'Nabavka',
@@ -106,12 +107,18 @@ async function ted(dijag) {
     const cisti = mapirani
       .filter(t => CPV_OK.some(p => String(t._cpv).startsWith(p)))
       .filter(t => t.daysLeft === null || t.daysLeft > 0)
-      .sort((a, b) => String(b._pub).localeCompare(String(a._pub)))
-      .slice(0, 40)
+      .sort((a, b) => String(b._pub).localeCompare(String(a._pub)));
+
+    const poZemlji = {};
+    const uravnotezeni = cisti.filter(t => {
+      poZemlji[t.country] = (poZemlji[t.country] || 0) + 1;
+      return poZemlji[t.country] <= 6;
+    }).slice(0, 40)
       .map(({ _cpv, _pub, ...rest }) => rest);
 
-    dijag.ted = 'ok, ' + n.length + ' zapisa -> ' + cisti.length + ' relevantnih';
-    return cisti;
+    dijag.ted = 'ok, ' + n.length + ' zapisa -> ' + cisti.length + ' relevantnih -> ' + uravnotezeni.length + ' prikazano';
+    dijag.zemlje = poZemlji;
+    return uravnotezeni;
   } catch (e) { dijag.ted = 'greška: ' + e.message; return []; }
 }
 
