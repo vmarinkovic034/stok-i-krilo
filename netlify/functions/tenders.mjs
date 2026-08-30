@@ -6,7 +6,7 @@
 // ==========================================================================
 import { getStore } from '@netlify/blobs';
 
-const CPV = ['44221000','44221100','44221200','45421000','45421100','44112400','44163100'];
+const CPV = ['44221000','44221100','44221200','45421000','45421100','44112400'];
 const KEY = 'tenders-cache.json';
 const TTL = 3 * 60 * 60 * 1000;
 
@@ -42,7 +42,7 @@ const ZASTAVE = {
 // Zemlje koje prikazujemo - region + zapadna Evropa gde balkanske firme realno izvoze
 const ZEMLJE = ['HRV','SVN','ROU','BGR','ITA','DEU','AUT','CHE','GRC','HUN'];
 // Samo CPV kodovi koji su stvarno stolarija / fasada / staklo
-const CPV_OK = ['44221','45421','44112','44163'];
+const CPV_OK = ['44221','45421','441124'];
 
 const tekst = (v) => {
   if (v == null) return '';
@@ -163,6 +163,20 @@ async function srbija(dijag) {
 
 export default async (req) => {
   const url = new URL(req.url);
+
+  // ?probe=1 -> sirovi TED zapis, da se vide tačna imena polja
+  if (url.searchParams.has('probe')) {
+    const key = process.env.TED_API_KEY || 'dec3c29a94794d2896513c7a7f29da92';
+    const od = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10).replace(/-/g, '');
+    const r = await fetch('https://api.ted.europa.eu/v3/notices/search', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json', 'TED-API-Key': key },
+      body: JSON.stringify({ query: `classification-cpv IN ("44221100") AND publication-date >= ${od}`, page: 1, limit: 1 }),
+    });
+    const t = await r.text();
+    return new Response(t.slice(0, 6000), { headers: { 'content-type': 'application/json; charset=utf-8' } });
+  }
+
   const debug = url.searchParams.has('debug');
   const fresh = url.searchParams.has('fresh');
 
