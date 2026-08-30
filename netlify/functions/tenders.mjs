@@ -171,7 +171,11 @@ export default async (req) => {
     const r = await fetch('https://api.ted.europa.eu/v3/notices/search', {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json', 'TED-API-Key': key },
-      body: JSON.stringify({ query: `classification-cpv IN ("44221100") AND publication-date >= ${od}`, page: 1, limit: 1 }),
+      body: JSON.stringify({
+        query: `classification-cpv IN ("44221100") AND publication-date >= ${od}`,
+        fields: (url.searchParams.get('f') || 'publication-number,notice-title').split(',').map(x => x.trim()).filter(Boolean),
+        page: 1, limit: 1,
+      }),
     });
     const t = await r.text();
     return new Response(t.slice(0, 6000), { headers: { 'content-type': 'application/json; charset=utf-8' } });
