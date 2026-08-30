@@ -1601,46 +1601,52 @@ async function fetchSrbijaLive() {
   }
 }
 
+// ── SERVERSKO POVLAČENJE TENDERA ──────────────────────────────────────────
+// Browser ne sme da zove TED ni portale zbog CORS-a. Sve ide preko /api/tenders.
+async function fetchTendersFromServer() {
+  try {
+    const r = await fetch('/api/tenders', { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    return Array.isArray(d.items) ? d.items : [];
+  } catch (e) {
+    console.warn('Tenderi nisu dostupni:', e.message);
+    return [];
+  }
+}
+
 // ── MAIN LOAD ─────────────────────────────────────────────────────────────
 async function loadTenders() {
-  document.getElementById('tender-updated').textContent = 'Učitavam...';
-  document.getElementById('tender-grid').innerHTML = '<div class="text-center py-12 text-gray-400">Povlačim tendere...</div>';
+  const upd = document.getElementById('tender-updated');
+  const grid = document.getElementById('tender-grid');
+  if (upd) upd.textContent = 'Učitavam...';
+  if (grid) grid.innerHTML = '<div class="text-center py-12 text-gray-400">Povlačim tendere...</div>';
 
-  let tenders = [...tenderPlaceholders];
-
-  // Run both fetches in parallel
-  const [liveRS, liveTED] = await Promise.all([
-    fetchSrbijaLive(),
-    fetchTEDTenders(),
-  ]);
-
-  // Replace placeholder RS with live if available
-  if (liveRS && liveRS.length > 0) {
-    tenders = tenders.filter(t => t.country !== 'srbija');
-    tenders = [...liveRS, ...tenders];
-  }
-
-  // Replace placeholder EU countries with live TED data
-  if (liveTED && liveTED.length > 0) {
-    const liveCodes = [...new Set(liveTED.map(t => t.country))];
-    tenders = tenders.filter(t => !liveCodes.includes(t.country));
-    tenders = [...tenders, ...liveTED];
-  }
-
-  tenders.sort((a,b) => (a.daysLeft || 99) - (b.daysLeft || 99));
+  const tenders = await fetchTendersFromServer();
 
   _allTenders = tenders;
   _tendersLoaded = true;
 
   const liveCount = tenders.filter(t => t.live).length;
-  const now = new Date();
-  document.getElementById('tender-updated').textContent =
-    (liveCount > 0 ? '● ' : '') +
-    'Ažurirano: ' + now.toLocaleTimeString('sr-Latn', {hour:'2-digit', minute:'2-digit'}) +
-    (liveCount > 0 ? ` · ${liveCount} live` : '');
+  if (upd) upd.textContent = 'Ažurirano: ' + new Date().toLocaleTimeString('sr-RS', { hour: '2-digit', minute: '2-digit' }) +
+    (liveCount > 0 ? ' · ' + liveCount + ' live' : '');
 
-  renderTenderStats(tenders);
-  filterTenders();
+  const box = document.getElementById('ted-info-box');
+  if (box) {
+    if (liveCount > 0) {
+      box.className = 'bg-green-50 border border-green-200 rounded-lg p-4 mb-8 flex items-start gap-3';
+      box.innerHTML = '<div class="text-green-500 text-xl flex-shrink-0">●</div>' +
+        '<div><div class="text-sm font-semibold text-green-800 mb-1">TED EU — LIVE (' + liveCount + ' aktivnih tendera)</div>' +
+        '<div class="text-xs text-green-700">Hrvatska, Slovenija, Rumunija, Bugarska, Italija, Nemačka, Austrija, Švajcarska, Grčka, Mađarska — povučeno sa ted.europa.eu. Prikazuju se samo tenderi sa rokom koji još traje.</div></div>' +
+        '<button onclick="this.parentElement.style.display=\'none\'" class="text-green-400 hover:text-green-600 text-lg flex-shrink-0 ml-auto">×</button>';
+    } else {
+      box.style.display = 'none';
+    }
+  }
+  const rs = document.getElementById('nabavke-live-box');
+  if (rs) rs.style.display = 'none';
+
+  renderTenders();
 }
 
 

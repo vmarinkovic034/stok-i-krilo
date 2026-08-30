@@ -62,8 +62,8 @@ async function ted(dijag) {
   const body = {
     query: `classification-cpv IN (${CPV.map(c => `"${c}"`).join(' ')}) AND buyer-country IN (${ZEMLJE.map(c => `"${c}"`).join(' ')}) AND publication-date >= ${od}`,
     fields: ['publication-number','notice-title','buyer-name','buyer-country','classification-cpv',
-             'deadline-receipt-request','deadline-date-lot','publication-date','total-value',
-             'estimated-value-cur-lot','place-of-performance','links'],
+             'deadline-receipt-request','deadline-receipt-tender-date-lot','publication-date',
+             'total-value','links'],
     page: 1, limit: 250,
     scope: 'ACTIVE',
   };
@@ -85,7 +85,7 @@ async function ted(dijag) {
       const [tip, tipL] = tipZaCpv(tekst(x['classification-cpv']));
       const z = ZASTAVE[c];
       if (!z) return null;
-      const rok = tekst(x['deadline-receipt-request']) || tekst(x['deadline-date-lot']);
+      const rok = tekst(x['deadline-receipt-request']) || tekst(x['deadline-receipt-tender-date-lot']);
       return {
         id: 'ted' + i, country: z[0], countryLabel: z[1], flag: z[2],
         title: tekst(x['notice-title']).slice(0, 200) || 'Nabavka',
@@ -106,7 +106,7 @@ async function ted(dijag) {
     // Zadrži samo stvarnu stolariju/fasadu/staklo i nešto što još nije isteklo
     const cisti = mapirani
       .filter(t => CPV_OK.some(p => String(t._cpv).startsWith(p)))
-      .filter(t => t.daysLeft === null || t.daysLeft > 0)
+      .filter(t => t.daysLeft !== null && t.daysLeft > 0)
       .sort((a, b) => String(b._pub).localeCompare(String(a._pub)));
 
     const poZemlji = {};
@@ -164,22 +164,6 @@ async function srbija(dijag) {
 export default async (req) => {
   const url = new URL(req.url);
 
-  // ?probe=1 -> sirovi TED zapis, da se vide tačna imena polja
-  if (url.searchParams.has('probe')) {
-    const key = process.env.TED_API_KEY || 'dec3c29a94794d2896513c7a7f29da92';
-    const od = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10).replace(/-/g, '');
-    const r = await fetch('https://api.ted.europa.eu/v3/notices/search', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', accept: 'application/json', 'TED-API-Key': key },
-      body: JSON.stringify({
-        query: `classification-cpv IN ("44221100") AND publication-date >= ${od}`,
-        fields: (url.searchParams.get('f') || 'publication-number,notice-title').split(',').map(x => x.trim()).filter(Boolean),
-        page: 1, limit: 1,
-      }),
-    });
-    const t = await r.text();
-    return new Response(t.slice(0, 6000), { headers: { 'content-type': 'application/json; charset=utf-8' } });
-  }
 
   const debug = url.searchParams.has('debug');
   const fresh = url.searchParams.has('fresh');
