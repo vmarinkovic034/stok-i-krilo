@@ -1646,7 +1646,8 @@ async function loadTenders() {
   const rs = document.getElementById('nabavke-live-box');
   if (rs) rs.style.display = 'none';
 
-  renderTenders();
+  try { renderTenderStats(tenders); } catch (e) { console.warn('renderTenderStats:', e.message); }
+  filterTenders();
 }
 
 
