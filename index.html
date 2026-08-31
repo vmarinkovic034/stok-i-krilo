@@ -113,6 +113,7 @@ tailwind.config = {
       <nav class="desktop-nav flex items-center gap-6">
         <span class="nav-link text-sm text-gray-600 hover:text-brand active" onclick="showPage('home'); setNav(this)">VESTI</span>
         <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('cene'); setNav(this)">CENE</span>
+        <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('barometar'); setNav(this)">BAROMETAR</span>
         <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('kompanije'); setNav(this)">KOMPANIJE</span>
         <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('edukacija'); setNav(this)">EDUKACIJA</span>
         <span class="nav-link text-sm text-gray-600 hover:text-brand" onclick="showPage('sajmovi'); setNav(this)">SAJMOVI</span>
@@ -138,6 +139,7 @@ tailwind.config = {
     <div class="px-4 py-3 flex flex-col gap-4">
       <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('home');closeMobileMenu()">VESTI</span>
       <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('cene');closeMobileMenu()">CENE</span>
+      <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('barometar');closeMobileMenu()">BAROMETAR</span>
       <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('kompanije');closeMobileMenu()">KOMPANIJE</span>
       <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('edukacija');closeMobileMenu()">EDUKACIJA</span>
       <span class="text-sm font-medium text-gray-700 cursor-pointer" onclick="showPage('sajmovi');closeMobileMenu()">SAJMOVI</span>
@@ -238,6 +240,28 @@ tailwind.config = {
           </div>
         </div>
         <button class="text-brand text-sm font-semibold hover:underline" onclick="showPage('analize')">Pročitaj analizu →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BAROMETAR TEASER -->
+  <section class="bg-gray-950 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <div class="grid md:grid-cols-3 gap-8 items-center">
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="tag" style="color:#7fb2ce">BAROMETAR CENA</span>
+            <span class="text-xs font-mono px-2 py-0.5" style="background:#1e293b;color:#cbd5e1">BROJ 0 · AVGUST 2026</span>
+          </div>
+          <h2 class="font-serif text-2xl md:text-3xl font-bold mb-3 leading-snug">Ista korpa stolarije u Sloveniji košta 3,6 puta više nego u Srbiji</h2>
+          <p class="text-sm leading-relaxed mb-5" style="color:#94a3b8">Tri elementa, tri klase opreme, ista specifikacija na svim tržištima. Mesečno merenje koje pokazuje da premium segment u Srbiji još nema cenu — razlika između ekonomik i premium klase je 11%, u Sloveniji 75%.</p>
+          <button class="bg-white text-gray-950 px-4 py-2.5 text-sm font-semibold hover:bg-gray-100 transition" onclick="showPage('barometar')">Pogledaj barometar →</button>
+        </div>
+        <div class="grid grid-cols-3 md:grid-cols-1 gap-px" style="background:#1e293b">
+          <div class="p-4" style="background:#0f172a"><div class="text-2xl font-bold tabular-nums">100</div><div class="text-xs mt-0.5" style="color:#94a3b8">Srbija · baza</div></div>
+          <div class="p-4" style="background:#0f172a"><div class="text-2xl font-bold tabular-nums">157</div><div class="text-xs mt-0.5" style="color:#94a3b8">Hrvatska</div></div>
+          <div class="p-4" style="background:#0f172a"><div class="text-2xl font-bold tabular-nums">359</div><div class="text-xs mt-0.5" style="color:#94a3b8">Slovenija</div></div>
+        </div>
       </div>
     </div>
   </section>
@@ -485,6 +509,118 @@ tailwind.config = {
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ===================== BAROMETAR PAGE ===================== -->
+<div id="page-barometar" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-8 mb-8">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="tag text-brand">BAROMETAR CENA</span>
+        <span class="text-xs font-mono bg-gray-950 text-white px-2 py-0.5">BROJ 0 · AVGUST 2026</span>
+      </div>
+      <h1 class="font-serif text-4xl font-bold text-gray-950 mb-3">Koliko košta ista korpa stolarije na šest tržišta</h1>
+      <p class="text-gray-500 max-w-3xl">Tri elementa koje svaka firma u regionu pravi, u tri klase opreme, mereni svakog meseca po istoj specifikaciji. Ne cena po kvadratu — fiksna korpa, da bi se merila promena cene, a ne promena uzorka.</p>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200 border border-gray-200 mb-10">
+      <div class="bg-white p-5">
+        <div class="text-3xl font-bold text-gray-950 tabular-nums" id="bar-kpi-rs">—</div>
+        <div class="text-xs text-gray-500 mt-1 leading-snug">Korpa u Srbiji, sa ugradnjom<br><span class="text-gray-400">baza indeksa = 100</span></div>
+      </div>
+      <div class="bg-white p-5">
+        <div class="text-3xl font-bold text-gray-950 tabular-nums" id="bar-kpi-hr">—</div>
+        <div class="text-xs text-gray-500 mt-1 leading-snug">Hrvatska<br><span class="text-gray-400">indeks, Srbija = 100</span></div>
+      </div>
+      <div class="bg-white p-5">
+        <div class="text-3xl font-bold text-gray-950 tabular-nums" id="bar-kpi-si">—</div>
+        <div class="text-xs text-gray-500 mt-1 leading-snug">Slovenija<br><span class="text-gray-400">indeks, Srbija = 100</span></div>
+      </div>
+      <div class="bg-white p-5">
+        <div class="text-3xl font-bold text-gray-950 tabular-nums">+11% <span class="text-gray-300 font-normal">/</span> +75%</div>
+        <div class="text-xs text-gray-500 mt-1 leading-snug">Premium premija<br><span class="text-gray-400">Srbija naspram Slovenije</span></div>
+      </div>
+    </div>
+
+    <!-- Class switcher -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <div class="flex flex-wrap gap-2" id="bar-class-btns">
+        <button class="filter-btn" onclick="setBarometarClass('E', this)">Klasa E — ekonomik</button>
+        <button class="filter-btn active" onclick="setBarometarClass('S', this)">Klasa S — standard</button>
+        <button class="filter-btn" onclick="setBarometarClass('P', this)">Klasa P — premium</button>
+      </div>
+      <div class="text-xs text-gray-400" id="bar-class-spec"></div>
+    </div>
+
+    <div class="grid lg:grid-cols-5 gap-8 mb-10">
+      <!-- Chart -->
+      <div class="lg:col-span-2 bg-white border border-gray-200 p-6">
+        <div class="font-serif text-xl font-bold text-gray-950 mb-1">Indeks korpe</div>
+        <div class="text-gray-400 text-sm mb-5">Srbija = 100 · sa ugradnjom</div>
+        <div style="height:230px;"><canvas id="barometar-chart"></canvas></div>
+        <div class="mt-5 pt-4 border-t border-gray-100 text-xs text-gray-500 leading-relaxed" id="bar-chart-note"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="lg:col-span-3 bg-white border border-gray-200 overflow-x-auto">
+        <table class="w-full text-sm" style="min-width:520px">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+              <th class="text-left px-4 py-3 tag text-gray-500 font-bold">Element</th>
+              <th class="text-right px-4 py-3 tag text-gray-500 font-bold">Srbija</th>
+              <th class="text-right px-4 py-3 tag text-gray-500 font-bold">Hrvatska</th>
+              <th class="text-right px-4 py-3 tag text-gray-500 font-bold">Slovenija</th>
+            </tr>
+          </thead>
+          <tbody id="bar-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- What it means -->
+    <div class="bg-gray-50 border border-gray-200 p-6 mb-10">
+      <div class="tag text-brand mb-2">ŠTA OVO ZNAČI ZA PROIZVOĐAČE?</div>
+      <p class="text-gray-700 leading-relaxed mb-3"><strong>Premium segment u Srbiji još nema cenu.</strong> Razlika između ekonomik i premium klase je u Srbiji 11%, u Hrvatskoj 26%, u Sloveniji 75%. Za dvokrilni prozor i balkonska vrata srpski izvor daje identičan raspon za standard i premium — tržište ne naplaćuje sigurnosni okov i Uw ≤ 0,8.</p>
+      <p class="text-gray-700 leading-relaxed">Zbog toga se izvozna prilika ne nalazi u jeftinom prozoru, gde je transport pojede, nego u premium elementu: jaz prema Sloveniji je 3,3× u ekonomiku, a 5,3× u premiumu — više od 1.000 evra razlike po komadu.</p>
+    </div>
+
+    <!-- Gaps + panel CTA -->
+    <div class="grid md:grid-cols-3 gap-6 mb-10">
+      <div class="md:col-span-2 bg-white border border-gray-200 p-6">
+        <div class="tag text-gray-400 mb-3">TRŽIŠTA BEZ PODATAKA</div>
+        <div class="space-y-4" id="bar-gaps"></div>
+      </div>
+      <div class="bg-brand text-white p-6 flex flex-col justify-between" style="background:#1a3a5c">
+        <div>
+          <div class="tag mb-3" style="color:#9fc0e0">PRIJAVITE SE U PANEL</div>
+          <div class="font-serif text-xl font-bold mb-3 leading-snug">Vaš broj naspram proseka — pre javne objave</div>
+          <p class="text-sm leading-relaxed" style="color:#c9dcf0">Firme u panelu jednom mesečno šalju cenu korpe iz svog sistema i zauzvrat dobijaju svoju poziciju u odnosu na presek tržišta, pre nego što broj izađe javno. Podaci se objavljuju isključivo agregirano, uz vremenski pomak i nikad ispod pet učesnika po tržištu.</p>
+        </div>
+        <button class="mt-6 bg-white text-gray-950 px-4 py-2.5 text-sm font-semibold w-full hover:bg-gray-100 transition" onclick="openDemoModal('Prijava u panel Barometra cena')">Prijavi firmu →</button>
+      </div>
+    </div>
+
+    <!-- Methodology -->
+    <div class="border-t border-gray-200 pt-6 text-xs text-gray-500 leading-relaxed max-w-4xl">
+      <div class="tag text-gray-400 mb-2">METODOLOGIJA</div>
+      <p class="mb-2">Korpa: <strong>B1</strong> jednokrilni prozor 90×120 otklopno-otvarajući · <strong>B2</strong> dvokrilni prozor 140×140 · <strong>B3</strong> balkonska vrata 90×210. Klase prate specifikaciju izvora: E = Uw 1,3 / dvoslojno / standardni profil / osnovni okov; S = Uw 1,0 / troslojno / energetski profil / osnovni okov; P = Uw ≤ 0,8 / troslojno / energetski profil / sigurnosni okov.</p>
+      <p class="mb-2">Sve cene su po komadu, u evrima, <strong>sa ugradnjom</strong>, preuzete 31. avgusta 2026. s javno objavljenih stranica koje agregiraju ponude izvođača. Kolona „bez ugradnje" uvodi se tek s panelom — javni izvori za nju nisu međusobno uporedivi. Vrednosti u indeksu su sredine objavljenih raspona. Objavljeni raspon za dvokrilni prozor u Hrvatskoj, klasa E, u izvoru stoji obrnuto (480–380) i ovde je ispravljen na 380–480.</p>
+      <p>Izvori: <a class="text-brand hover:underline" href="https://www.daibau.rs/cene/pvc_prozori" target="_blank" rel="noopener">daibau.rs</a> · <a class="text-brand hover:underline" href="https://www.emajstor.hr/cijene/pvc_prozori" target="_blank" rel="noopener">emajstor.hr</a> · <a class="text-brand hover:underline" href="https://www.mojmojster.net/cene/pvc_okna" target="_blank" rel="noopener">mojmojster.net</a> · <a class="text-brand hover:underline" href="https://www.daibau.ba/cene/pvc_prozori" target="_blank" rel="noopener">daibau.ba</a> · <a class="text-brand hover:underline" href="https://www.daibau.mk/ceni/pvts_prozortsi" target="_blank" rel="noopener">daibau.mk</a></p>
+    </div>
+
+    <!-- AD SLOT -->
+    <div class="ad-section mt-10 py-5 relative">
+      <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
+      <div class="pt-4">
+        <div data-ad-wide="1"></div>
+        <div class="flex justify-end mt-1.5"><span class="text-xs text-gray-300">OGLAS</span></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -824,6 +960,7 @@ tailwind.config = {
         <div class="space-y-2 text-sm text-gray-400">
           <div class="hover:text-white cursor-pointer" onclick="showPage('home')">Vesti</div>
           <div class="hover:text-white cursor-pointer" onclick="showPage('cene')">Cene</div>
+          <div class="hover:text-white cursor-pointer" onclick="showPage('barometar')">Barometar</div>
           <div class="hover:text-white cursor-pointer" onclick="showPage('kompanije')">Kompanije</div>
           <div class="hover:text-white cursor-pointer" onclick="showPage('analize')">Analize</div>
         </div>
@@ -2617,12 +2754,182 @@ function subscribeNewsletter(inputId) {
 }
 
 // ==================== NAVIGATION ====================
+// ==================== BAROMETAR CENA ====================
+// Fiksna korpa B1-B3 u tri klase opreme, mereno mesecno po istoj specifikaciji.
+// Sve cene: EUR/kom, SA UGRADNJOM. Izvor: agregatori ponuda izvodjaca (Daibau grupa).
+// Kolona "bez ugradnje" NE postoji dok ne postoji panel - javni izvori za nju nisu uporedivi.
+const BAROMETAR = {
+  broj: 0,
+  mesec: 'Avgust 2026',
+  baza: 'RS',
+  klase: {
+    E: 'Klasa E: Uw 1,3 · dvoslojno staklo · standardni profil · osnovni okov',
+    S: 'Klasa S: Uw 1,0 · troslojno staklo · energetski profil · osnovni okov',
+    P: 'Klasa P: Uw ≤ 0,8 · troslojno staklo · energetski profil · sigurnosni okov'
+  },
+  elementi: [
+    { id: 'B1', naziv: 'Jednokrilni prozor', dim: '90 × 120 cm' },
+    { id: 'B2', naziv: 'Dvokrilni prozor',   dim: '140 × 140 cm' },
+    { id: 'B3', naziv: 'Balkonska vrata',    dim: '90 × 210 cm' }
+  ],
+  trzista: [
+    { kod: 'RS', ime: 'Srbija',    izvor: 'daibau.rs' },
+    { kod: 'HR', ime: 'Hrvatska',  izvor: 'emajstor.hr' },
+    { kod: 'SI', ime: 'Slovenija', izvor: 'mojmojster.net' }
+  ],
+  // [min, max] u EUR/kom, sa ugradnjom
+  podaci: {
+    RS: { B1: { E:[135,160], S:[150,180], P:[150,190] },
+          B2: { E:[215,300], S:[230,330], P:[230,330] },
+          B3: { E:[210,300], S:[230,330], P:[230,330] } },
+    HR: { B1: { E:[200,260], S:[225,280], P:[240,320] },
+          B2: { E:[380,480], S:[430,550], P:[430,600] },
+          B3: { E:[280,350], S:[330,460], P:[350,510] } },
+    SI: { B1: { E:[350,500], S:[400,600], P:[520,800] },
+          B2: { E:[750,1000], S:[900,1200], P:[1300,2000] },
+          B3: { E:[800,1000], S:[900,1200], P:[1200,1900] } }
+  },
+  // Napomene o kvalitetu podatka, prikazuju se uz vrednost
+  zastavice: {
+    'RS|B2|P': 'izvor ne razlikuje S i P',
+    'RS|B3|P': 'izvor ne razlikuje S i P',
+    'HR|B2|E': 'ispravljen obrnut raspon iz izvora'
+  },
+  rupe: [
+    { trziste: 'Bosna i Hercegovina', ima: 'Cene po stavkama u KM, ali na starijem setu dimenzija (100×100, 120×140, 110×210) i bez podele na klase.', treba: 'B1, B2, B3 u tačnim dimenzijama i klase E/S/P.' },
+    { trziste: 'Severna Makedonija',  ima: 'Samo agregat 85–156 €/m², bez cena po stavkama.', treba: 'Kompletna korpa.' },
+    { trziste: 'Crna Gora',           ima: 'Nema regionalnog agregatora — samo cenovnici pojedinačnih firmi, 200–380 €/m².', treba: 'Kompletna korpa.' }
+  ]
+};
+
+let _barKlasa = 'S';
+let _barChart = null;
+
+function barSredina(par) { return (par[0] + par[1]) / 2; }
+
+function barKorpa(kod, klasa) {
+  return BAROMETAR.elementi.reduce((zbir, el) => zbir + barSredina(BAROMETAR.podaci[kod][el.id][klasa]), 0);
+}
+
+function barEur(n) { return Math.round(n).toLocaleString('sr-RS') + ' €'; }
+
+function setBarometarClass(klasa, el) {
+  _barKlasa = klasa;
+  if (el) {
+    document.querySelectorAll('#bar-class-btns .filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+  renderBarometar();
+}
+
+function renderBarometar() {
+  const klasa = _barKlasa;
+  const bazna = barKorpa(BAROMETAR.baza, klasa);
+
+  // KPI
+  const kpi = { RS: 'bar-kpi-rs', HR: 'bar-kpi-hr', SI: 'bar-kpi-si' };
+  BAROMETAR.trzista.forEach(t => {
+    const box = document.getElementById(kpi[t.kod]);
+    if (!box) return;
+    box.textContent = t.kod === BAROMETAR.baza
+      ? barEur(bazna)
+      : Math.round(barKorpa(t.kod, klasa) / bazna * 100);
+  });
+
+  const spec = document.getElementById('bar-class-spec');
+  if (spec) spec.textContent = BAROMETAR.klase[klasa];
+
+  // Tabela
+  const tbody = document.getElementById('bar-table-body');
+  if (tbody) {
+    let html = '';
+    BAROMETAR.elementi.forEach(el => {
+      html += '<tr class="border-b border-gray-100">' +
+        '<td class="px-4 py-3"><div class="font-semibold text-gray-950">' + el.naziv + '</div>' +
+        '<div class="text-xs text-gray-400 font-mono">' + el.id + ' · ' + el.dim + '</div></td>';
+      BAROMETAR.trzista.forEach(t => {
+        const par = BAROMETAR.podaci[t.kod][el.id][klasa];
+        const flag = BAROMETAR.zastavice[t.kod + '|' + el.id + '|' + klasa];
+        html += '<td class="px-4 py-3 text-right tabular-nums">' +
+          '<div class="font-semibold text-gray-950">' + par[0] + '–' + par[1] + ' €</div>' +
+          (flag ? '<div class="text-xs text-amber-600 mt-0.5">' + flag + '</div>' : '') +
+          '</td>';
+      });
+      html += '</tr>';
+    });
+    // Zbir
+    html += '<tr class="bg-gray-50"><td class="px-4 py-3"><div class="font-bold text-gray-950">Korpa ukupno</div>' +
+      '<div class="text-xs text-gray-400">sredine raspona</div></td>';
+    BAROMETAR.trzista.forEach(t => {
+      const zbir = barKorpa(t.kod, klasa);
+      const idx = Math.round(zbir / bazna * 100);
+      html += '<td class="px-4 py-3 text-right tabular-nums">' +
+        '<div class="font-bold text-gray-950">' + barEur(zbir) + '</div>' +
+        '<div class="text-xs ' + (idx > 100 ? 'text-down' : 'text-gray-400') + ' mt-0.5">indeks ' + idx + '</div>' +
+        '</td>';
+    });
+    html += '</tr>';
+    tbody.innerHTML = html;
+  }
+
+  // Napomena uz grafikon
+  const note = document.getElementById('bar-chart-note');
+  if (note) {
+    const si = Math.round(barKorpa('SI', klasa) / bazna * 100);
+    note.innerHTML = 'Ista tri elementa, isti standard: u Sloveniji <strong>' + (si / 100).toFixed(1).replace('.', ',') +
+      '×</strong> skuplje nego u Srbiji. Broj se ne poredi s prošlim mesecom dok ne bude dvanaest merenja — do tada isključivo godina na godinu.';
+  }
+
+  renderBarometarChart(klasa, bazna);
+  renderBarometarRupe();
+}
+
+function renderBarometarChart(klasa, bazna) {
+  const cv = document.getElementById('barometar-chart');
+  if (!cv || typeof Chart === 'undefined') return;
+  const labels = BAROMETAR.trzista.map(t => t.ime);
+  const vals = BAROMETAR.trzista.map(t => Math.round(barKorpa(t.kod, klasa) / bazna * 100));
+  const boje = BAROMETAR.trzista.map(t => t.kod === BAROMETAR.baza ? '#94a3b8' : '#1a3a5c');
+
+  if (_barChart) _barChart.destroy();
+  _barChart = new Chart(cv.getContext('2d'), {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ data: vals, backgroundColor: boje, borderWidth: 0, barThickness: 34 }] },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => 'Indeks ' + c.parsed.x + ' · ' + barEur(barKorpa(BAROMETAR.trzista[c.dataIndex].kod, klasa)) } }
+      },
+      scales: {
+        x: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 }, color: '#94a3b8' } },
+        y: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' }, color: '#374151' } }
+      }
+    }
+  });
+}
+
+function renderBarometarRupe() {
+  const box = document.getElementById('bar-gaps');
+  if (!box || box.dataset.done === '1') return;
+  box.innerHTML = BAROMETAR.rupe.map(r =>
+    '<div class="border-l-2 border-gray-200 pl-4">' +
+      '<div class="font-semibold text-gray-950 text-sm mb-1">' + r.trziste + '</div>' +
+      '<div class="text-sm text-gray-600 leading-relaxed">' + r.ima + '</div>' +
+      '<div class="text-xs text-gray-400 mt-1">Nedostaje: ' + r.treba + '</div>' +
+    '</div>').join('');
+  box.dataset.done = '1';
+}
+
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + name);
   if (target) {
     target.classList.add('active');
     if (name === 'cene') { setTimeout(() => { renderPriceCards(); updateChart(); }, 50); }
+    if (name === 'barometar') { setTimeout(renderBarometar, 50); }
     if (name === 'kompanije') renderCompanies(allCompanies);
     if (name === 'edukacija') renderEdu(eduItems);
     if (name === 'sajmovi') renderEvents(events);
