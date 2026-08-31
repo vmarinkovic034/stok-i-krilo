@@ -302,36 +302,7 @@ tailwind.config = {
   <section class="ad-section py-5">
     <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Native ad 1 -->
-        <div class="native-ad-card" onclick="window.open('https://www.siegenia.com','_blank')">
-          <div class="flex items-start gap-4">
-            <img src="assets/sponsors/siegenia-logo.png" alt="Siegenia" class="h-10 w-auto flex-shrink-0" />
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-bold tracking-widest text-gray-400">PRIMER POZICIJE</span>
-              </div>
-              <div class="text-sm font-semibold text-gray-900 mb-1">Siegenia - okov za prozore i vrata</div>
-              <div class="text-xs text-gray-500 leading-relaxed">Kompletni sistemi za sve tipove prozora. Distribucija za ceo Balkan.</div>
-              <span class="text-xs text-brand font-semibold mt-2 inline-block hover:underline">Pogledaj katalog →</span>
-            </div>
-          </div>
-        </div>
-        <!-- Native ad 2 -->
-        <div class="native-ad-card" onclick="window.open('https://masterlinesystem.com','_blank')">
-          <div class="flex items-start gap-4">
-            <img src="assets/sponsors/masterline-logo.png" alt="MasterLine System" class="h-10 w-auto flex-shrink-0" />
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-bold tracking-widest text-gray-400">PRIMER POZICIJE</span>
-              </div>
-              <div class="text-sm font-semibold text-gray-900 mb-1">MasterLine System - prozori i vrata</div>
-              <div class="text-xs text-gray-500 leading-relaxed">Prodaja i ugradnja PVC i ALU stolarije.</div>
-              <span class="text-xs text-brand font-semibold mt-2 inline-block hover:underline">Zatraži ponudu →</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" data-ad-native="2"></div>
       <div class="flex justify-between items-center mt-2 px-0.5">
         <span class="text-xs text-gray-400">Vaša kompanija ovde? <span class="text-brand cursor-pointer hover:underline" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">Informišite se o oglašavanju →</span></span>
         <span class="text-xs text-gray-300">AD</span>
@@ -458,7 +429,7 @@ tailwind.config = {
       <!-- SIDEBAR SPONZOR BANER -->
       <aside class="lg:col-span-1">
         <div class="sticky" style="top:88px;">
-          <div class="ad-label" style="position:static; display:inline-block; margin-bottom:10px; background:transparent; padding:0;">PRIMER POZICIJE</div>
+          <div class="ad-label" style="position:static; display:inline-block; margin-bottom:10px; background:transparent; padding:0;">SPONZOR</div>
           <div class="ad-card p-5 text-center" onclick="window.open('https://suncemarinkovic.com','_blank')">
             <img src="assets/sponsors/sunce-logo.png" alt="Sunce Marinković" class="h-12 w-auto mx-auto mb-3" />
             <div class="text-sm font-semibold text-gray-900 mb-1">Sunce Marinković</div>
@@ -519,15 +490,7 @@ tailwind.config = {
     <div class="ad-section mt-8 py-5 relative">
       <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
       <div class="pt-4">
-        <div class="ad-card p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4" onclick="showToast('Technoform - poseta sajtu')">
-          <div class="w-14 h-14 bg-orange-50 flex items-center justify-center flex-shrink-0 font-bold text-orange-700 text-xs">TF</div>
-          <div class="flex-1">
-            <div class="text-xs font-bold tracking-widest text-gray-400 mb-1">PRIMER POZICIJE</div>
-            <div class="text-base font-semibold text-gray-900">Technoform - termički prekid koji štedi energiju i novac</div>
-            <div class="text-xs text-gray-500 mt-1">Optimizujte Uf vrednost profila. Distribucija u celom regionu. Tehnička podrška na srpskom.</div>
-          </div>
-          <button class="btn-outline text-sm flex-shrink-0">Kontaktirajte →</button>
-        </div>
+        <div data-ad-wide="1"></div>
         <div class="flex justify-end mt-1.5">
           <span class="text-xs text-gray-300">OGLAS</span>
         </div>
@@ -2815,6 +2778,36 @@ function renderAdStrips() {
         '<span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>' +
       '</div>'
     ).join('');
+  });
+
+  document.querySelectorAll('[data-ad-native]').forEach(el => {
+    const n = parseInt(el.dataset.adNative, 10) || 2;
+    el.innerHTML = _brendoviRandom(n).map(b =>
+      '<div class="native-ad-card" onclick="' + _otvori(b.url) + '">' +
+        '<div class="flex items-start gap-4">' +
+          '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-9 w-auto flex-shrink-0 object-contain mt-0.5" />' +
+          '<div class="min-w-0">' +
+            '<div class="text-xs font-bold tracking-widest text-gray-400 mb-1">PRIMER POZICIJE</div>' +
+            '<div class="text-base font-semibold text-gray-900 leading-snug">' + b.ime + ' — ' + b.opis + '</div>' +
+            '<div class="text-xs text-brand font-semibold mt-2 hover:underline">Saznaj više →</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    ).join('');
+  });
+
+  document.querySelectorAll('[data-ad-wide]').forEach(el => {
+    const b = _brendoviRandom(1)[0];
+    el.innerHTML =
+      '<div class="ad-card p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4" onclick="' + _otvori(b.url) + '">' +
+        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-12 w-auto flex-shrink-0 object-contain" />' +
+        '<div class="flex-1">' +
+          '<div class="text-xs font-bold tracking-widest text-gray-400 mb-1">PRIMER POZICIJE</div>' +
+          '<div class="text-base font-semibold text-gray-900">' + b.ime + '</div>' +
+          '<div class="text-xs text-gray-500 mt-1">' + b.opis + '</div>' +
+        '</div>' +
+        '<button class="btn-outline text-sm flex-shrink-0">Saznaj više →</button>' +
+      '</div>';
   });
 
   document.querySelectorAll('[data-ad-cards]').forEach(el => {
