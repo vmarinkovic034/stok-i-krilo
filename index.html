@@ -88,6 +88,14 @@ tailwind.config = {
 </head>
 <body class="min-h-screen">
 
+<!-- ===================== OGLASNE POZICIJE - SAM VRH ===================== -->
+<section class="ad-section py-4" id="top-ad-strip" style="border-bottom:1px solid #e5e7eb;">
+  <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" data-ad-top="3"></div>
+  </div>
+</section>
+
 <!-- STICKY HEADER -->
 <header id="main-header" class="sticky top-0 z-50 bg-white border-b border-gray-200" style="border-bottom: 2px solid #1a3a5c;">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
@@ -1147,6 +1155,12 @@ const NEWS_SOURCES = [
 // brendova; mi objavljujemo ono što se dešava PRE nego što brend napravi saopštenje.
 
 const newsItems = [
+  { cat: 'trziste', catLabel: 'TRŽIŠTE', date: '30. avg 2026', title: 'Britanija neće izgraditi 1,5 miliona stanova - i to je vest za stolariju', desc: 'Dve godine posle obećanja, sagrađeno je 392.400 stanova. Za preostale tri godine trebalo bi 369.200 godišnje. Glavna prepreka nije planiranje ni novac, nego nedostatak obučenih radnika.', read: '4 min', source: 'Double Glazing Blogger', url: 'https://www.doubleglazingblogger.com/2026/08/1-5m-new-homes-were-never-going-to-be-built/', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900&fit=crop&auto=format&q=75',
+    body: 'Dve godine posle dolaska na vlast, britanska vlada je od obećanih 1,5 miliona novih stanova u pet godina izgradila 392.400 - zaključno sa junom 2026. Za preostale tri godine to znači 369.200 stanova godišnje.\n\nDGB podseća da Britanija taj tempo nije dostigla šezdeset godina. Vlada je već počela da menja jezik kojim govori o cilju.\n\nRazlozi su nabrojani otvoreno: trošak izgradnje kuće skočio je zbog cene materijala i novih propisa, tržište nekretnina je zaglavljeno rastom cena, a planski sistem traži doradu. Ali glavna kočnica, piše autor, oduvek je bila jedna - nedostatak obučenih radnika.\n\nZa stolariju to nije apstraktno. Kada tržište nekretnina ima ponudu, ljudi se sele. A kada se sele, ulažu u renoviranje i zamenu stolarije. Blokirano tržište znači i manje tog novca.\n\n- Šta ovo znači za Balkan? -\nIsti nedostatak radne snage postoji i ovde, samo ga niko nije izmerio. Razlika je što britanski proizvođač ima podatak koji može da pokaže banci i kupcu, a mi imamo osećaj.\n\nAli poenta je praktičnija od statistike. Ako je nedostatak montera stvarna granica rasta, onda ulaganje u mašinu koja skraćuje ciklus vredi više od ulaganja u prodaju koja donosi porudžbine koje nemaš kim da montiraš.\n\nPrebroj koliko si otvora prošlog meseca odbio ili odložio zato što nije bilo ekipe, a ne zato što nije bilo posla. Ako je taj broj veći od nule, tvoje usko grlo nije tržište.' },
+  { cat: 'proizvodi', catLabel: 'NOVI PROIZVOD', date: '27. avg 2026', title: 'CRL predstavio foliju za privremeno obezbeđenje polomljenog stakla', desc: 'Samolepljiva folija se lepi direktno na oštećeno staklo, drži krhotine na okupu i štiti od vremenskih uslova do popravke. Debljina 175 mikrometara, propusnost svetlosti oko 85 odsto.', read: '2 min', source: 'GLASWELT', url: 'https://www.glaswelt.de/glas/c-r-laurence-europe-crl-glasbruch-diese-folie-hilft-bei-notverglasungen', img: 'https://images.unsplash.com/photo-1590959651373-a3db0f38a961?w=900&fit=crop&auto=format&q=75',
+    body: 'C.R. Laurence (CRL) uveo je u ponudu foliju za privremeno obezbeđenje oštećenog stakla. Samolepljiva folija se nanosi direktno na napuklo staklo, drži krhotine na okupu, stvara privremenu sigurnosnu barijeru i štiti od vremenskih uticaja i prljavštine dok se ne izvede prava popravka.\n\nDosad se za takvu situaciju najčešće koristila daska - koju treba nabaviti, doneti i montirati. Folija je brža i, kako navode, urednija.\n\nNathalie Peters, direktorka prodaje u CRL-u, ističe propusnost svetlosti od oko 85 odsto pri debljini folije od 175 mikrometara. Izlog ostaje providan dok se čeka zamena stakla.\n\n- Šta ovo znači za Balkan? -\nOvo je mala stavka sa nesrazmerno velikim efektom na odnos sa kupcem. Kada pukne staklo na izlogu ili na stanu, kupac je u panici, a ti nemaš zamensko staklo na lageru - najčešće se čeka nedelju do dve.\n\nTo je tačka u kojoj se najčešće gubi klijent, jer kupac tvoju nemoć doživljava kao nezainteresovanost.\n\nProveri sa svojim dobavljačem stakla ili okova da li ima ovakvu foliju u ponudi i koliko košta rolna. Ako je odgovor da, imaš uslugu koju konkurencija nema: izlazak na teren u roku od 24 sata, privremeno rešenje, i naplaćen izlazak. Ako je odgovor ne, i dalje si saznao šta da pitaš na sledećem sajmu.' },
+  { cat: 'kompanije', catLabel: 'INDUSTRIJA', date: '25. avg 2026', title: 'AGC Interpane isporučio fasadno staklo za milanski neboder Thetris', desc: 'Poslovna zgrada viša od 100 metara u Milanu dobija posebno razvijen omotač koji spaja arhitektonski dizajn sa energetskom efikasnošću i prilagođavanjem klimi. Fasadna stakla isporučio je AGC Interpane.', read: '2 min', source: 'GLASWELT', url: 'https://www.glaswelt.de/glas/agc-interpane-mailaender-hochhaus-thetris-mit-massgeschneiderten-sonnenschutzglaesern', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&fit=crop&auto=format&q=75',
+    body: 'Poslovna zgrada „Thetris" u Milanu, viša od 100 metara, dobija posebno razvijen omotač zgrade. Prema navodima GLASWELT-a, rešenje spaja arhitektonski dizajn sa visokom energetskom efikasnošću i prilagođavanjem klimatskim uslovima. Fasadna stakla za sunčevu zaštitu isporučio je AGC Interpane.\n\n- Šta ovo znači za Balkan? -\nProjekti ovog obima ne stižu na Balkan u istom obliku, ali specifikacija stiže. Ono što se danas ugrađuje na milanski neboder, za dve do tri godine traži arhitekta na poslovnoj zgradi u Beogradu ili Zagrebu - jer to vidi u istim časopisima.\n\nZa fasadere i proizvođače koji rade na većim objektima to znači jedno: staklo sa sunčevom zaštitom prestaje da bude dodatak i postaje deo osnovne specifikacije.\n\nPitaj svog dobavljača stakla koje sunčevozaštitne pakete drži na lageru za region i kakvi su rokovi. Ako je rok duži od šest nedelja, to je podatak koji moraš imati pre nego što daš ponudu, a ne posle.' },
   { cat: 'investicije', catLabel: 'INVESTICIJA', date: '19. avg 2026', title: 'Şişecam pojačava prisustvo u Evropi: 3,54 milijarde evra u prvoj polovini 2026.', desc: 'Turski staklarski gigant objavio je neto prihod od oko 3,54 milijarde evra u H1 2026, sa 61% prihoda iz inostranstva. Pustio je u rad nove linije za oplemenjivanje stakla u Turskoj i Evropi i otvorio prvu fabriku staklene ambalaže u Mađarskoj.', read: '3 min', source: 'GLASWELT', url: 'https://www.glaswelt.de/glas/starkes-wachstum-sisecam-verstaerkt-engagement-europa', img: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=900&fit=crop&auto=format&q=75',
     body: 'Şişecam je u prvoj polovini 2026. ostvario neto prihod od oko 3,54 milijarde evra (oko 122 milijarde turskih lira), uz investicije od oko 348 miliona evra i izvoz preko 400 miliona evra. Udeo međunarodnog poslovanja u ukupnom prihodu iznosio je 61 odsto.\n\nU istom periodu grupa je pustila u rad nove linije za oplemenjivanje stakla u Turskoj i u Evropi, a u Mađarskoj je realizovala prvu investiciju u pogon za staklenu ambalažu na evropskom tlu.\n\nCEO Can Yücel opisao je period kao vođen neizvesnošću i volatilnim troškovima energije i logistike, uz fokus na efikasnost, disciplinu troškova i upravljanje likvidnošću. Grupa je u prvom kvartalu uspešno emitovala evroobveznicu uz jaku tražnju investitora.\n\n- Šta ovo znači za Balkan? -\nŞişecam je geografski najbliži veliki proizvođač stakla balkanskim proizvođačima - bliži od zapadnoevropskih grupacija. Nove linije za oplemenjivanje u Turskoj i Evropi znače da low-E i solarno staklo više ne moraju da putuju iz Nemačke ili Belgije, a kraći transportni krak je direktno kraći rok isporuke i manji trošak.\n\nPraktično: ako trenutno kupujete oplemenjeno staklo isključivo preko zapadnih distributera, vredi tražiti ponudu i preko turskog i mađarskog kanala i uporediti ukupan trošak s transportom i rokom. Razlika u roku isporuke od dve nedelje na velikom projektu vredi više od nekoliko procenata razlike u ceni.' },
   { cat: 'trziste', catLabel: 'TRŽIŠTE', date: '25. avg 2026', title: 'Eko-Okna snizile cene aluminijumskih škura na tri meseca - i to nije akcija, nego ulazak u kategoriju', desc: 'Najveći poljski proizvođač stolarije snizio je cene aluminijumskih škura Eko Persiane na naredna tri meseca. Cilj nije rasprodaja, nego da distributeri ubace proizvod u ponudu i podignu vrednost porudžbine kroz cross-selling.', read: '3 min', source: 'OknoNet', url: 'https://oknonet.pl/eko-okna-obnizaja-ceny-eko-persiane-wiecej-mozliwosci-dla-dystrybutorow/', img: 'https://images.unsplash.com/photo-1523413363574-c30aa1c2a516?w=900&fit=crop&auto=format&q=75',
@@ -1191,8 +1205,6 @@ const newsItems = [
     body: 'FGIA (Fenestration and Glazing Industry Alliance) i WDMA (Window & Door Manufacturers Association) zajedno su objavili AAMA/WDMA 100-26 - ažurirani standard za ugradnju prozora sa montažnim flanšama u membranske drenažne sisteme u novogradnji. Prethodna verzija bila je iz 2012 - 14 godina bez revizije.\n\nStandard pokriva specifičan, ali važan slučaj: ugradnju u membranske drenažne sisteme koji su dominantni u severnoameričkoj gradnji i sve prisutniji u zapadnoj Evropi. Dokument je odmah dostupan u onlajn prodavnicama obe asocijacije.\n\nOvo je, kažu, prvi u nizu zajedničkih standarda koje dve organizacije planiraju da objavljuju. Signal: industrija se konsoliduje i oko normativnog okvira, ne samo oko tržišta.\n\n- Šta ovo znači za Balkan? -\nNa Balkanu važe EN standardi - EN 14351, RAL smernice za montažu, lokalni normativi. AAMA direktno ne obavezuje. Ali izvoznici koji rade za Austriju, Nemačku ili Skandinaviju znaju da ti kupci prate globalne trendove. Ažuriranje američkih normi najavljuje smer: stroža dokumentacija montaže, više odgovornosti za izvođača.' },
   { cat: 'trziste', catLabel: 'TRŽIŠTE', date: '22. jun 2026', title: 'SAD: nova gradnja usporava, zamena raste. Šta to znači za nas?', desc: 'Mortgage Bankers Association u whitepaper-u tvrdi da priča o "manjku stanova" u SAD-u više ne stoji: ponuda bi mogla porasti za 10,6–14,6 miliona jedinica do 2035, dok je prosečna godišnja tražnja svega ~1,13 miliona. Formiranje domaćinstava pada.', read: '4 min', source: 'Mortgage Bankers Association', url: 'https://www.mba.org/news-and-research/newsroom/news/2026/06/22/mba-white-paper--demographic-trends-could-reshape-future-housing-demand', img: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&fit=crop&auto=format&q=75',
     body: 'Mortgage Bankers Association objavila je whitepaper koji kaže ono što mnogi nisu hteli da čuju: priča o "manjku stanova" u SAD-u više ne stoji. Prema proceni MBA, ponuda stanova mogla bi porasti za 10,6–14,6 miliona jedinica između 2026. i 2035, dok bi prosečna godišnja tražnja u istom periodu iznosila svega ~1,13 miliona jedinica - daleko ispod tempa potrebnog da apsorbuje tu ponudu.\n\nDemografija je pozadinska priča. Formiranje novih domaćinstava - koje MBA opisuje kao glavni pokretač dugoročne tražnje za stanovanjem - već je u padu: sa 2 miliona u 2021. na 1,1 milion u 2025. Do 2030, broj smrti u SAD-u premašiće broj rođenih.\n\nŠto to konkretno znači za stolarijsku industriju? Manje novih objekata, više zamene i renovacije. Model prihoda se pomera - iz "prodaj jedanput graditelju" u "prodaj više puta krajnjem korisniku koji menja stolariju staru 15 godina".\n\n- Šta ovo znači za Balkan? -\nSrbija, Crna Gora i Severna Makedonija su još uvek u fazi rasta nove gradnje - pa se ovo ne tiče nas neposredno. Ali tržišta koja su prolazila kroz istu tranziciju uvek su je prolazila sa faznim pomakom. Kompanije koje sad grade retrofit i zamenski kanal biće u poziciji kad trend stigne ovamo.' },
-  { cat: 'proizvodnja', catLabel: 'PROIZVODNJA', date: 'jul 2026', title: 'Kako povećati output za 21% bez nove hale i bez zastoja', desc: 'Emplas iz Engleske je to uradio: preuredili su celu fabriku, premestili svaku mašinu, i nijedna isporuka nije kasnila. Nije magija - jeste dobar plan.', read: '5 min', source: 'Window News UK', url: 'https://www.windownews.co.uk/how-emplas-increased-output-by-21-without-missing-a-beat/', img: 'https://images.unsplash.com/photo-1565793979786-8534b53b0c55?w=900&fit=crop&auto=format&q=75',
-    body: 'Emplas iz Velingborua (UK) je 2023. kupio drugi pogon od 25.000 kvadratnih stopa za kompozitna vrata i patio odeljenje. Selidba tog odeljenja oslobodila je prostor u originalnoj fabrici od 57.000 kvadratnih stopa. I onda je počeo pravi posao.\n\nKompanija je preuredila celu fabriku - premestila praktično svaku mašinu, preorganizovala tokove procesa, poboljšala protok materijala. Rezultat: output je porastao za više od 20% u poslednje dve godine, bez ijedne propuštene isporuke.\n\nOvo nije priča o novom kapitalu ili novoj opremi. Isti ljudi, ista oprema, drugačiji raspored i disciplina izvođenja.\n\n- Šta ovo znači za Balkan? -\nSvaki pogon na Balkanu koji čeka novu halu da poveća kapacitet treba da pročita ovu priču. Emplas pokazuje da se petina kapaciteta može dobiti reorganizacijom postojećeg prostora - uz dobar plan i dovoljno discipline da ga realizuješ bez usporavanja proizvodnje. To je direktno prenosivo znanje.' },
   { cat: 'kompanije', catLabel: 'INDUSTRIJA', date: '7. avg 2026', title: 'Owens Corning zatvara fabriku vrata u Indijani, otpušta 130 radnika', desc: 'Pogon u Walkertonu (Indijana), nasleđen kupovinom Masonite-a 2024, zatvara se do kraja oktobra 2026 - peti zatvoreni pogon vrata za godinu i po. Prihodi doors segmenta u Q1 2026. pali su 12% na 475 miliona dolara.', read: '3 min', source: 'DWM Magazine', url: 'https://www.dwmmag.com/2026/08/07/owens-corning-shutters-walkerton-door-plant-eliminating-130-jobs/', img: 'https://images.unsplash.com/photo-1601084881623-cdf9a8ea242c?w=900&fit=crop&auto=format&q=75',
     body: 'Owens Corning zatvara pogon za unutrašnja vrata u Walkertonu, Indijana, do kraja oktobra 2026. Oko 130 radnih mesta ide u dva talasa - otkazi 19. septembra i 2. oktobra, uz poslednja razdvajanja do 29. oktobra dok se pogon zvanično ne zatvori.\n\nOvo je peti pogon koji se zatvara otkako je Owens Corning u maju 2024. kupio Masonite. Isti pogon u Walkertonu je, dok je još bio u vlasništvu Masonite-a, 2022. već smanjio broj zaposlenih za trećinu (220 radnih mesta).\n\nBrojevi iza odluke: u Q1 2026. prihodi doors segmenta pali su 12% na 475 miliona dolara. EBITDA prepolovljena - sa 68 na 34 miliona dolara. U aprilu je Owens Corning prodao i tri distribucijska centra vrata kompaniji Metrie.\n\n- Šta ovo znači za Balkan? -\nGlobalna industrija vrata se konsoliduje. Za balkanske distributere to može značiti promene u dobavljačkom lancu i dostupnosti određenih modela. Ali i otvaranje: regionalni igrači koji mogu garantovati brzu isporuku i servis dobijaju prednost koju korporativni giganti teško nude sa 10.000 km udaljenosti.' },
   { cat: 'standardi', catLabel: 'TEHNIKA', date: 'jul 2026', title: 'ASSA ABLOY proširio testni centar na 691 m² - rezultati za dve nedelje', desc: 'UKAS-akreditovani centar u Daventriju (Britanija) testira PAS 24 pojačanu sigurnost za vratne sklopove, otpornost na koroziju i vodonepropusnost. Za balkanske proizvođače koji izvoze na UK tržište - relevantna adresa.', read: '2 min', source: 'Window News UK', url: 'https://www.windownews.co.uk/assa-abloy-strengthens-uk-testing-offer-with-expanded-accredited-facility/', img: null,
@@ -1706,7 +1718,7 @@ function renderHero() {
     </svg>`;
 
   const bgStyle = featured.img
-    ? `background:url('${featured.img}') center/cover no-repeat; background-color:#1a3a5c;`
+    ? `background:url('${novinskaSlika(featured)}') center/cover no-repeat; background-color:#1a3a5c;`
     : `background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 50%,#1e5a8a 100%);`;
 
   const featuredIdx = newsItems.indexOf(featured);
@@ -1999,7 +2011,7 @@ function renderNews(filter) {
     for (var i = 0; i < filtered.length; i++) {
       var n = filtered[i];
       var tc = tagColor(n.cat);
-      var img = n.img ? '<img src="' + n.img + '" class="w-full h-32 object-cover rounded mb-3" loading="lazy">' : '';
+      var img = '<img src="' + novinskaSlika(n) + '" onerror="_imgFallback(this,\'' + (n.cat||'') + '\')" class="w-full h-32 object-cover rounded mb-3" loading="lazy">';
       html += '<div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover rounded-lg" onclick="openArticle(' + newsItems.indexOf(n) + ')">';
       html += img;
       html += '<div class="flex items-center gap-2 mb-2">';
@@ -2499,7 +2511,7 @@ function openArticle(i) {
   const sourceHtml = n.url
     ? '<a href="' + n.url + '" target="_blank" rel="noopener noreferrer" class="text-brand hover:underline">' + (n.source || 'Izvor') + ' ↗</a>'
     : (n.source || 'Redakcija');
-  const heroImg = n.img ? '<img src="' + n.img + '" alt="' + n.title.replace(/"/g, '&quot;') + '" class="w-full h-56 sm:h-72 object-cover rounded-lg mb-6" loading="lazy">' : '';
+  const heroImg = '<img src="' + novinskaSlika(n) + '" onerror="_imgFallback(this,\'' + (n.cat||'') + '\')" alt="' + n.title.replace(/"/g, '&quot;') + '" class="w-full h-56 sm:h-72 object-cover rounded-lg mb-6" loading="lazy">';
   document.getElementById('article-content').innerHTML = `
     ${heroImg}
     <div class="tag text-brand mb-3">${n.catLabel || ''}</div>
@@ -2776,6 +2788,20 @@ function renderAdStrips() {
     ).join('');
   });
 
+  document.querySelectorAll('[data-ad-top]').forEach(el => {
+    const n = parseInt(el.dataset.adTop, 10) || 3;
+    el.innerHTML = _brendoviRandom(n).map(b =>
+      '<div class="ad-card px-4 py-3 flex items-center gap-3" onclick="' + _otvori(b.url) + '">' +
+        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-8 w-auto flex-shrink-0 object-contain" />' +
+        '<div class="min-w-0 flex-1">' +
+          '<div class="text-sm font-semibold text-gray-900 leading-tight">' + b.ime + '</div>' +
+          '<div class="text-xs text-gray-500 truncate">' + b.opis + '</div>' +
+        '</div>' +
+        '<span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline">→</span>' +
+      '</div>'
+    ).join('');
+  });
+
   document.querySelectorAll('[data-ad-wall]').forEach(el => {
     el.innerHTML = BRENDOVI.map(b =>
       '<div class="bg-white flex items-center justify-center p-6 h-24 cursor-pointer transition-opacity hover:opacity-60" ' +
@@ -2838,6 +2864,26 @@ function renderAdStrips() {
       '</div>'
     ).join('') + post;
   });
+}
+
+// Rezervna slika po kategoriji - vest bez slike ili sa pokvarenim linkom
+// više ne prikazuje polomljenu ikonicu.
+const NEWS_IMG_FALLBACK = {
+  trziste:     'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&fit=crop&auto=format&q=75',
+  kompanije:   'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&fit=crop&auto=format&q=75',
+  proizvodnja: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=900&fit=crop&auto=format&q=75',
+  tehnologija: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&fit=crop&auto=format&q=75',
+  proizvodi:   'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=900&fit=crop&auto=format&q=75',
+  standardi:   'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&fit=crop&auto=format&q=75',
+  investicije: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=900&fit=crop&auto=format&q=75',
+  tehnika:     'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=900&fit=crop&auto=format&q=75',
+};
+function novinskaSlika(n) {
+  return (n && n.img) || NEWS_IMG_FALLBACK[n && n.cat] || NEWS_IMG_FALLBACK.trziste;
+}
+function _imgFallback(el, cat) {
+  el.onerror = null;
+  el.src = NEWS_IMG_FALLBACK[cat] || NEWS_IMG_FALLBACK.trziste;
 }
 
 function initPortal() {
