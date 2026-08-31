@@ -23,3 +23,8 @@
   from = "/api/tenders"
   to = "/.netlify/functions/tenders"
   status = 200
+
+[[redirects]]
+  from = "/api/tenders-import"
+  to = "/.netlify/functions/tenders-import"
+  status = 200

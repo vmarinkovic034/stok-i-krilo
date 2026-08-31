@@ -48,8 +48,14 @@
   .score{float:right;font-size:12px;font-weight:700;letter-spacing:.05em}
   .score.problem{color:#dc2626} .score.pregledati{color:#b45309} .score.cisto{color:#15803d}
   .tip-pod{background:var(--brand);color:#fff;padding:2px 6px;border-radius:2px;font-size:10px;letter-spacing:.1em}
+  .uvoz{background:#fff;border:1px solid var(--line);padding:18px;margin-bottom:20px;border-radius:2px}
+  .uvoz h4{margin:0 0 6px;font-size:15px}
+  .uvoz p{margin:0 0 12px;font-size:13px;color:var(--mut);line-height:1.5}
+  .uvoz ol{margin:0 0 14px 18px;font-size:13px;color:#374151;line-height:1.7;padding:0}
+  input[type=file]{font:inherit;font-size:13px}
   .clean{font-size:13px;color:#15803d;background:#f0fdf4;border:1px solid #bbf7d0;padding:8px 11px;margin-bottom:12px;border-radius:2px}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <header>
@@ -78,6 +84,22 @@
       <button onclick="odjava()">Odjava</button>
     </div>
     <p class="note">Nacrti ne idu na sajt dok ih ne odobriš. Svaki nacrt prolazi automatsku proveru: brojevi se upoređuju sa izvorom, a Balkan pasus se proverava da li traži konkretnu radnju. <b>Crveno = obavezno pročitaj pre odobravanja.</b></p>
+    <div class="uvoz">
+      <h4>Srpski tenderi — uvoz sa Portala javnih nabavki</h4>
+      <p>Portal blokira automatsko povlačenje, ali dozvoljava izvoz u Excel. Uvoze se <b>samo javni pozivi</b> objavljeni u poslednjih 60 dana — dodele ugovora i ispravke se preskaču jer nisu prilike.</p>
+      <ol>
+        <li>Otvori <a href="https://jnportal.ujn.gov.rs/oglasi-svi" target="_blank" rel="noopener">jnportal.ujn.gov.rs/oglasi-svi</a> i pretraži „stolarija", „prozori", „fasada"</li>
+        <li>Izvezi rezultat u Excel</li>
+        <li>Ubaci fajl ovde</li>
+      </ol>
+      <div class="bar">
+        <input type="file" id="xlsx" accept=".xlsx,.xls">
+        <button class="primary" onclick="uvezi()">Uvezi tendere</button>
+        <button class="danger" onclick="obrisiUvoz()">Obriši uvezene</button>
+      </div>
+      <div id="uvoz-status" class="note" style="margin:10px 0 0"></div>
+    </div>
+
     <h3 class="sec">Nacrti na čekanju (<span id="cnt-d">0</span>)</h3>
     <div id="drafts"></div>
     <h3 class="sec">Objavljeno (<span id="cnt-a">0</span>)</h3>
@@ -192,6 +214,42 @@ async function povuci() {
     if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
     msg('Povučeno ' + d.povuceno + ' stavki, novih nacrta: ' + (d.nacrta || 0) + (d.poruka ? ' — ' + d.poruka : ''));
     ucitaj();
+  } catch (e) { msg('Greška: ' + e.message, false); }
+}
+
+async function uvezi() {
+  const f = document.getElementById('xlsx').files[0];
+  const st = document.getElementById('uvoz-status');
+  if (!f) { msg('Izaberi .xlsx fajl.', false); return; }
+  st.textContent = 'Čitam fajl…';
+  try {
+    const buf = await f.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'array' });
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { raw: false });
+    if (!rows.length) throw new Error('Fajl nema redova');
+    st.textContent = 'Šaljem ' + rows.length + ' redova…';
+    const r = await fetch('/api/tenders-import', {
+      method: 'POST',
+      headers: { 'x-admin-token': S.tok, 'content-type': 'application/json' },
+      body: JSON.stringify({ rows }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    st.innerHTML = '<b>Uvezeno ' + d.uvezeno + ' javnih poziva</b> od ' + d.ukupnoRedova + ' redova. ' +
+      'Preskočeno: ' + d.preskocenoNijePoziv + ' (dodele i ispravke), ' + d.preskocenoStarije60dana + ' (starije od 60 dana).';
+    msg('Uvezeno ' + d.uvezeno + ' srpskih tendera. Osvežiće se na sajtu za par minuta.');
+    fetch('/api/tenders?fresh=1').catch(() => {});
+  } catch (e) { st.textContent = ''; msg('Greška pri uvozu: ' + e.message, false); }
+}
+
+async function obrisiUvoz() {
+  if (!confirm('Obrisati sve uvezene srpske tendere?')) return;
+  try {
+    const r = await fetch('/api/tenders-import', { method: 'DELETE', headers: { 'x-admin-token': S.tok } });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    document.getElementById('uvoz-status').textContent = '';
+    msg('Uvezeni tenderi obrisani.');
+    fetch('/api/tenders?fresh=1').catch(() => {});
   } catch (e) { msg('Greška: ' + e.message, false); }
 }
 

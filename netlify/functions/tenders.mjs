@@ -5,6 +5,7 @@
 // GET /api/tenders?fresh=1    -> zaobiđi keš
 // ==========================================================================
 import { getStore } from '@netlify/blobs';
+import { ucitajSrpske } from './tenders-import.mjs';
 
 const CPV = ['44221000','44221100','44221200','45421000','45421100','44112400'];
 const KEY = 'tenders-cache.json';
@@ -138,45 +139,6 @@ async function ted(dijag) {
   } catch (e) { dijag.ted = 'greška: ' + e.message; return []; }
 }
 
-// ── SRBIJA: portal javnih nabavki ─────────────────────────────────────────
-async function srbija(dijag) {
-  const pokusaji = [
-    'https://jnportal.ujn.gov.rs/api/public/procurements/search?keyword=stolarija&size=20',
-    'https://jnportal.ujn.gov.rs/api/public/procurement/search?searchTerm=stolarija&size=20',
-    'https://portal.ujn.gov.rs/delta/buyer/registered/jn/search?searchTerm=stolarija&status=ACTIVE&format=json',
-  ];
-  for (const u of pokusaji) {
-    try {
-      const r = await fetch(u, { headers: { accept: 'application/json', 'user-agent': UA }, signal: AbortSignal.timeout(15000) });
-      const raw = await r.text();
-      if (!r.ok) { dijag['rs:' + u.slice(8, 40)] = 'HTTP ' + r.status; continue; }
-      let d; try { d = JSON.parse(raw); } catch { dijag['rs:' + u.slice(8, 40)] = 'nije JSON'; continue; }
-      const lista = d.content || d.items || d.data || (Array.isArray(d) ? d : []);
-      if (!lista.length) { dijag['rs:' + u.slice(8, 40)] = 'prazno'; continue; }
-      dijag.srbija = 'ok, ' + lista.length + ' zapisa (' + u + ')';
-      return lista.slice(0, 15).map((it, i) => {
-        const rok = it.rokZaPodnosenje || it.deadline || it.datumRoka;
-        const [tip, tipL] = tipZaCpv(it.cpv || '45421000');
-        return {
-          id: 'rs' + i, country: 'srbija', countryLabel: 'Srbija', flag: '🇷🇸',
-          title: it.predmetNabavke || it.naziv || it.title || 'Nabavka stolarije',
-          buyer: it.nazivNarucioca || it.narucilac || it.buyer || 'Naručilac',
-          location: it.mesto || it.location || 'Srbija',
-          type: tip, typeLabel: tipL, cpv: it.cpv || '45421000', cpvLabel: tipL,
-          procedure: it.vrstaPostupka || 'Otvoreni postupak',
-          value: it.procenjenaVrednost ? Number(it.procenjenaVrednost).toLocaleString('sr-RS') + ' RSD' : '',
-          valueEur: '',
-          published: datum(it.datumObjave || it.published), deadline: datum(rok), daysLeft: dana(rok),
-          url: it.url || 'https://jnportal.ujn.gov.rs/',
-          live: true, src: 'nabavke.gov.rs',
-        };
-      });
-    } catch (e) { dijag['rs:' + u.slice(8, 40)] = 'greška: ' + e.message; }
-  }
-  if (!dijag.srbija) dijag.srbija = 'Portal javnih nabavki nema javni API (403/401 na sve pokušaje). Srpski tenderi se za sada unose ručno.';
-  return [];
-}
-
 export default async (req) => {
   const url = new URL(req.url);
 
@@ -196,8 +158,9 @@ export default async (req) => {
   }
 
   const dijag = {};
-  const [a, b] = await Promise.all([ted(dijag), srbija(dijag)]);
-  const items = [...b, ...a];
+  const [a, rs] = await Promise.all([ted(dijag), ucitajSrpske()]);
+  dijag.srbijaUvoz = rs.length + ' uvezenih (XLSX izvoz sa Portala javnih nabavki)';
+  const items = [...rs, ...a];
   const rezultat = { ts: Date.now(), broj: items.length, items, izvori: dijag };
 
   try { await store().setJSON(KEY, rezultat); } catch {}
