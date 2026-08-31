@@ -165,29 +165,10 @@ tailwind.config = {
 
 <!-- ===================== SITEWIDE SPONSOR BANNER (ISPOD HEDERA) ===================== -->
 <section class="ad-section py-4" id="sitewide-sponsor-banner">
-  <div class="ad-label">SPONZORISANI SADRŽAJ</div>
+  <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
     <div class="ad-leaderboard">
-      <!-- Sponzor: Sunce Marinković -->
-      <div class="flex items-center gap-4 flex-1 min-w-0" onclick="window.open('https://suncemarinkovic.com','_blank')">
-        <img src="assets/sponsors/sunce-logo.png" alt="Sunce Marinković" class="h-10 w-auto flex-shrink-0" />
-        <div class="min-w-0">
-          <div class="text-sm font-semibold text-gray-900">Sunce Marinković</div>
-          <div class="text-xs text-gray-500 truncate">Prozori, vrata i klizne stene</div>
-        </div>
-        <span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>
       </div>
-      <div class="hidden sm:block w-px bg-gray-200 self-stretch"></div>
-      <!-- Sponzor: Okvirio -->
-      <div class="flex items-center gap-4 flex-1 min-w-0" onclick="window.open('https://okvir.io','_blank')">
-        <img src="assets/sponsors/okvirio-logo.png" alt="Okvir.io" class="h-8 w-auto flex-shrink-0" />
-        <div class="min-w-0">
-          <div class="text-sm font-semibold text-gray-900">Okvir.io</div>
-          <div class="text-xs text-gray-500 truncate">Konfigurator za cene prozora i vrata - probajte besplatno</div>
-        </div>
-        <span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>
-      </div>
-    </div>
     <div class="flex justify-between items-center mt-2 px-0.5">
       <span class="text-xs text-gray-400">Zainteresovani za oglašavanje? <span class="text-brand cursor-pointer hover:underline" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">Kontaktirajte nas →</span></span>
       <span class="text-xs text-gray-300">AD</span>
@@ -306,6 +287,22 @@ tailwind.config = {
       <div class="flex justify-between items-center mt-2 px-0.5">
         <span class="text-xs text-gray-400">Vaša kompanija ovde? <span class="text-brand cursor-pointer hover:underline" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">Informišite se o oglašavanju →</span></span>
         <span class="text-xs text-gray-300">AD</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZID BRENDOVA - svi logotipi -->
+  <section class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div class="text-center mb-8">
+        <div class="tag text-gray-400 mb-2">PRIMER OGLASNIH POZICIJA</div>
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-gray-950">Brendovi koji čine ovo tržište</h2>
+        <p class="text-gray-500 text-sm mt-2 max-w-xl mx-auto">Sistemi, okov, staklo, alat i softver koje balkanski proizvođači svakodnevno koriste. Prikaz oglasnog prostora — navedene firme nisu sponzori portala.</p>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-px bg-gray-100 border border-gray-100" data-ad-wall></div>
+      <div class="text-center mt-8">
+        <span class="text-sm text-gray-500">Želite ovde svoj logo? </span>
+        <span class="text-sm text-brand font-semibold cursor-pointer hover:underline" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">Informišite se o oglašavanju →</span>
       </div>
     </div>
   </section>
@@ -429,13 +426,8 @@ tailwind.config = {
       <!-- SIDEBAR SPONZOR BANER -->
       <aside class="lg:col-span-1">
         <div class="sticky" style="top:88px;">
-          <div class="ad-label" style="position:static; display:inline-block; margin-bottom:10px; background:transparent; padding:0;">SPONZOR</div>
-          <div class="ad-card p-5 text-center" onclick="window.open('https://suncemarinkovic.com','_blank')">
-            <img src="assets/sponsors/sunce-logo.png" alt="Sunce Marinković" class="h-12 w-auto mx-auto mb-3" />
-            <div class="text-sm font-semibold text-gray-900 mb-1">Sunce Marinković</div>
-            <div class="text-xs text-gray-500 mb-3 leading-relaxed">Prozori, vrata i klizne stene.</div>
-            <span class="text-xs text-brand font-semibold hover:underline cursor-pointer">Zatraži ponudu →</span>
-          </div>
+          <div class="ad-label" style="position:static; display:inline-block; margin-bottom:10px; background:transparent; padding:0;">PRIMER POZICIJE</div>
+          <div data-ad-box="1"></div>
           <div class="ad-card p-4 text-center mt-4 border-dashed border-gray-300 bg-gray-50" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">
             <div class="w-10 h-10 border-2 border-dashed border-gray-300 flex items-center justify-center mx-auto mb-2 text-gray-300 text-lg">+</div>
             <div class="text-xs font-semibold text-gray-400 mb-1">Vaš baner ovde</div>
@@ -1627,20 +1619,18 @@ function filterTenders() {
 
 // ── SPONZORISANA KARTICA U LISTI TENDERA ────────────────────────────────
 function renderSponsoredTenderCard() {
-  return `
-    <div class="native-ad-card" onclick="window.open('https://okvir.io','_blank')">
-      <div class="flex items-start gap-4">
-        <img src="assets/sponsors/okvirio-logo.png" alt="Okvir.io" class="h-10 w-auto flex-shrink-0" />
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-xs font-bold tracking-widest text-gray-400">PRIMER POZICIJE</span>
-          </div>
-          <div class="text-sm font-semibold text-gray-900 mb-1">Okvir.io - konfigurator za cene prozora i vrata</div>
-          <div class="text-xs text-gray-500 leading-relaxed">Napravite ponudu za nekoliko minuta. Konfigurator cena prilagođen proizvođačima stolarije na Balkanu.</div>
-          <span class="text-xs text-brand font-semibold mt-2 inline-block hover:underline">Probaj besplatno →</span>
-        </div>
-      </div>
-    </div>`;
+  const b = _brendoviRandom(1)[0];
+  return '<div class="native-ad-card" onclick="' + _otvori(b.url) + '">' +
+    '<div class="flex items-start gap-4">' +
+      '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-10 w-auto flex-shrink-0 object-contain" />' +
+      '<div class="flex-1 min-w-0">' +
+        '<span class="text-xs font-bold tracking-widest text-gray-400">PRIMER POZICIJE</span>' +
+        '<div class="text-sm font-semibold text-gray-900 mb-1 mt-1">' + b.ime + '</div>' +
+        '<div class="text-xs text-gray-500 leading-relaxed">' + b.opis + '</div>' +
+        '<span class="text-xs text-brand font-semibold mt-2 inline-block hover:underline">Saznaj više →</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
 }
 
 // ── RENDER CARD ───────────────────────────────────────────────────────────
@@ -2757,10 +2747,16 @@ const BRENDOVI = [
   { ime: 'axiomaplus',      opis: 'Softver i rešenja za stolariju',            logo: 'axiomaplus',     url: '' },
 ];
 
+// Meša listu jednom po učitavanju i deli je pozicijama bez ponavljanja,
+// da se u istom pregledu ne pojavi ista firma na dva mesta.
+let _pool = [];
 function _brendoviRandom(n) {
-  const a = BRENDOVI.slice();
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-  return a.slice(0, n);
+  if (_pool.length < n) {
+    const a = BRENDOVI.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    _pool = _pool.concat(a);
+  }
+  return _pool.splice(0, n);
 }
 const _otvori = (u) => u ? "window.open('" + u + "','_blank')" : "showToast('Primer oglasne pozicije')";
 
@@ -2778,6 +2774,26 @@ function renderAdStrips() {
         '<span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>' +
       '</div>'
     ).join('');
+  });
+
+  document.querySelectorAll('[data-ad-wall]').forEach(el => {
+    el.innerHTML = BRENDOVI.map(b =>
+      '<div class="bg-white flex items-center justify-center p-6 h-24 cursor-pointer transition-opacity hover:opacity-60" ' +
+        'title="' + b.ime + ' — ' + b.opis + '" onclick="' + _otvori(b.url) + '">' +
+        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="max-h-10 max-w-full w-auto object-contain" />' +
+      '</div>'
+    ).join('');
+  });
+
+  document.querySelectorAll('[data-ad-box]').forEach(el => {
+    const b = _brendoviRandom(1)[0];
+    el.innerHTML =
+      '<div class="ad-card p-5 text-center" onclick="' + _otvori(b.url) + '">' +
+        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-10 w-auto mx-auto mb-3 object-contain" />' +
+        '<div class="text-sm font-semibold text-gray-900 mb-1">' + b.ime + '</div>' +
+        '<div class="text-xs text-gray-500 mb-3">' + b.opis + '</div>' +
+        '<span class="text-xs text-brand font-semibold hover:underline cursor-pointer">Saznaj više →</span>' +
+      '</div>';
   });
 
   document.querySelectorAll('[data-ad-native]').forEach(el => {
