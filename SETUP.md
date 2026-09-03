@@ -98,3 +98,50 @@ Epizode duže od 24 MB se seku na prvih 24 MB (Groq limit) — obično 25-50 min
 Clear Impact · GlassTalk · From the Fabricator · Two PiGs in a Pod · Powder Coater Podcast · All Things Facades · Marketing Passivhaus · Window Cast (NGA)
 
 Feedovi provereni. Neaktivni (Glazing Insider, The Shapemakers, Everything Building Envelope) namerno izostavljeni.
+
+
+---
+
+# Jutarnji digest na mejl — odobravanje bez otvaranja sajta
+
+## Kako radi
+
+1. Posle generisanja nacrta (radnim danima u 05:00 UTC), funkcija šalje jedan mejl sa svim nacrtima koji čekaju — naslov, ocena, zamerke automatske provere, ceo tekst i link ka originalu.
+2. Ispod svake vesti su dva dugmeta: **Odobri i objavi** i **Odbaci**.
+3. Klik otvara stranicu sa **potvrdom**. Tek drugi klik izvršava akciju.
+4. Odobrena vest odmah ide na portal, isto kao iz admin panela.
+
+Nacrti koje ne dodirneš ostaju u redu i pojaviće se i u sledećem digestu.
+
+## Zašto dva klika
+
+Linkovi u mejlu se često automatski otvaraju — antivirus, Gmail proxy, korporativni skeneri prate svaki `GET`. Da takav skener ne bi objavio vest umesto urednika, link samo prikazuje stranicu; akciju izvršava `POST` koji nastaje tek kad čovek klikne dugme.
+
+## Bezbednost linkova
+
+Svaki link nosi HMAC-SHA256 potpis nad kombinacijom `id | akcija | rok`. Potpis važi za **tačno jedan nacrt i tačno jednu akciju** i ističe za **48 sati**. Link za odbacivanje ne može da objavi, link za jednu vest ne važi za drugu, a prepravljen link ne prolazi proveru. Iz linka se ne može izvesti `ADMIN_TOKEN`.
+
+## Dodatne env varijable
+
+| Ime | Vrednost | Obavezno |
+|---|---|---|
+| `RESEND_API_KEY` | Sa resend.com → API Keys | da |
+| `DIGEST_TO` | Adresa urednika (npr. `vmarinkovic034@gmail.com`) | da |
+| `DIGEST_FROM` | Pošiljalac. Bez svog domena ostavi prazno — koristi se `onboarding@resend.dev`, koji Resend dozvoljava samo ka adresi vlasnika naloga | ne |
+| `LINK_SECRET` | Zaseban ključ za potpisivanje linkova. Ako ga nema, koristi se `ADMIN_TOKEN` | ne |
+
+Scope svih varijabli mora da uključuje **Functions**. Posle unosa: **Deploys → Trigger deploy → Clear cache and deploy site.**
+
+Ako `RESEND_API_KEY` ili `DIGEST_TO` nisu podešeni, generisanje nacrta radi normalno — digest se preskače i to se vidi u logu.
+
+## Provera da radi
+
+U `/admin.html` klikni **Pošalji digest na mejl**. Poruka odmah kaže da li je poslato i na koju adresu. Ako nije, tekst greške dolazi direktno iz Resend-a.
+
+## Trošak
+
+Resend: 3.000 mejlova mesečno besplatno. Ovaj digest šalje jedan mejl dnevno, oko 22 mesečno.
+
+## Promena adrese
+
+Samo promeni `DIGEST_TO` i uradi redeploy. Za više primalaca, razdvoji zarezom u kodu (`_mejl.mjs`, polje `to`).

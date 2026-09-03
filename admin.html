@@ -80,6 +80,7 @@
     <div class="bar">
       <button class="primary" onclick="povuci()">Povuci nove vesti sada</button>
       <button onclick="povuciPodkaste()">Obradi nove podkaste</button>
+      <button onclick="posaljiDigest()">Pošalji digest na mejl</button>
       <button onclick="ucitaj()">Osveži listu</button>
       <button onclick="odjava()">Odjava</button>
     </div>
@@ -189,6 +190,16 @@ async function akcija(action, id) {
   if (action === 'reject' && !confirm('Odbaciti ovaj nacrt?')) return;
   try { const r = await api('POST', { action, id }); msg(r.objavljeno ? 'Objavljeno: ' + r.objavljeno : (r.odbaceno ? 'Odbačeno.' : 'Vraćeno u nacrte.')); ucitaj(); }
   catch (e) { msg('Greška: ' + e.message, false); }
+}
+
+async function posaljiDigest() {
+  msg('Šaljem digest…');
+  try {
+    const r = await fetch('/.netlify/functions/send-digest?token=' + encodeURIComponent(S.tok));
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    msg(d.poslato ? ('Digest poslat na ' + d.primalac + ' (' + d.nacrta + ' nacrta).') : ('Nije poslato: ' + (d.razlog || 'nepoznat razlog')), !!d.poslato);
+  } catch (e) { msg('Greška: ' + e.message, false); }
 }
 
 async function povuciPodkaste() {
