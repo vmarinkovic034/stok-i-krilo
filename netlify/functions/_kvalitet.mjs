@@ -207,6 +207,19 @@ export function proveri(vest, izvorTekst) {
     });
   }
 
+  // ── 4f. Obraćanje na "vi" (portal se obraća na "ti") ───────────────────
+  const vikanje = [
+    /\b(vaš|vaša|vaše|vašeg|vašem|vašu|vaših|vasim)\b/i,
+    /\b(proverite|uporedite|pitajte|tražite|zatražite|izvucite|pogledajte|zapišite|pozovite|pošaljite|uzmite|prebrojte)\b/i,
+  ].filter(r => r.test(body));
+  if (vikanje.length) {
+    upoz.push({
+      tip: 'obracanje',
+      tekst: 'Tekst se obraća na „vi". Portal se svuda obraća na „ti".',
+      tezina: 'srednja',
+    });
+  }
+
   // ── 5. Ijekavica (portal je na ekavici) ────────────────────────────────
   const ije = ['rješenj', 'vrijednost', 'prije', 'poslije', 'mjesec', 'dijelov', 'trebalo bi da se promijeni', 'uvijek', 'vrijeme'];
   const nadjIje = ije.filter(w => ns.includes(w));
