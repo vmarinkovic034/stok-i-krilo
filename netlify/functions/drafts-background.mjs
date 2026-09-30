@@ -24,11 +24,19 @@ export default async (req) => {
     });
   }
 
-  const zapis = { pokrenuto: new Date().toISOString() };
+  // Nadoknada propuštenog: ?poizvoru=10&maks=15 gleda dublje u izvore i piše
+  // više tekstova odjednom. Bez parametara ostaje dnevni režim (4 i 5).
+  const broj = (ime, podrazumevano, gornja) => {
+    const v = parseInt(url.searchParams.get(ime) || '', 10);
+    return Number.isFinite(v) && v > 0 ? Math.min(v, gornja) : podrazumevano;
+  };
+  const opcije = { poIzvoru: broj('poizvoru', 4, 20), maks: broj('maks', 5, 25) };
+
+  const zapis = { pokrenuto: new Date().toISOString(), opcije };
 
   let r;
   try {
-    r = await generisi();
+    r = await generisi(opcije);
     const tekst = await r.clone().text();
     console.log('drafts-background:', tekst);
     try { zapis.generisanje = JSON.parse(tekst); }

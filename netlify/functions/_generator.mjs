@@ -120,16 +120,19 @@ Vrati JSON niz sa TAČNO JEDNIM objektom: [{"cat","catLabel","title","desc","bod
   return arr && arr[0] ? arr[0] : null;
 }
 
-export async function generisi({ }= {}) {
+// poIzvoru — koliko članaka se gleda po izvoru (dnevno 4 je dovoljno)
+// maks     — koliko tekstova se najviše napiše u jednom pokretanju
+// Oba se podižu samo kad se nadoknađuje propušteno, jer svaki tekst košta.
+export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return json({ error: 'Nedostaje ANTHROPIC_API_KEY u Netlify env varijablama' }, 500);
 
-  const { all, errors } = await fetchAll(4);
+  const { all, errors } = await fetchAll(poIzvoru);
   const seen = await readJSON(KEY_SEEN, []);
   const drafts = await readJSON(KEY_DRAFTS, []);
   const postojeci = new Set([...seen, ...drafts.map(d => d.url)]);
 
-  const novi = all.filter(x => x.url && !postojeci.has(x.url)).slice(0, MAX_NOVIH);
+  const novi = all.filter(x => x.url && !postojeci.has(x.url)).slice(0, maks);
   if (!novi.length) {
     return json({ ok: true, poruka: 'Nema novih vesti u izvorima.', povuceno: all.length, greske: errors });
   }
