@@ -10,7 +10,7 @@
 // GET /.netlify/functions/drafts-background?token=ADMIN_TOKEN
 // ==========================================================================
 import { generisi } from './_generator.mjs';
-import { readJSON, writeJSON, KEY_DRAFTS, KEY_LAST_RUN } from './_lib.mjs';
+import { readJSON, writeJSON, KEY_DRAFTS, KEY_APPROVED, KEY_SEEN, KEY_LAST_RUN } from './_lib.mjs';
 import { posaljiDigest } from './_mejl.mjs';
 
 export default async (req) => {
@@ -33,6 +33,22 @@ export default async (req) => {
   const opcije = { poIzvoru: broj('poizvoru', 4, 20), maks: broj('maks', 5, 25) };
 
   const zapis = { pokrenuto: new Date().toISOString(), opcije };
+
+  // ?ponovo=1 — briše sve nacrte i objavljene vesti i zaboravlja obrađene
+  // URL-ove, pa se isti izvori ponovo pišu po novim uredničkim pravilima.
+  // Stari sadržaj se pre brisanja odlaže u arhivu, da ništa ne nestane.
+  if (url.searchParams.get('ponovo') === '1') {
+    const stariNacrti = await readJSON(KEY_DRAFTS, []);
+    const stareVesti = await readJSON(KEY_APPROVED, []);
+    await writeJSON('arhiva-pre-ponovnog-pisanja.json', {
+      kada: new Date().toISOString(), nacrti: stariNacrti, objavljeno: stareVesti,
+    });
+    await writeJSON(KEY_DRAFTS, []);
+    await writeJSON(KEY_APPROVED, []);
+    await writeJSON(KEY_SEEN, []);
+    zapis.ponovo = { obrisano_nacrta: stariNacrti.length, obrisano_objavljenih: stareVesti.length };
+    console.log('ponovo=1:', JSON.stringify(zapis.ponovo));
+  }
 
   let r;
   try {

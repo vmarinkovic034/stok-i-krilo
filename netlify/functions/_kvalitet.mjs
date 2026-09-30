@@ -21,6 +21,37 @@ const FRAZE = [
   'sinergija', 'dodata vrednost', 'win-win',
 ];
 
+// Pisanje o izvoru umesto o temi. Najjasniji znak mašinskog teksta: model
+// ispunjava pravilo "bez izmišljenih brojeva" tako što objavi šta ne zna.
+const META = [
+  /izvor(ni tekst)? (ne )?(kaže|kaze|daje|navodi|pominje|govori o cen)/i,
+  /u dostupnom (tekstu|delu)/i,
+  /zato to ovde ne tvrdimo/i,
+  /mi ovde ne procenjujemo/i,
+  /treba biti jasan/i,
+  /\b(sve tri|obe) vesti\b/i,
+  /\bovaj (tekst|pregled)\b/i,
+];
+
+// Obrti koji su se ponavljali iz teksta u tekst i pretvorili pasus u formular.
+const SABLON = [
+  /\bali\b[^.!?]{0,60}\b(isti|isto|poznat|važi|vazi)\b[^.!?]{0,25}\bsvuda\b/i,
+  /\bali\b[^.!?]{0,30}\bmehanizam je (isti|poznat)\b/i,
+  /vredi (ga )?znati (jer|zato što|zato sto)/i,
+  /\bto ti je odgovor\b/i,
+  /\bimaš odgovor\b/i,
+  /\bimas odgovor\b/i,
+];
+
+// Engleski zapis brojeva i valute u srpskom tekstu.
+const BROJ_FORMAT = [
+  /£\s?\d/,
+  /\$\s?\d/,
+  /\d\s?(million|billion|thousand)\b/i,
+  /\d{1,3},\d{3}\b/,
+  /\d+(\.\d+)?m\b/,
+];
+
 // Bar jedan od ovih mora da postoji u Balkan pasusu — znak da traži radnju.
 const AKCIJA = [
   'proveri', 'uporedi', 'izračunaj', 'pitaj', 'traži', 'zatraži', 'pogledaj', 'razdvoj',
@@ -43,6 +74,46 @@ function brojevi(t) {
     out.add(raw);
   }
   return out;
+}
+
+// ── Ponavljanje između tekstova iz iste serije ──────────────────────────
+// Šablon se po jednom tekstu ne vidi. Vidi se tek kad osam pasusa počne i
+// završi se na isti način. Poredi prvih i poslednjih nekoliko reči Balkan
+// pasusa i prijavljuje tekstove koji dele isti ulaz ili izlaz.
+
+export function proveriPonavljanje(vesti) {
+  const ulazi = new Map();
+  const izlazi = new Map();
+
+  vesti.forEach((v, i) => {
+    const b = String(v.body || '');
+    const k = b.indexOf(MARKER);
+    if (k < 0) return;
+    const bal = b.slice(k + MARKER.length).trim();
+    const reci = norm(bal).replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(Boolean);
+    if (reci.length < 8) return;
+    const u = reci.slice(0, 4).join(' ');
+    const z = reci.slice(-4).join(' ');
+    if (!ulazi.has(u)) ulazi.set(u, []);
+    if (!izlazi.has(z)) izlazi.set(z, []);
+    ulazi.get(u).push(i);
+    izlazi.get(z).push(i);
+  });
+
+  const pogodjeni = new Map();
+  const upisi = (grupe, kako) => {
+    for (const [fraza, idx] of grupe) {
+      if (idx.length < 2) continue;
+      for (const i of idx) {
+        if (!pogodjeni.has(i)) pogodjeni.set(i, []);
+        pogodjeni.get(i).push(kako + ' „' + fraza + '" deli još ' + (idx.length - 1) + ' tekst(a)');
+      }
+    }
+  };
+  upisi(ulazi, 'Isti početak Balkan pasusa:');
+  upisi(izlazi, 'Isti završetak Balkan pasusa:');
+
+  return pogodjeni;
 }
 
 export function proveri(vest, izvorTekst) {
@@ -94,6 +165,45 @@ export function proveri(vest, izvorTekst) {
       tip: 'broj-bez-izvora',
       tekst: 'Brojevi kojih nema u izvoru: ' + [...new Set(sumnjivi)].slice(0, 8).join(', ') + '. Proveri pre objave.',
       tezina: 'visoka',
+    });
+  }
+
+  // ── 4b. Pisanje o izvoru umesto o temi ─────────────────────────────────
+  const meta = META.filter(r => r.test(svePisano));
+  if (meta.length) {
+    upoz.push({
+      tip: 'o-izvoru',
+      tekst: 'Tekst govori o izvoru umesto o temi (' + meta.length + ' mesta). Ako izvor nema podatak, ta rečenica se briše, ne objavljuje.',
+      tezina: 'visoka',
+    });
+  }
+
+  // ── 4c. Šablonski obrti u Balkan pasusu ────────────────────────────────
+  const sablon = SABLON.filter(r => r.test(svePisano));
+  if (sablon.length) {
+    upoz.push({
+      tip: 'sablon',
+      tekst: 'Obrt koji se ponavlja iz teksta u tekst (' + sablon.length + '). Promeni formu pasusa.',
+      tezina: 'visoka',
+    });
+  }
+
+  // ── 4d. Engleski zapis brojeva i valute ────────────────────────────────
+  const format = BROJ_FORMAT.filter(r => r.test(svePisano));
+  if (format.length) {
+    upoz.push({
+      tip: 'broj-format',
+      tekst: 'Strani zapis broja ili valute. Srpski: 1,3 miliona funti, 250.000 funti.',
+      tezina: 'srednja',
+    });
+  }
+
+  // ── 4e. Dve varijante prevoda u zagradi ────────────────────────────────
+  if (/\b\p{L}{4,}\s\(\p{L}{4,}\)\s/u.test(body) && !/\b(EPD|LCA|BIV|FVSB)\b/.test(body)) {
+    upoz.push({
+      tip: 'dvostruki-prevod',
+      tekst: 'Izgleda kao dve varijante prevoda u zagradi. Izaberi jednu.',
+      tezina: 'srednja',
     });
   }
 

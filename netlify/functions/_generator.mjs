@@ -7,7 +7,7 @@
 // Ništa ne ide na sajt bez ljudskog odobrenja.
 // ==========================================================================
 import { fetchAll, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, CAT_IMG, json } from './_lib.mjs';
-import { proveri, MARKER } from './_kvalitet.mjs';
+import { proveri, proveriPonavljanje, MARKER } from './_kvalitet.mjs';
 
 const MODEL = 'claude-sonnet-5-5';
 const MAX_NOVIH = 5;
@@ -27,30 +27,65 @@ JEZIK: srpski, latinica, EKAVICA. Nikad ijekavica (ne "rješenje", "vrijednost",
 2. Ne prevodi doslovno. Prepiši za balkanskog čitaoca.
 3. Svaki tekst se ZAVRŠAVA pasusom koji počinje tačno redom: ${MARKER}
 
-═══ PASUS "ŠTA OVO ZNAČI ZA BALKAN?" — OVO JE CEO PROIZVOD ═══
-Ovo je jedini razlog zbog kog portal postoji. Vest svako može da prepiše; ovaj pasus ne može.
+═══ NIKAD NE PIŠI O IZVORU ═══
+Ovo je najčešća greška i odmah se prepoznaje kao mašinski tekst.
+Ne pominješ šta izvor ne kaže, ne daje, ne navodi ili ne pominje. Ne pišeš "u dostupnom tekstu", "izvorni tekst ne navodi", "zato to ovde ne tvrdimo", "mi ovde ne procenjujemo", "treba biti jasan".
+Ako izvor nema podatak, ta rečenica jednostavno ne postoji. Pišeš ono što znaš i ćutiš o ostalom.
+Jedini izuzetak: kada tvrdnja dolazi od firme koja prodaje to o čemu govori, to kažeš jednom, usput, u pola rečenice — "kaže proizvođač koji te profile i prodaje" — i ideš dalje. Bez pasusa o tome.
+Ne pišeš ni o svom poslu: nikad "sve tri vesti", "ovaj tekst", "u ovom pregledu". Čitalac ne zna i ne treba da zna kako je tekst nastao.
 
-MORA da sadrži:
-  (a) konkretnu poslovnu posledicu za balkanskog proizvođača — na maržu, rok, kupca ili rizik
-  (b) JEDNU radnju koju čitalac može da uradi OVE NEDELJE, u imperativu, sa proverljivim ishodom
-  (c) pošteno priznanje kad vest NE utiče direktno na region — pa objašnjenje zašto je ipak vredi znati
+═══ PASUS "ŠTA OVO ZNAČI ZA BALKAN?" ═══
+Jedini razlog zbog kog portal postoji. Vest svako može da prepiše, ovaj pasus ne može.
 
-ZABRANJENO u tom pasusu:
+Cilj: čitalac posle njega zna šta mu se menja i ima nešto da uradi.
+  - poslovna posledica mora biti konkretna: marža, rok, kupac, nabavka, rizik
+  - radnja mora biti izvodljiva bez novog budžeta i nove firme
+  - kad vest region ne dodiruje, to se kaže otvoreno, kratko, i objasni se zbog čega je ipak vredi znati
+
+FORMA SE MENJA OD TEKSTA DO TEKSTA. Ovo je najvažnije pravilo celog pasusa.
+Ne postoji obrazac koji se popunjava. Nekad počinješ radnjom, nekad posledicom, nekad zapažanjem iz pogona. Nekad su dve rečenice, nekad šest. Nekad nema imperativa nego pitanje koje čitalac treba da postavi dobavljaču.
+
+Ako bi se dva pasusa iz istog dana mogla zameniti mestima i niko ne bi primetio, oba su promašena.
+
+ZABRANJENO, jer se ponavlja i odaje šablon:
+  - obrt "Ali ... je isti svuda", "Ali mehanizam je poznat", "Ali logika važi svuda" i sve varijante
+  - "Vredi ga znati jer", "Vredi ga znati zato što"
+  - otvaranje radnje sa "Ove nedelje" u više od jednog teksta dnevno
+  - zatvaranje proverom "Ako do petka...", "to ti je odgovor", "imaš odgovor" kao stalni završetak
   - "vredi pratiti", "ostaje da se vidi", "treba se prilagoditi", "važno je pratiti trendove"
   - opšte konstatacije bez adresata ("industrija mora da se menja")
-  - savet koji čitalac ne može da izvrši bez novog budžeta ili nove firme
 
-DOBAR PRIMER (ovako treba):
-"Cross-selling na postojeću porudžbinu je najjeftiniji rast koji balkanski proizvođač može da ostvari. Kupac koji već naručuje prozore za kuću na primorju je najlakši mogući kupac za škure i komarnike. Ne treba ti nova akvizicija — treba ti da to bude u ponudi i da prodavac zna da pita. Proveri koliko tvojih porudžbina sadrži više od jedne kategorije proizvoda. Ako je manje od trećine, tu ti stoji novac."
-
-DOBAR PRIMER (kad vest ne utiče direktno):
-"Srbija i Severna Makedonija su još u fazi rasta novogradnje, pa se ovo ne tiče nas neposredno. Ali mehanizam je isti svuda: kada poskupi kredit, prvo stane novogradnja, a tek posle nekoliko kvartala i zamena. Ako ti više od polovine prihoda dolazi od manje od pet kupaca, to je danas najveći rizik u tvom poslu — bez obzira što tržište trenutno raste. Prebroj to večeras."
-
-LOŠ PRIMER (nikad ovako):
+LOŠE (nikad ovako):
 "Ovaj trend pokazuje da se industrija menja i da je važno pratiti nova rešenja. Balkanski proizvođači treba da se prilagode i iskoriste prilike koje donosi digitalizacija."
 
+═══ JEZIK I PREVOD ═══
+Ovo je srpski tekst, ne prevod. Rečenica koja zvuči kao da je prošla kroz prevodilac se prepisuje.
+
+- Strani stručni pojam dobija srpski izraz. Ako srpski izraz ne postoji, opisuješ ga svojim rečima. Original ide u zagradu samo kada čitalac treba da ga prepozna u dokumentaciji.
+- Nikad dve varijante prevoda u istom tekstu, ni u zagradi. Biraš jednu.
+- roof lantern = krovni svetlarnik, ne "lanterna". Wesentlichkeitsanalyse = analiza bitnosti, ne "materijalnosti". Mitaussteller = izlagač koji nastupa zajedno sa njim, ne "saizlagač". acidification = zakiseljavanje. showroom = izložbeni prostor ili salon.
+- Nemački i engleski nazivi publikacija, skupova i institucija ostaju u originalu, ali uz kratko objašnjenje šta su na srpskom.
+- Strana imena se transkribuju po srpskom pravopisu i pišu ISTO u naslovu i u tekstu: Dizeldorf, Minhen, Kasel, Rozenhajm.
+- Brojevi po srpskom pravopisu: hiljade sa tačkom, decimale sa zarezom, valuta rečju. Piše se "1,3 miliona funti" i "250.000 funti", nikad "£1.3 million", "£250,000" ni "£1.55m".
+- Datum sa tačkom posle godine: "9. septembra 2026."
+- Dijakritike uvek: đ, č, ć, š, ž.
+
+═══ JEDNOSTAVNO, RAZUMLJIVO, UPOTREBLJIVO ═══
+Ovo je merilo iznad svih ostalih. Tekst čita čovek koji vodi pogon, a ne stručnjak za propise. Ako mora dvaput da pročita rečenicu, tekst ne valja.
+
+- Obična reč ispred stručne. "Rastavljanje" pre "demontaže", "ispitivanje" pre "verifikacije", "otpad" pre "tokova materijala".
+- Svaka skraćenica i stručni pojam dobija objašnjenje u istoj rečenici, svojim rečima, bez definicije iz priručnika. Ne "LCA je kvantitativan bilans uticaja na životnu sredinu po normama", nego "računica koliko jedan proizvod optereti okolinu, od sirovine do otpada".
+- Rečenice kratke. Jedna misao po rečenici. Bez nizanja zavisnih rečenica.
+- Bez kancelarijskog jezika: "u cilju", "po pitanju", "vrši se", "predstavlja", "u smislu", "na nivou". Piše se ko šta radi.
+- Strani kancelarijski termin koji čitaocu ništa ne znači se izbacuje ili prevodi u ono što stvarno znači za njegov posao.
+- Posle svakog pasusa pitanje: može li čitalac s ovim nešto da uradi. Ako ne može, pasus se briše.
+
 ═══ STIL ═══
-Kratke rečenice. Konkretni brojevi tamo gde ih izvor daje. Bez emodžija, uzvičnika i reči: revolucionarno, inovativno, ključno, holistički, sinergija, u današnje vreme, dodata vrednost.
+Kratke rečenice. Konkretni brojevi tamo gde ih izvor daje.
+Bez emodžija i uzvičnika. Bez reči: revolucionarno, inovativno, ključno, holistički, sinergija, u današnje vreme, dodata vrednost.
+
+Ne koristiš prepoznatljive obrasce mašinskog pisanja: nabrajanje u tri stavke, kontrast "Nije A. B je.", retoričko pitanje kao uvod, pasus od jedne rečenice radi efekta, pouka na kraju, obrt iznenađenja, poređenje sa poznatim brendom.
+Nijedna konstrukcija nije loša sama po sebi. Mašinski utisak nastaje kad se isti obrazac, ritam i ugao ponove u svakom tekstu. Kad pišeš više vesti odjednom, svaka dobija drugu formu, drugu dužinu i drugi ulaz u temu.
 
 Ako vest nema NIKAKVU upotrebnu vrednost za balkanskog proizvođača — vrati "skip": true. Bolje četiri dobre vesti nego pet, od kojih je jedna prazna.
 
@@ -110,9 +145,15 @@ TVOJ TEKST:
 ${JSON.stringify({ title: vest.title, desc: vest.desc, body: vest.body }, null, 1)}
 
 Ako je zamerka "broj-bez-izvora": obriši ili zameni opisom svaki broj kojeg nema u izvornom tekstu. Ne izmišljaj zamenu.
-Ako je zamerka "bez-akcije" ili "plitko": prepiši poslednji pasus tako da traži jednu konkretnu radnju u imperativu, sa proverljivim ishodom.
+Ako je zamerka "bez-akcije" ili "plitko": prepiši poslednji pasus tako da čitalac zna šta mu se menja i šta da uradi. Ne dodaj imperativ mehanički na kraj.
 Ako je zamerka "floskula": izbaci te fraze i zameni ih konkretnom tvrdnjom ili ih ukloni.
 Ako je zamerka "jezik": prebaci u ekavicu.
+Ako je zamerka "o-izvoru": obriši svaku rečenicu koja govori o tome šta izvor kaže ili ne kaže. Ne zamenjuj je drugom ogradom, samo je nema.
+Ako je zamerka "sablon": napiši Balkan pasus iz drugog ugla i u drugoj formi. Izbaci obrt sa "Ali ... svuda", "vredi ga znati" i završetak sa "imaš odgovor".
+Ako je zamerka "ponavljanje": ovaj pasus liči na drugi iz istog dana. Promeni ulaz u temu, dužinu i redosled misli.
+Ako je zamerka "broj-format": prepiši brojeve i valutu po srpskom pravopisu (1,3 miliona funti; 250.000 funti).
+Ako je zamerka "dvostruki-prevod": ostavi jedan izraz, obriši varijantu iz zagrade.
+Ako je zamerka "tesko": pojednostavi. Obična reč umesto stručne, kraće rečenice, svaku skraćenicu objasni svojim rečima.
 
 Vrati JSON niz sa TAČNO JEDNIM objektom: [{"cat","catLabel","title","desc","body","read"}]`,
   }], apiKey, 4000);
@@ -211,6 +252,17 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
       provera: p,
     });
     seen.push(src.url);
+  }
+
+  // Šablon se vidi tek kad se tekstovi iz iste serije uporede međusobno.
+  // Ovde se hvata ono što provera po tekstu ne može da vidi.
+  const ponovljeni = proveriPonavljanje(dodati);
+  for (const [i, razlozi] of ponovljeni) {
+    const d = dodati[i];
+    if (!d) continue;
+    d.provera.upozorenja.push({ tip: 'ponavljanje', tekst: razlozi.join('; '), tezina: 'visoka' });
+    d.provera.ocena = Math.max(0, d.provera.ocena - 30);
+    d.provera.status = 'problem';
   }
 
   await writeJSON(KEY_DRAFTS, [...dodati, ...drafts].slice(0, 100));
