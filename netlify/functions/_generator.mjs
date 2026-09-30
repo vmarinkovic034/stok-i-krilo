@@ -142,9 +142,30 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
     published: n.published || '', text: (n.excerpt || n.summary || '').slice(0, 2500),
   }));
 
-  let napisano;
-  try { napisano = parsirajNiz(await claude([{ role: 'user', content: KORISNIK(ulaz) }], apiKey)); }
-  catch (e) { return json({ error: 'Pisanje nije uspelo: ' + e.message, povuceno: all.length, greske: errors }, 502); }
+  // Pisanje ide u serijama. Jedan odgovor ne može da ponese petnaest celih
+  // tekstova — izlaz se preseče na pola i parsiranje padne. Pет po pozivu je
+  // veličina koja je sigurno stane u max_tokens.
+  const SERIJA = 5;
+  const napisano = [];
+  const neuspeli = new Set();   // indeksi iz serije koja je pukla
+  const padovi = [];
+
+  for (let p0 = 0; p0 < ulaz.length; p0 += SERIJA) {
+    const deo = ulaz.slice(p0, p0 + SERIJA);
+    try {
+      const rez = parsirajNiz(await claude([{ role: 'user', content: KORISNIK(deo) }], apiKey));
+      for (let k = 0; k < deo.length; k++) napisano.push((rez && rez[k]) || null);
+    } catch (e) {
+      // Serija koja padne ne obara ostale. Ti URL-ovi se NE upisuju u seen,
+      // pa ih sledeće pokretanje ponovo uzima.
+      padovi.push(`serija ${p0 / SERIJA + 1}: ${e.message}`);
+      for (let k = 0; k < deo.length; k++) { neuspeli.add(p0 + k); napisano.push(null); }
+    }
+  }
+
+  if (padovi.length === Math.ceil(ulaz.length / SERIJA)) {
+    return json({ error: 'Pisanje nije uspelo: ' + padovi.join(' | '), povuceno: all.length, greske: errors }, 502);
+  }
 
   const now = new Date().toISOString();
   const dodati = [];
@@ -154,6 +175,7 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
     const w0 = napisano[i];
     const src = novi[i];
     if (!src) continue;
+    if (neuspeli.has(i)) continue;
     if (w0 && w0.skip) { seen.push(src.url); continue; }
     if (!w0 || !w0.title || !w0.body) { seen.push(src.url); continue; }
 
@@ -202,6 +224,7 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
     popravljeno,
     preskoceno: novi.length - dodati.length,
     greske: errors,
+    padovi,
     pregled: dodati.map(d => ({ naslov: d.title, ocena: d.provera.ocena, status: d.provera.status })),
   });
 };
