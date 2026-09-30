@@ -233,7 +233,9 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
         const w2 = await popravi(w, src, p.upozorenja, apiKey);
         if (w2 && w2.body && w2.title) {
           const p2 = proveri(w2, izvorTekst);
-          if (p2.ocena > p.ocena) { w = { ...w, ...w2 }; p = p2; popravljeno++; }
+          // Izjednačena popravka se takođe prihvata: često otkloni zamerku
+          // zbog koje je tekst i išao na popravku, a unese drugu iste težine.
+          if (p2.ocena >= p.ocena) { w = { ...w, ...w2 }; p = p2; popravljeno++; }
         }
       } catch (e) { console.log('popravka nije uspela: ' + e.message); }
     }
