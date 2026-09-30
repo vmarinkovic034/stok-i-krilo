@@ -8,7 +8,7 @@ import { fetchAllPodcasts, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, CAT_IMG, j
 import { transkribuj } from './_transkript.mjs';
 import { proveri, MARKER } from './_kvalitet.mjs';
 
-const MODEL = 'claude-sonnet-5';
+const MODEL = 'claude-sonnet-5-5';
 const MESECI = ['jan','feb','mar','apr','maj','jun','jul','avg','sep','okt','nov','dec'];
 const danas = () => { const d = new Date(); return d.getDate() + '. ' + MESECI[d.getMonth()] + ' ' + d.getFullYear(); };
 

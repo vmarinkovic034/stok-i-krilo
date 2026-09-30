@@ -1,25 +1,24 @@
 // Automatsko pokretanje: radnim danima u 05:00 UTC.
-// Netlify ne dozvoljava HTTP poziv scheduled funkcije - zato postoji run-drafts.mjs.
-import { generisi } from './_generator.mjs';
-import { readJSON, KEY_DRAFTS } from './_lib.mjs';
-import { posaljiDigest } from './_mejl.mjs';
+//
+// Zakazana funkcija ima limit od 30 sekundi, a povlačenje izvora i pisanje
+// nacrta traje minutima. Zato ovde ne radimo sam posao, nego samo pokrećemo
+// drafts-background (limit 15 minuta) i odmah izlazimo.
+import { bazniURL } from './_mejl.mjs';
 
 export default async () => {
-  const r = await generisi();
-  const izvestaj = await r.clone().text();
-  console.log('scheduled-drafts:', izvestaj);
-
-  // Digest ide tek pošto su nacrti upisani. Ako slanje padne, generisanje
-  // ostaje uspešno - nacrti čekaju u adminu kao i do sada.
-  try {
-    const drafts = await readJSON(KEY_DRAFTS, []);
-    const r2 = await posaljiDigest(drafts.slice(0, 10));
-    console.log('digest:', JSON.stringify(r2));
-  } catch (e) {
-    console.log('digest nije poslat: ' + e.message);
+  const token = (process.env.ADMIN_TOKEN || '').trim();
+  if (!token) {
+    console.log('scheduled-drafts: ADMIN_TOKEN nije podešen — posao nije pokrenut');
+    return;
   }
 
-  return r;
+  const cilj = `${bazniURL()}/.netlify/functions/drafts-background?token=${encodeURIComponent(token)}`;
+  try {
+    const res = await fetch(cilj, { signal: AbortSignal.timeout(15000) });
+    console.log('scheduled-drafts: drafts-background pokrenut, HTTP ' + res.status);
+  } catch (e) {
+    console.log('scheduled-drafts: pokretanje nije uspelo — ' + e.message);
+  }
 };
 
 export const config = { schedule: '0 5 * * 1-5' };

@@ -1,6 +1,6 @@
 // ==========================================================================
 // ŠTOK I KRILO — dnevno povlačenje izvora + pisanje nacrta (Claude)
-// Čista logika. Poziva je scheduled-drafts.mjs (automatski) i run-drafts.mjs (ručno).
+// Čista logika. Poziva je drafts-background.mjs (i automatski i iz admina).
 //
 // TOK: povuci izvore -> Claude piše -> automatska provera kvaliteta ->
 //      ako ima problema, JEDAN popravni krug -> nacrt ide uredniku.
@@ -9,7 +9,7 @@
 import { fetchAll, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, CAT_IMG, json } from './_lib.mjs';
 import { proveri, MARKER } from './_kvalitet.mjs';
 
-const MODEL = 'claude-sonnet-5';
+const MODEL = 'claude-sonnet-5-5';
 const MAX_NOVIH = 5;
 
 const MESECI = ['jan','feb','mar','apr','maj','jun','jul','avg','sep','okt','nov','dec'];

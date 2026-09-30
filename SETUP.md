@@ -52,7 +52,7 @@ U `netlify/functions/_lib.mjs`, niz `SOURCES`. Ako izvor ima RSS — dodaj `rss`
 
 ## Ako nešto ne radi
 
-Netlify → **Logs → Functions** → `scheduled-drafts` (automatsko) ili `run-drafts` (ručno dugme). Funkcija loguje svaki izvor posebno, pa se odmah vidi koji je pao. Ako jedan izvor blokira pristup, ostali i dalje rade.
+Netlify → **Logs → Functions** → `drafts-background` (tu je ceo posao) i `scheduled-drafts` (samo pokretanje). Funkcija loguje svaki izvor posebno, pa se odmah vidi koji je pao. Ako jedan izvor blokira pristup, ostali i dalje rade.
 
 
 ---

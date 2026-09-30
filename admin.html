@@ -218,13 +218,18 @@ async function povuciPodkaste() {
 }
 
 async function povuci() {
-  msg('Povlačim izvore i pišem nacrte — može potrajati do dva minuta…');
+  msg('Pokrećem povlačenje izvora…');
   try {
-    const r = await fetch('/.netlify/functions/run-drafts?token=' + encodeURIComponent(S.tok));
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
-    msg('Povučeno ' + d.povuceno + ' stavki, novih nacrta: ' + (d.nacrta || 0) + (d.poruka ? ' — ' + d.poruka : ''));
-    ucitaj();
+    const r = await fetch('/.netlify/functions/drafts-background?token=' + encodeURIComponent(S.tok));
+    if (r.status === 202) {
+      msg('Pokrenuto u pozadini. Pisanje traje 1-3 minuta — klikni „Osveži listu" za par minuta. Slobodno zatvori stranicu.');
+      // tiho proveravaj svakih 30 sekundi, najviše 8 puta
+      let n = 0;
+      const t = setInterval(() => { if (++n > 8) return clearInterval(t); ucitaj(); }, 30000);
+      return;
+    }
+    const d = await r.json().catch(() => ({}));
+    throw new Error(d.error || ('HTTP ' + r.status));
   } catch (e) { msg('Greška: ' + e.message, false); }
 }
 
