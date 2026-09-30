@@ -10,7 +10,7 @@
 // GET /.netlify/functions/drafts-background?token=ADMIN_TOKEN
 // ==========================================================================
 import { generisi } from './_generator.mjs';
-import { readJSON, KEY_DRAFTS } from './_lib.mjs';
+import { readJSON, writeJSON, KEY_DRAFTS, KEY_LAST_RUN } from './_lib.mjs';
 import { posaljiDigest } from './_mejl.mjs';
 
 export default async (req) => {
@@ -24,18 +24,33 @@ export default async (req) => {
     });
   }
 
-  const r = await generisi();
-  console.log('drafts-background:', await r.clone().text());
+  const zapis = { pokrenuto: new Date().toISOString() };
+
+  let r;
+  try {
+    r = await generisi();
+    const tekst = await r.clone().text();
+    console.log('drafts-background:', tekst);
+    try { zapis.generisanje = JSON.parse(tekst); }
+    catch { zapis.generisanje = { sirovo: tekst.slice(0, 1000) }; }
+  } catch (e) {
+    console.log('generisanje je puklo: ' + e.message);
+    zapis.generisanje = { greska: e.message };
+  }
 
   // Digest ide tek pošto su nacrti upisani. Ako slanje padne, generisanje
   // ostaje uspešno — nacrti čekaju u adminu kao i do sada.
   try {
     const drafts = await readJSON(KEY_DRAFTS, []);
-    const r2 = await posaljiDigest(drafts.slice(0, 10));
-    console.log('digest:', JSON.stringify(r2));
+    zapis.digest = await posaljiDigest(drafts.slice(0, 10));
+    console.log('digest:', JSON.stringify(zapis.digest));
   } catch (e) {
     console.log('digest nije poslat: ' + e.message);
+    zapis.digest = { poslato: false, razlog: e.message };
   }
 
-  return r;
+  zapis.zavrseno = new Date().toISOString();
+  try { await writeJSON(KEY_LAST_RUN, zapis); } catch (e) { console.log('zapis nije sacuvan: ' + e.message); }
+
+  return r || new Response('ok');
 };

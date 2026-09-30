@@ -7,6 +7,10 @@ export const STORE = 'stok-vesti';
 export const KEY_DRAFTS = 'drafts.json';
 export const KEY_APPROVED = 'approved.json';
 export const KEY_SEEN = 'seen-urls.json';
+// Izveštaj poslednjeg pokretanja. Background funkcija odmah vrati 202 i svoj
+// rezultat ostavlja samo u Netlify logovima — ovde ga čuvamo da urednik vidi
+// šta se desilo i bez otvaranja Netlify panela.
+export const KEY_LAST_RUN = 'last-run.json';
 
 export function store() { return getStore(STORE); }
 

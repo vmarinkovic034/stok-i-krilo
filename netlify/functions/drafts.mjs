@@ -3,7 +3,7 @@
 //   GET  /api/drafts                      -> lista nacrta + odobrenih
 //   POST /api/drafts  {action, id, patch} -> approve | reject | update | unpublish
 // ==========================================================================
-import { readJSON, writeJSON, KEY_DRAFTS, KEY_APPROVED, json } from './_lib.mjs';
+import { readJSON, writeJSON, KEY_DRAFTS, KEY_APPROVED, KEY_LAST_RUN, json } from './_lib.mjs';
 
 const auth = (req) => {
   const t = process.env.ADMIN_TOKEN;
@@ -18,7 +18,10 @@ export default async (req) => {
   let drafts = await readJSON(KEY_DRAFTS, []);
   let approved = await readJSON(KEY_APPROVED, []);
 
-  if (req.method === 'GET') return json({ drafts, approved });
+  if (req.method === 'GET') {
+    const lastRun = await readJSON(KEY_LAST_RUN, null);
+    return json({ drafts, approved, lastRun });
+  }
 
   if (req.method !== 'POST') return json({ error: 'Metod nije podržan' }, 405);
 
