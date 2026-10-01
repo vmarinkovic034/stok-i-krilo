@@ -20,6 +20,51 @@ export async function readJSON(key, fallback) {
 }
 export async function writeJSON(key, value) { await store().setJSON(key, value); }
 
+// ── FILTER PO TEMI ────────────────────────────────────────────────────────
+
+
+
+// Reči po kojima se iz opšteg građevinskog portala izdvaja ono što se tiče
+// stolarije. Lista se slobodno dopunjuje — širi je filter, više materijala i
+// veći trošak; uži filter, manje promašaja.
+export const KLJUCNE_RECI = [
+  'prozor', 'vrata', 'stakl', 'ostakljen', 'zastakljen', 'staklopaket',
+  'fasad', 'stolarij', 'bravarij', 'okov', 'profil',
+  'pvc', 'aluminij', 'aluminijum', 'drvo alu', 'termoprekid', 'termo prekid',
+  'roletn', 'zaluzin', 'senil', 'komarnik', 'zavesa zid',
+  'u-vrednost', 'uf ', 'uw ', 'energetska efikasnost zgrad', 'energetski pasos',
+  'nadstresnic', 'zimska basta', 'krovni prozor', 'svetlarnik',
+];
+
+// Ministarstvo objavljuje ćirilicom, portali latinicom. Filter mora da radi
+// na oba pisma, pa se sve prvo prevodi u latinicu bez dijakritika.
+const CIR = {
+  а:'a', б:'b', в:'v', г:'g', д:'d', ђ:'dj', е:'e', ж:'z', з:'z', и:'i', ј:'j',
+  к:'k', л:'l', љ:'lj', м:'m', н:'n', њ:'nj', о:'o', п:'p', р:'r', с:'s', т:'t',
+  ћ:'c', у:'u', ф:'f', х:'h', ц:'c', ч:'c', џ:'dz', ш:'s',
+};
+
+const normRec = (s) => String(s || '').toLowerCase()
+  .replace(/[а-џѐ-џ]/g, c => CIR[c] ?? c)
+  .replace(/[čć]/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z').replace(/đ/g, 'dj');
+
+// Reči po kojima se iz izvora javne uprave izdvajaju pozivi koji se tiču
+// zamene stolarije. Ministarstvo retko napiše „prozor" — piše „energetska
+// sanacija" i „subvencije", a stolarija je uvek deo tog paketa.
+export const KLJUCNE_SUBVENCIJE = [
+  'subvencij', 'bespovratn', 'javni poziv', 'konkurs',
+  'energetsk sanacij', 'energetska sanacija', 'energetsku sanaciju',
+  'energetska efikasnost', 'energetske efikasnosti', 'energetsku efikasnost',
+  'stolarij', 'prozor', 'zamena stolarije', 'domacinstv',
+];
+
+// Da li stavka iz opšteg izvora uopšte govori o onome što nas zanima.
+// Izvor može da ponese svoju listu reči; bez nje važi lista za stolariju.
+export function ticeSeStolarije(item, reci = KLJUCNE_RECI) {
+  const t = normRec((item.title || '') + ' ' + (item.summary || '') + ' ' + (item.excerpt || ''));
+  return reci.some(k => t.includes(normRec(k)));
+}
+
 // ── IZVORI ────────────────────────────────────────────────────────────────
 export const SOURCES = [
   // stranicenje: feed podržava ?paged=N, pa se može ići unazad kroz arhivu.
@@ -48,28 +93,16 @@ export const SOURCES = [
     rss: 'https://www.gradjevinarstvo.rs/rss/vesti' },
   { id: 'gradjevinarstvo-tekstovi', name: 'Gradjevinarstvo.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true,
     rss: 'https://www.gradjevinarstvo.rs/rss/tekstovi' },
+
+  // Ministarstvo rudarstva i energetike — javni pozivi i subvencije za
+  // energetsku sanaciju. Najveći deo feeda je o struji, gasu i rudnicima, pa
+  // ide kroz svoju listu reči. Objavljuje ćirilicom; filter to podnosi.
+  // Stavke nemaju pojedinačan datum, pa padaju na datum obrade — zato ovaj
+  // izvor ne ulazi u povlačenje po datumskom prozoru.
+  { id: 'mre', name: 'Ministarstvo rudarstva i energetike', lang: 'sr', region: 'Srbija', tier: 1,
+    opsti: true, kljucne: KLJUCNE_SUBVENCIJE,
+    rss: 'https://mre.gov.rs/rss/?change_lang=cr' },
 ];
-
-// Reči po kojima se iz opšteg građevinskog portala izdvaja ono što se tiče
-// stolarije. Lista se slobodno dopunjuje — širi je filter, više materijala i
-// veći trošak; uži filter, manje promašaja.
-export const KLJUCNE_RECI = [
-  'prozor', 'vrata', 'stakl', 'ostakljen', 'zastakljen', 'staklopaket',
-  'fasad', 'stolarij', 'bravarij', 'okov', 'profil',
-  'pvc', 'aluminij', 'aluminijum', 'drvo alu', 'termoprekid', 'termo prekid',
-  'roletn', 'zaluzin', 'senil', 'komarnik', 'zavesa zid',
-  'u-vrednost', 'uf ', 'uw ', 'energetska efikasnost zgrad', 'energetski pasos',
-  'nadstresnic', 'zimska basta', 'krovni prozor', 'svetlarnik',
-];
-
-const normRec = (s) => String(s || '').toLowerCase()
-  .replace(/[čć]/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z').replace(/đ/g, 'dj');
-
-// Da li stavka iz opšteg portala uopšte govori o stolariji.
-export function ticeSeStolarije(item) {
-  const t = normRec((item.title || '') + ' ' + (item.summary || '') + ' ' + (item.excerpt || ''));
-  return KLJUCNE_RECI.some(k => t.includes(normRec(k)));
-}
 
 const UA = 'Mozilla/5.0 (compatible; StokIKriloBot/1.0; +https://stok-i-krilo.netlify.app)';
 
@@ -155,8 +188,8 @@ export async function fetchSource(src, limit = 5, strane = 1) {
     // prvih nekoliko stavki pojelo kvotu i stolarija bi ostala neuzeta.
     if (src.opsti) {
       const pre = stavke.length;
-      stavke = stavke.filter(ticeSeStolarije);
-      console.log('[' + src.id + '] filter stolarije: ' + stavke.length + ' od ' + pre);
+      stavke = stavke.filter(x => ticeSeStolarije(x, src.kljucne || KLJUCNE_RECI));
+      console.log('[' + src.id + '] filter: ' + stavke.length + ' od ' + pre);
     }
     return stavke.slice(0, limit);
   }
