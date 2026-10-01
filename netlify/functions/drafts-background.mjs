@@ -30,7 +30,20 @@ export default async (req) => {
     const v = parseInt(url.searchParams.get(ime) || '', 10);
     return Number.isFinite(v) && v > 0 ? Math.min(v, gornja) : podrazumevano;
   };
-  const opcije = { poIzvoru: broj('poizvoru', 4, 20), maks: broj('maks', 5, 25) };
+  // Nadoknada arhive: ?strane=4 ide unazad kroz feed (gde je podržano), a
+  // ?od= i ?do= uzimaju samo ono objavljeno u tom razmaku. Tako se popunjava
+  // rupa u datumima bez plaćanja onoga što već stoji na portalu.
+  const datum = (ime) => {
+    const v = (url.searchParams.get(ime) || '').trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
+  };
+  const opcije = {
+    poIzvoru: broj('poizvoru', 4, 20),
+    maks: broj('maks', 5, 25),
+    strane: broj('strane', 1, 6),
+    od: datum('od'),
+    do: datum('do'),
+  };
 
   const zapis = { pokrenuto: new Date().toISOString(), opcije };
 

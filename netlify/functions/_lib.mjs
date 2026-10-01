@@ -22,7 +22,8 @@ export async function writeJSON(key, value) { await store().setJSON(key, value);
 
 // ── IZVORI ────────────────────────────────────────────────────────────────
 export const SOURCES = [
-  { id: 'dgb', name: 'Double Glazing Blogger', lang: 'en', region: 'UK', tier: 1,
+  // stranicenje: feed podržava ?paged=N, pa se može ići unazad kroz arhivu.
+  { id: 'dgb', name: 'Double Glazing Blogger', lang: 'en', region: 'UK', tier: 1, stranicenje: true,
     rss: 'https://www.doubleglazingblogger.com/feed/' },
   { id: 'glaswelt', name: 'GLASWELT', lang: 'de', region: 'Nemacka', tier: 1,
     html: 'https://www.glaswelt.de/',
@@ -41,7 +42,7 @@ export const SOURCES = [
   // oznaku opsti: true — propuštaju se samo stavke čiji naslov ili najava
   // pominju prozore, vrata, staklo, fasadu ili okov. Bez tog filtera bi se
   // trošio model na sportske hale, osvetljenje i UPS uređaje.
-  { id: 'gradnja', name: 'Gradnja.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true,
+  { id: 'gradnja', name: 'Gradnja.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true, stranicenje: true,
     rss: 'https://www.gradnja.rs/feed/' },
   { id: 'gradjevinarstvo-vesti', name: 'Gradjevinarstvo.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true,
     rss: 'https://www.gradjevinarstvo.rs/rss/vesti' },
@@ -130,10 +131,26 @@ async function parseHTML(list, src, limit) {
   return out;
 }
 
-export async function fetchSource(src, limit = 5) {
+export async function fetchSource(src, limit = 5, strane = 1) {
   if (src.rss) {
-    const xml = await grab(src.rss);
-    let stavke = parseRSS(xml, src);
+    // Više strana se traži samo za nadoknadu arhive i samo tamo gde feed to
+    // podržava. Dnevno povlačenje ostaje na prvoj strani.
+    const koliko = src.stranicenje ? Math.max(1, strane) : 1;
+    let xml = '';
+    const sveStavke = [];
+    for (let p = 1; p <= koliko; p++) {
+      const adresa = p === 1 ? src.rss : src.rss + (src.rss.includes('?') ? '&' : '?') + 'paged=' + p;
+      try {
+        xml = await grab(adresa);
+        const deo = parseRSS(xml, src);
+        if (!deo.length) break;          // dalje strane su prazne
+        sveStavke.push(...deo);
+      } catch (e) {
+        console.log('[' + src.id + '] strana ' + p + ' nije uspela: ' + e.message);
+        break;
+      }
+    }
+    let stavke = sveStavke;
     // Opšti portal se prvo proseje, pa tek onda seče na limit. Obrnuto bi
     // prvih nekoliko stavki pojelo kvotu i stolarija bi ostala neuzeta.
     if (src.opsti) {
@@ -147,11 +164,11 @@ export async function fetchSource(src, limit = 5) {
   return await parseHTML(list, src, limit);
 }
 
-export async function fetchAll(perSource = 4) {
+export async function fetchAll(perSource = 4, strane = 1) {
   const all = [], errors = [];
   for (const src of SOURCES) {
     try {
-      const items = await fetchSource(src, perSource);
+      const items = await fetchSource(src, perSource, strane);
       all.push(...items);
       console.log('[' + src.id + '] povuceno ' + items.length);
     } catch (e) {

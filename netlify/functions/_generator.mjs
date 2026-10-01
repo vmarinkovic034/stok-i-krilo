@@ -243,18 +243,40 @@ Vrati JSON niz sa TAČNO JEDNIM objektom: [{"cat","catLabel","title","desc","bod
 // poIzvoru — koliko članaka se gleda po izvoru (dnevno 4 je dovoljno)
 // maks     — koliko tekstova se najviše napiše u jednom pokretanju
 // Oba se podižu samo kad se nadoknađuje propušteno, jer svaki tekst košta.
-export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
+export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od = null, do: doDatuma = null } = {}) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return json({ error: 'Nedostaje ANTHROPIC_API_KEY u Netlify env varijablama' }, 500);
 
-  const { all, errors } = await fetchAll(poIzvoru);
+  const { all, errors } = await fetchAll(poIzvoru, strane);
   const seen = await readJSON(KEY_SEEN, []);
   const drafts = await readJSON(KEY_DRAFTS, []);
   const postojeci = new Set([...seen, ...drafts.map(d => d.url)]);
 
-  const novi = all.filter(x => x.url && !postojeci.has(x.url)).slice(0, maks);
+  let kandidati = all.filter(x => x.url && !postojeci.has(x.url));
+
+  // Datumski prozor služi za popunjavanje rupe u objavama: uzima se samo ono
+  // što je izvor objavio u tom razmaku, da se ne plaća ponovo pisanje vesti
+  // koje već stoje na portalu. Stavka bez upotrebljivog datuma ovde ispada,
+  // jer je ne možemo smestiti u vreme.
+  let vanProzora = 0, bezDatuma = 0;
+  if (od || doDatuma) {
+    const granicaOd = od ? new Date(od + 'T00:00:00Z') : null;
+    const granicaDo = doDatuma ? new Date(doDatuma + 'T23:59:59Z') : null;
+    kandidati = kandidati.filter(x => {
+      const d = parsirajDatum(x.published);
+      if (!d) { bezDatuma++; return false; }
+      if (granicaOd && d < granicaOd) { vanProzora++; return false; }
+      if (granicaDo && d > granicaDo) { vanProzora++; return false; }
+      return true;
+    });
+  }
+
+  const novi = kandidati.slice(0, maks);
   if (!novi.length) {
-    return json({ ok: true, poruka: 'Nema novih vesti u izvorima.', povuceno: all.length, greske: errors });
+    return json({
+      ok: true, poruka: 'Nema novih vesti u izvorima.', povuceno: all.length, greske: errors,
+      prozor: (od || doDatuma) ? { od, do: doDatuma, vanProzora, bezDatuma } : null,
+    });
   }
 
   const ulaz = novi.map(n => ({
@@ -361,6 +383,8 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
     preskoceno: novi.length - dodati.length,
     greske: errors,
     padovi,
+    prozor: (od || doDatuma) ? { od, do: doDatuma, vanProzora, bezDatuma } : null,
+    datumi: dodati.map(d => d.date),
     pregled: dodati.map(d => ({ naslov: d.title, ocena: d.provera.ocena, status: d.provera.status })),
   });
 };
