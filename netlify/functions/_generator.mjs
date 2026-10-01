@@ -13,7 +13,34 @@ const MODEL = 'claude-sonnet-5-5';
 const MAX_NOVIH = 5;
 
 const MESECI = ['jan','feb','mar','apr','maj','jun','jul','avg','sep','okt','nov','dec'];
-const danas = () => { const d = new Date(); return d.getDate() + '. ' + MESECI[d.getMonth()] + ' ' + d.getFullYear(); };
+const srpskiDatum = (d) => d.getDate() + '. ' + MESECI[d.getMonth()] + ' ' + d.getFullYear();
+const danas = () => srpskiDatum(new Date());
+
+// Vest nosi datum kada je izvor objavio, ne kada smo je mi obradili. Inače
+// članak od pre tri nedelje na portalu izgleda kao današnja vest, a čitalac
+// koji to primeti prestaje da veruje i ostalim datumima.
+// Prihvata RFC822 iz RSS-a ("Wed, 30 Sep 2026 13:35:09 +0000"), ISO oblik iz
+// meta oznaka, i domaći zapis "30.09.2026".
+export function parsirajDatum(s) {
+  const t = String(s || '').trim();
+  if (!t) return null;
+
+  const dmy = t.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})/);
+  if (dmy) {
+    const d = new Date(+dmy[3], +dmy[2] - 1, +dmy[1]);
+    return isNaN(d) ? null : d;
+  }
+
+  const d = new Date(t);
+  if (isNaN(d)) return null;
+
+  // Budući datum znači pogrešno pročitan zapis — bolje bez datuma nego lažan.
+  // Tolerancija od jednog dana pokriva razliku u vremenskim zonama.
+  if (d.getTime() > Date.now() + 36 * 3600 * 1000) return null;
+  // Ništa starije od dve godine; takav zapis je skoro uvek greška u parsiranju.
+  if (d.getTime() < Date.now() - 730 * 24 * 3600 * 1000) return null;
+  return d;
+}
 
 // ── SISTEMSKI PROMPT ──────────────────────────────────────────────────────
 const SISTEM = `Ti si urednik portala ŠTOK I KRILO — industrijskog informacionog portala za sektor prozora, vrata, stakla i fasada na Balkanu. Izdavač je GP GALAXY iz Kragujevca, a iza portala stoji čovek koji vodi proizvodnju stolarije. To je važno: ne pišeš kao novinar koji prepričava saopštenje, nego kao čovek iz fabrike koji je vest pročitao i kaže kolegi šta ona znači.
@@ -272,6 +299,7 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
     if (w0 && w0.skip) { seen.push(src.url); continue; }
     if (!w0 || !w0.title || !w0.body) { seen.push(src.url); continue; }
 
+    const objavljeno = parsirajDatum(src.published);
     const izvorTekst = (src.excerpt || '') + '\n' + (src.summary || '') + '\n' + (src.title || '');
     let w = w0;
     let p = proveri(w, izvorTekst);
@@ -295,7 +323,9 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
       createdAt: now,
       cat: w.cat || 'trziste',
       catLabel: w.catLabel || 'TRŽIŠTE',
-      date: danas(),
+      date: objavljeno ? srpskiDatum(objavljeno) : danas(),
+      datumISO: (objavljeno || new Date()).toISOString(),
+      datumIzIzvora: Boolean(objavljeno),
       title: w.title,
       desc: w.desc || '',
       body: w.body,
