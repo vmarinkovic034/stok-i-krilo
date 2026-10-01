@@ -124,7 +124,8 @@ export default async (req) => {
     const dat = url.searchParams.get('token') || req.headers.get('x-admin-token');
     if (!admin || dat !== admin) return json({ error: 'Neovlašćen pristup' }, 401);
     const s = store();
-    const { blobs } = await s.list({ prefix: PREFIKS });
+    // Isti razlog: uredništvo treba da vidi i prijavu koja je stigla malopre.
+    const { blobs } = await s.list({ prefix: PREFIKS, consistency: 'strong' });
     const prijave = (await Promise.all(
       blobs.map(b => s.get(b.key, { type: 'json' }).catch(() => null))
     )).filter(Boolean).sort((a, b) => new Date(b.kada) - new Date(a.kada));
@@ -161,7 +162,10 @@ export default async (req) => {
   // Upis ide prvi i jedini je obavezan korak.
   const s = store();
   const kljuc = kljucZa(tip, podaci.email, prijava.kada);
-  const vecPostoji = await s.get(kljuc, { type: 'json' }).catch(() => null);
+  // consistency: 'strong' je ovde obavezno. Podrazumevano čitanje je
+  // eventualno konzistentno, pa zapis upisan pre nekoliko sekundi još ne mora
+  // da se vidi — provera duplikata bi tada uvek prolazila kao da ga nema.
+  const vecPostoji = await s.get(kljuc, { type: 'json', consistency: 'strong' }).catch(() => null);
   await s.setJSON(kljuc, prijava);
 
   // Ista prijava istog dana ne uznemirava uredništvo drugi put.
