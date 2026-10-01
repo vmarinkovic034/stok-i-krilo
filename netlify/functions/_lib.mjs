@@ -199,17 +199,23 @@ export async function fetchSource(src, limit = 5, strane = 1) {
 
 export async function fetchAll(perSource = 4, strane = 1) {
   const all = [], errors = [];
+  // Koliko je koji izvor dao. Bez toga se iz izveštaja ne vidi da li izvor
+  // ćuti zato što nema ničeg novog ili zato što je pukao, a logovi Netlify-a
+  // nisu pri ruci dok se radi.
+  const brojPoIzvoru = {};
   for (const src of SOURCES) {
     try {
       const items = await fetchSource(src, perSource, strane);
       all.push(...items);
+      brojPoIzvoru[src.id] = items.length;
       console.log('[' + src.id + '] povuceno ' + items.length);
     } catch (e) {
       errors.push(src.id + ': ' + e.message);
+      brojPoIzvoru[src.id] = 'greska';
       console.log('[' + src.id + '] GRESKA: ' + e.message);
     }
   }
-  return { all, errors };
+  return { all, errors, brojPoIzvoru };
 }
 
 export const CAT_IMG = {

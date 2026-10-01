@@ -247,7 +247,7 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return json({ error: 'Nedostaje ANTHROPIC_API_KEY u Netlify env varijablama' }, 500);
 
-  const { all, errors } = await fetchAll(poIzvoru, strane);
+  const { all, errors, brojPoIzvoru } = await fetchAll(poIzvoru, strane);
   const seen = await readJSON(KEY_SEEN, []);
   const drafts = await readJSON(KEY_DRAFTS, []);
   const postojeci = new Set([...seen, ...drafts.map(d => d.url)]);
@@ -258,6 +258,20 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
   // što je izvor objavio u tom razmaku, da se ne plaća ponovo pisanje vesti
   // koje već stoje na portalu. Stavka bez upotrebljivog datuma ovde ispada,
   // jer je ne možemo smestiti u vreme.
+  // Bez izričitog datumskog prozora portal uzima samo skorašnje vesti.
+  // Inače se iz dubine izvora izvuče članak od pre pola godine i osvane na
+  // naslovnoj kao novost. Stara vest se uzima samo kad je tražimo (od / do).
+  const NAJSTARIJE_DANA = 45;
+  let prestaro = 0;
+  if (!od && !doDatuma) {
+    const granica = Date.now() - NAJSTARIJE_DANA * 24 * 3600 * 1000;
+    kandidati = kandidati.filter(x => {
+      const d = parsirajDatum(x.published);
+      if (d && d.getTime() < granica) { prestaro++; return false; }
+      return true;   // bez datuma prolazi; to je dnevni tok, ne arhiva
+    });
+  }
+
   let vanProzora = 0, bezDatuma = 0;
   if (od || doDatuma) {
     const granicaOd = od ? new Date(od + 'T00:00:00Z') : null;
@@ -275,6 +289,7 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
   if (!novi.length) {
     return json({
       ok: true, poruka: 'Nema novih vesti u izvorima.', povuceno: all.length, greske: errors,
+      poIzvoru: brojPoIzvoru, prestaro,
       prozor: (od || doDatuma) ? { od, do: doDatuma, vanProzora, bezDatuma } : null,
     });
   }
@@ -383,6 +398,8 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
     preskoceno: novi.length - dodati.length,
     greske: errors,
     padovi,
+    poIzvoru: brojPoIzvoru,
+    prestaro,
     prozor: (od || doDatuma) ? { od, do: doDatuma, vanProzora, bezDatuma } : null,
     datumi: dodati.map(d => d.date),
     pregled: dodati.map(d => ({ naslov: d.title, ocena: d.provera.ocena, status: d.provera.status })),
