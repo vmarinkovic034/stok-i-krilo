@@ -127,7 +127,10 @@ export default async (req) => {
     // Isti razlog: uredništvo treba da vidi i prijavu koja je stigla malopre.
     const { blobs } = await s.list({ prefix: PREFIKS, consistency: 'strong' });
     const prijave = (await Promise.all(
-      blobs.map(b => s.get(b.key, { type: 'json' }).catch(() => null))
+      blobs.map(async b => {
+        const v = await s.get(b.key, { type: 'json' }).catch(() => null);
+        return v ? { ...v, kljuc: b.key } : null;   // ključ treba adminu za brisanje
+      })
     )).filter(Boolean).sort((a, b) => new Date(b.kada) - new Date(a.kada));
     return json({ prijave });
   }
@@ -136,6 +139,18 @@ export default async (req) => {
 
   let b;
   try { b = await req.json(); } catch { return json({ error: 'Neispravan zahtev' }, 400); }
+
+  // ── Uredništvo: brisanje jedne prijave (spam, test, zahtev za uklanjanje) ─
+  if (b?.akcija === 'obrisi') {
+    const admin = (process.env.ADMIN_TOKEN || '').trim();
+    const url = new URL(req.url);
+    const dat = url.searchParams.get('token') || req.headers.get('x-admin-token');
+    if (!admin || dat !== admin) return json({ error: 'Neovlašćen pristup' }, 401);
+    const kljuc = String(b.kljuc || '');
+    if (!kljuc.startsWith(PREFIKS)) return json({ error: 'Neispravan ključ' }, 400);
+    await store().delete(kljuc);
+    return json({ ok: true, obrisano: kljuc });
+  }
 
   const tip = String(b?.tip || '').trim();
   if (!TIPOVI[tip]) return json({ error: 'Nepoznata vrsta prijave' }, 400);

@@ -211,7 +211,7 @@ async function ucitajPrijave() {
       + '<table style="width:100%;border-collapse:collapse;font-size:13px">'
       + '<tr style="text-align:left;border-bottom:1px solid #ddd">'
       + '<th style="padding:6px 8px 6px 0">Kada</th><th style="padding:6px 8px">Vrsta</th>'
-      + '<th style="padding:6px 8px">Email</th><th style="padding:6px 8px">Ostalo</th></tr>'
+      + '<th style="padding:6px 8px">Email</th><th style="padding:6px 8px">Ostalo</th><th></th></tr>'
       + p.map(x => {
           const ostalo = Object.entries(x.podaci)
             .filter(([k]) => k !== 'email')
@@ -221,12 +221,29 @@ async function ucitajPrijave() {
             + esc(new Date(x.kada).toLocaleString('sr-RS')) + '</td>'
             + '<td style="padding:6px 8px;white-space:nowrap">' + esc(NAZIV_PRIJAVE[x.tip] || x.tip) + '</td>'
             + '<td style="padding:6px 8px"><a href="mailto:' + esc(x.podaci.email) + '">' + esc(x.podaci.email) + '</a></td>'
-            + '<td style="padding:6px 8px;color:#444">' + esc(ostalo) + '</td></tr>';
+            + '<td style="padding:6px 8px;color:#444">' + esc(ostalo) + '</td>'
+            + '<td style="padding:6px 0 6px 8px;white-space:nowrap">'
+            + '<button onclick="obrisiPrijavu(\'' + esc(x.kljuc) + '\')" '
+            + 'style="font-size:12px;padding:2px 8px">Obriši</button></td></tr>';
         }).join('')
       + '</table>';
   } catch (e) {
     kutija.innerHTML = '<div class="empty">Greška: ' + esc(e.message) + '</div>';
   }
+}
+
+async function obrisiPrijavu(kljuc) {
+  try {
+    const r = await fetch('/api/prijave?token=' + encodeURIComponent(S.tok), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ akcija: 'obrisi', kljuc }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    document.getElementById('prijave').style.display = 'none';
+    ucitajPrijave();
+  } catch (e) { msg('Greška pri brisanju: ' + e.message, false); }
 }
 
 async function akcija(action, id) {
