@@ -8,9 +8,18 @@
 // obaveštenje na mejl. Ako mejl padne, prijava je i dalje sačuvana — kontakt
 // se ne gubi ni kad spoljni servis ne radi.
 // ==========================================================================
-import { readJSON, writeJSON, json } from './_lib.mjs';
+import { store, json } from './_lib.mjs';
 
-export const KEY_PRIJAVE = 'prijave.json';
+// Svaka prijava je zaseban zapis, ne red u jednom velikom JSON-u. Razlog:
+// upis u zajednički niz je čitaj-izmeni-upiši, pa dve prijave koje stignu
+// blizu jedna drugoj mogu da se pregaze i kontakt se tiho izgubi.
+//
+// Ključ nosi vrstu, adresu i dan. Ista osoba koja se istog dana prijavi
+// dvaput prepiše svoj zapis — to je upravo željeno ponašanje. Dve različite
+// osobe nikad ne dele ključ.
+const PREFIKS = 'prijave/';
+const kljucZa = (tip, email, kada) =>
+  PREFIKS + tip + '__' + email.replace(/[^a-z0-9@._-]/gi, '_') + '__' + kada.slice(0, 10);
 
 const TIPOVI = {
   newsletter: { naziv: 'Newsletter', polja: ['email'] },
@@ -114,7 +123,12 @@ export default async (req) => {
     const url = new URL(req.url);
     const dat = url.searchParams.get('token') || req.headers.get('x-admin-token');
     if (!admin || dat !== admin) return json({ error: 'Neovlašćen pristup' }, 401);
-    return json({ prijave: await readJSON(KEY_PRIJAVE, []) });
+    const s = store();
+    const { blobs } = await s.list({ prefix: PREFIKS });
+    const prijave = (await Promise.all(
+      blobs.map(b => s.get(b.key, { type: 'json' }).catch(() => null))
+    )).filter(Boolean).sort((a, b) => new Date(b.kada) - new Date(a.kada));
+    return json({ prijave });
   }
 
   if (req.method !== 'POST') return json({ error: 'Metod nije podržan' }, 405);
@@ -145,15 +159,13 @@ export default async (req) => {
   };
 
   // Upis ide prvi i jedini je obavezan korak.
-  let sve = await readJSON(KEY_PRIJAVE, []);
-  const duplikat = sve.some(p => p.tip === tip && p.podaci.email === podaci.email
-    && Date.now() - new Date(p.kada).getTime() < 24 * 3600 * 1000);
-  if (!duplikat) {
-    sve = [prijava, ...sve].slice(0, 2000);
-    await writeJSON(KEY_PRIJAVE, sve);
-  }
+  const s = store();
+  const kljuc = kljucZa(tip, podaci.email, prijava.kada);
+  const vecPostoji = await s.get(kljuc, { type: 'json' }).catch(() => null);
+  await s.setJSON(kljuc, prijava);
 
-  if (duplikat) return json({ ok: true, duplikat: true });
+  // Ista prijava istog dana ne uznemirava uredništvo drugi put.
+  if (vecPostoji) return json({ ok: true, duplikat: true });
 
   // Obaveštenje i Brevo idu posle upisa i nezavisno jedno od drugog. Ako bilo
   // koje padne, prijava je već sačuvana i vidi se u adminu.
