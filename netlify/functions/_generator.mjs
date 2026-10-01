@@ -119,7 +119,7 @@ Vrati JSON niz, isti redosled kao ulaz. Za svaku stavku:
 }
 Za preskakanje: {"skip": true, "razlog": "..."}`;
 
-async function claude(messages, apiKey, maxTokens = 8000) {
+async function claude(messages, apiKey, maxTokens = 16000) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
@@ -133,9 +133,49 @@ async function claude(messages, apiKey, maxTokens = 8000) {
 
 function parsirajNiz(txt) {
   let t = txt.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-  const a = t.indexOf('['), b = t.lastIndexOf(']');
-  if (a < 0 || b < 0) throw new Error('Odgovor nije JSON niz');
-  return JSON.parse(t.slice(a, b + 1));
+  const a = t.indexOf('[');
+  if (a < 0) throw new Error('Odgovor nije JSON niz');
+
+  const b = t.lastIndexOf(']');
+  if (b > a) {
+    try { return JSON.parse(t.slice(a, b + 1)); } catch { /* ide na spasavanje */ }
+  }
+
+  // Odgovor je presečen na max_tokens: niz nema zatvarajuću zagradu, ali
+  // objekti pre preseka su celi. Umesto da se baci cela serija, uzimaju se
+  // oni koji su stigli da se napišu.
+  const celi = spasiCeleObjekte(t.slice(a + 1));
+  if (celi.length) {
+    console.log('parsiranje: odgovor presečen, spaseno ' + celi.length + ' celih objekata');
+    return celi;
+  }
+  throw new Error('Odgovor nije JSON niz');
+}
+
+// Prolazi kroz tekst i vadi objekte najvišeg nivoa koji su uredno zatvoreni.
+// Vodi računa o zagradama unutar stringova i o escape znakovima.
+function spasiCeleObjekte(s) {
+  const out = [];
+  let dubina = 0, pocetak = -1, uStringu = false, escape = false;
+
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (escape) { escape = false; continue; }
+    if (c === '\\') { escape = true; continue; }
+    if (c === '"') { uStringu = !uStringu; continue; }
+    if (uStringu) continue;
+
+    if (c === '{') { if (dubina === 0) pocetak = i; dubina++; }
+    else if (c === '}') {
+      dubina--;
+      if (dubina === 0 && pocetak >= 0) {
+        try { out.push(JSON.parse(s.slice(pocetak, i + 1))); } catch { /* preskače se */ }
+        pocetak = -1;
+      }
+      if (dubina < 0) break;
+    }
+  }
+  return out;
 }
 
 // Jedan popravni krug: modelu se vraćaju konkretna upozorenja iz provere.
@@ -195,10 +235,10 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH } = {}) {
     published: n.published || '', text: (n.excerpt || n.summary || '').slice(0, 2500),
   }));
 
-  // Pisanje ide u serijama. Jedan odgovor ne može da ponese petnaest celih
-  // tekstova — izlaz se preseče na pola i parsiranje padne. Pет po pozivu je
-  // veličina koja je sigurno stane u max_tokens.
-  const SERIJA = 5;
+  // Pisanje ide u serijama, jer jedan odgovor ne može da ponese sve tekstove.
+  // Prvo je bilo pet po pozivu, ali posle proširenja uredničkih pravila
+  // tekstovi su duži, pa se i serija od pet sekla na max_tokens. Tri prolazi.
+  const SERIJA = 3;
   const napisano = [];
   const neuspeli = new Set();   // indeksi iz serije koja je pukla
   const padovi = [];
