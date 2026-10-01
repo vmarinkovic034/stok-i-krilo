@@ -82,8 +82,10 @@
       <button onclick="povuciPodkaste()">Obradi nove podkaste</button>
       <button onclick="posaljiDigest()">Pošalji digest na mejl</button>
       <button onclick="ucitaj()">Osveži listu</button>
+      <button onclick="ucitajPrijave()">Prijave sa sajta</button>
       <button onclick="odjava()">Odjava</button>
     </div>
+    <div id="prijave" style="display:none"></div>
     <p class="note">Nacrti ne idu na sajt dok ih ne odobriš. Svaki nacrt prolazi automatsku proveru: brojevi se upoređuju sa izvorom, a Balkan pasus se proverava da li traži konkretnu radnju. <b>Crveno = obavezno pročitaj pre odobravanja.</b></p>
     <div class="uvoz">
       <h4>Srpski tenderi — uvoz sa Portala javnih nabavki</h4>
@@ -183,6 +185,47 @@ async function ucitaj() {
   } catch (e) {
     msg('Greška: ' + e.message, false);
     if (/401|Neovla/.test(e.message)) { sessionStorage.removeItem('sik_admin'); S.tok = ''; }
+  }
+}
+
+const NAZIV_PRIJAVE = { newsletter: 'Newsletter', firma: 'Prijava firme', demo: 'Zahtev za demo' };
+
+async function ucitajPrijave() {
+  const kutija = document.getElementById('prijave');
+  if (kutija.style.display === 'block') { kutija.style.display = 'none'; return; }
+  kutija.style.display = 'block';
+  kutija.innerHTML = '<div class="empty">Učitavam…</div>';
+  try {
+    const r = await fetch('/api/prijave?token=' + encodeURIComponent(S.tok));
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    const p = d.prijave || [];
+    if (!p.length) { kutija.innerHTML = '<div class="empty">Još nema nijedne prijave sa sajta.</div>'; return; }
+
+    const po = {};
+    for (const x of p) po[x.tip] = (po[x.tip] || 0) + 1;
+    const zbir = Object.entries(po).map(([t, n]) => (NAZIV_PRIJAVE[t] || t) + ': ' + n).join(' · ');
+
+    kutija.innerHTML = '<h3 style="margin:18px 0 6px">Prijave sa sajta (' + p.length + ')</h3>'
+      + '<p class="note">' + esc(zbir) + '</p>'
+      + '<table style="width:100%;border-collapse:collapse;font-size:13px">'
+      + '<tr style="text-align:left;border-bottom:1px solid #ddd">'
+      + '<th style="padding:6px 8px 6px 0">Kada</th><th style="padding:6px 8px">Vrsta</th>'
+      + '<th style="padding:6px 8px">Email</th><th style="padding:6px 8px">Ostalo</th></tr>'
+      + p.map(x => {
+          const ostalo = Object.entries(x.podaci)
+            .filter(([k]) => k !== 'email')
+            .map(([k, v]) => k + ': ' + v).join(' · ');
+          return '<tr style="border-bottom:1px solid #f0f0f0;vertical-align:top">'
+            + '<td style="padding:6px 8px 6px 0;white-space:nowrap;color:#666">'
+            + esc(new Date(x.kada).toLocaleString('sr-RS')) + '</td>'
+            + '<td style="padding:6px 8px;white-space:nowrap">' + esc(NAZIV_PRIJAVE[x.tip] || x.tip) + '</td>'
+            + '<td style="padding:6px 8px"><a href="mailto:' + esc(x.podaci.email) + '">' + esc(x.podaci.email) + '</a></td>'
+            + '<td style="padding:6px 8px;color:#444">' + esc(ostalo) + '</td></tr>';
+        }).join('')
+      + '</table>';
+  } catch (e) {
+    kutija.innerHTML = '<div class="empty">Greška: ' + esc(e.message) + '</div>';
   }
 }
 

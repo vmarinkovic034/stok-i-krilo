@@ -336,6 +336,7 @@ tailwind.config = {
         <h2 class="font-serif text-3xl sm:text-4xl font-bold text-gray-950 mb-3">5 stvari koje danas treba da zna svaki profesionalac iz industrije.</h2>
         <p class="text-gray-500 mb-6">Jedan email dnevno. Najvažnije vesti, cene i poslovne informacije.</p>
         <div class="flex gap-0 max-w-md mx-auto">
+          <input type="text" name="vebsajt" id="mamac-newsletter-email-home" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
           <input type="email" id="newsletter-email-home" placeholder="Vaš email" class="flex-1 border border-gray-300 px-4 py-3 text-sm border-r-0" />
           <button class="btn-primary px-6" onclick="subscribeNewsletter('newsletter-email-home')">PRIJAVI ME</button>
         </div>
@@ -901,36 +902,41 @@ tailwind.config = {
     </div>
     <div class="px-6 py-6">
       <p class="text-gray-500 text-sm mb-6">Ostavite kontakt podatke i tim kompanije će vas kontaktirati u roku od 1-2 radna dana.</p>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Ime i prezime *</label>
-          <input type="text" placeholder="Marko Marković" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
+      <form id="demo-form" onsubmit="submitDemoForm(event)">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">Ime i prezime *</label>
+            <input required type="text" name="ime" placeholder="Marko Marković" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">Kompanija *</label>
+            <input required type="text" name="kompanija" placeholder="Naziv vaše firme" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">E-mail *</label>
+            <input required type="email" name="email" placeholder="marko@kompanija.rs" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">Broj zaposlenih</label>
+            <select name="zaposlenih" class="w-full border border-gray-200 px-3 py-2.5 text-sm text-gray-600">
+              <option value="">Izaberite...</option>
+              <option>1-10</option>
+              <option>11-50</option>
+              <option>51-200</option>
+              <option>200+</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1.5">Poruka (opciono)</label>
+            <textarea rows="3" name="poruka" placeholder="Opišite vaše potrebe ili pitanje..." class="w-full border border-gray-200 px-3 py-2.5 text-sm resize-none"></textarea>
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Kompanija *</label>
-          <input type="text" placeholder="Naziv vaše firme" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">E-mail *</label>
-          <input type="email" placeholder="marko@kompanija.rs" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Broj zaposlenih</label>
-          <select class="w-full border border-gray-200 px-3 py-2.5 text-sm text-gray-600">
-            <option value="">Izaberite...</option>
-            <option>1-10</option>
-            <option>11-50</option>
-            <option>51-200</option>
-            <option>200+</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">Poruka (opciono)</label>
-          <textarea rows="3" placeholder="Opišite vaše potrebe ili pitanje..." class="w-full border border-gray-200 px-3 py-2.5 text-sm resize-none"></textarea>
-        </div>
-      </div>
-      <button class="btn-primary w-full mt-6 py-3">Pošaljite zahtjev</button>
-      <p class="text-gray-400 text-xs text-center mt-3">Štok i Krilo ne dijeli vaše podatke s trećim stranama.</p>
+        <!-- Mamac za robote: sakriveno polje koje čovek ne vidi i ne popunjava -->
+        <input type="text" name="vebsajt" id="demo-mamac" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+        <input type="hidden" name="povod" id="demo-povod" />
+        <button type="submit" class="btn-primary w-full mt-6 py-3">Pošaljite zahtev</button>
+        <p class="text-gray-400 text-xs text-center mt-3">Štok i Krilo ne deli vaše podatke sa trećim stranama.</p>
+      </form>
     </div>
   </div>
 </div>
@@ -1047,6 +1053,7 @@ tailwind.config = {
       <h2 class="font-serif text-2xl font-bold text-gray-950 mb-1">Dodaj svoju kompaniju</h2>
       <p class="text-sm text-gray-500 mb-6">Prijava ide na pregled pre objave. Javljamo se ili se firma pojavljuje u direktorijumu u roku od nekoliko dana.</p>
       <form id="add-company-form" onsubmit="submitCompanyForm(event)">
+          <input type="text" name="vebsajt" id="mamac-firma" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <input required name="naziv" placeholder="Naziv firme *" class="border border-gray-300 px-3 py-2 text-sm sm:col-span-2" />
           <input required name="grad" placeholder="Grad *" class="border border-gray-300 px-3 py-2 text-sm" />
@@ -1121,7 +1128,8 @@ tailwind.config = {
       <h2 class="font-serif text-2xl font-bold text-gray-950 mb-3">Ostanite informisani.</h2>
       <p class="text-gray-500 text-sm mb-6">Jedan email dnevno. Cene, vesti i poslovne prilike iz industrije.</p>
       <div class="flex gap-0 mb-3">
-        <input type="email" id="newsletter-email-modal" placeholder="Vaš email" class="flex-1 border border-gray-300 px-4 py-3 text-sm border-r-0" />
+        <input type="text" name="vebsajt" id="mamac-newsletter-email-modal" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
+          <input type="email" id="newsletter-email-modal" placeholder="Vaš email" class="flex-1 border border-gray-300 px-4 py-3 text-sm border-r-0" />
         <button class="btn-primary px-5" onclick="subscribeNewsletter('newsletter-email-modal')">PRIJAVI ME</button>
       </div>
       <p class="text-xs text-gray-400">Bez spama. Samo industrijske informacije.</p>
@@ -2314,7 +2322,6 @@ const COMPANIES_SHEET_ID = '1Vj73Qih8vqJibrTFtE_JoaGzgYREIL23NpZfEnqmJpA';
 const COMPANIES_CSV_URL = 'https://docs.google.com/spreadsheets/d/' + COMPANIES_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=Sheet1';
 // Apps Script Web App URL koji prima nove prijave (upisuje red u Sheet sa Odobreno=NE).
 // Ostaje prazan dok se ne deploy-uje Apps Script (vidi uputstvo poslato uz kod).
-const COMPANY_FORM_ENDPOINT = '';
 
 let allCompanies = companies.slice();
 let currentCompanyList = companies.slice();
@@ -2455,19 +2462,14 @@ async function submitCompanyForm(e) {
   e.preventDefault();
   const form = e.target;
   const btn = form.querySelector('button[type="submit"]');
-  if (!COMPANY_FORM_ENDPOINT) {
-    showToast('Prijava trenutno nije aktivna. Pokušajte kasnije.');
-    return;
-  }
   const fd = new FormData(form);
-  const params = new URLSearchParams();
-  for (const [k, v] of fd.entries()) params.append(k, v);
-  params.append('datum', new Date().toLocaleDateString('sr-RS'));
+  const podaci = {};
+  for (const [k, v] of fd.entries()) if (String(v).trim()) podaci[k] = v;
   btn.disabled = true;
   const originalLabel = btn.textContent;
   btn.textContent = 'Šalje se…';
   try {
-    await fetch(COMPANY_FORM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: params });
+    await posaljiPrijavu('firma', podaci);
     showToast('Hvala! Prijava je poslata na pregled.');
     form.reset();
     document.querySelectorAll('.cat-checkbox').forEach(c => c.checked = false);
@@ -2479,7 +2481,7 @@ async function submitCompanyForm(e) {
     closeAddCompanyModal();
   } catch (err) {
     console.error('submitCompanyForm:', err);
-    showToast('Greška pri slanju. Pokušajte ponovo.');
+    showToast(err.message || 'Greška pri slanju. Pokušajte ponovo.');
   } finally {
     btn.disabled = false;
     btn.textContent = originalLabel;
@@ -2745,12 +2747,40 @@ function showNewsletterModal() { document.getElementById('newsletter-modal').cla
 function closeNewsletterModal(e) {
   if (!e || e.currentTarget === e.target) document.getElementById('newsletter-modal').classList.remove('open');
 }
-function subscribeNewsletter(inputId) {
-  const email = document.getElementById(inputId).value;
+// ==================== PRIJAVE ====================
+// Sve tri forme na sajtu idu kroz /api/prijave. Nijedan ključ nije u
+// pregledaču; server upisuje prijavu i šalje obaveštenje uredništvu.
+async function posaljiPrijavu(tip, podaci) {
+  const r = await fetch('/api/prijave', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ tip, ...podaci }),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Slanje nije uspelo. Pokušajte ponovo.');
+  return d;
+}
+
+async function subscribeNewsletter(inputId) {
+  const polje = document.getElementById(inputId);
+  const email = polje.value.trim();
   if (!email || !email.includes('@')) { showToast('Unesite ispravnu email adresu.'); return; }
-  showToast('Uspešno ste se prijavili na newsletter!');
-  document.getElementById(inputId).value = '';
-  closeNewsletterModal();
+  const dugme = polje.parentElement.querySelector('button');
+  const natpis = dugme ? dugme.textContent : '';
+  if (dugme) { dugme.disabled = true; dugme.textContent = 'ŠALJE SE…'; }
+  try {
+    await posaljiPrijavu('newsletter', {
+      email,
+      vebsajt: (document.getElementById('mamac-' + inputId) || {}).value || '',
+    });
+    showToast('Prijavljeni ste. Hvala!');
+    polje.value = '';
+    closeNewsletterModal();
+  } catch (e) {
+    showToast(e.message);
+  } finally {
+    if (dugme) { dugme.disabled = false; dugme.textContent = natpis; }
+  }
 }
 
 // ==================== NAVIGATION ====================
@@ -2960,7 +2990,33 @@ function openDemoModal(toolName) {
   } else {
     title.textContent = toolName;
   }
+  // Povod se šalje uz prijavu, da se u adminu vidi sa kog dugmeta je došla.
+  const povod = document.getElementById('demo-povod');
+  if (povod) povod.value = toolName || '';
   modal.classList.add('open');
+}
+
+async function submitDemoForm(e) {
+  e.preventDefault();
+  const form = e.target;
+  const dugme = form.querySelector('button[type="submit"]');
+  const fd = new FormData(form);
+  const podaci = {};
+  for (const [k, v] of fd.entries()) if (String(v).trim()) podaci[k] = v;
+  const natpis = dugme.textContent;
+  dugme.disabled = true;
+  dugme.textContent = 'Šalje se…';
+  try {
+    await posaljiPrijavu('demo', podaci);
+    showToast('Hvala! Javićemo se u roku od 1-2 radna dana.');
+    form.reset();
+    closeDemoModal();
+  } catch (err) {
+    showToast(err.message || 'Greška pri slanju. Pokušajte ponovo.');
+  } finally {
+    dugme.disabled = false;
+    dugme.textContent = natpis;
+  }
 }
 function closeDemoModal(e) {
   if (!e || e.target === document.getElementById('demo-modal')) {
