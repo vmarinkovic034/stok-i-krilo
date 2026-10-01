@@ -35,7 +35,40 @@ export const SOURCES = [
     html: 'https://www.windowanddoor.com/news',
     linkPattern: /href="(\/news\/[a-z0-9-]{15,})"/gi,
     base: 'https://www.windowanddoor.com' },
+
+  // ── DOMAĆI IZVORI ──────────────────────────────────────────────────────
+  // Opšti građevinski portali, ne specijalizovani za stolariju. Zato nose
+  // oznaku opsti: true — propuštaju se samo stavke čiji naslov ili najava
+  // pominju prozore, vrata, staklo, fasadu ili okov. Bez tog filtera bi se
+  // trošio model na sportske hale, osvetljenje i UPS uređaje.
+  { id: 'gradnja', name: 'Gradnja.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true,
+    rss: 'https://www.gradnja.rs/feed/' },
+  { id: 'gradjevinarstvo-vesti', name: 'Gradjevinarstvo.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true,
+    rss: 'https://www.gradjevinarstvo.rs/rss/vesti' },
+  { id: 'gradjevinarstvo-tekstovi', name: 'Gradjevinarstvo.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true,
+    rss: 'https://www.gradjevinarstvo.rs/rss/tekstovi' },
 ];
+
+// Reči po kojima se iz opšteg građevinskog portala izdvaja ono što se tiče
+// stolarije. Lista se slobodno dopunjuje — širi je filter, više materijala i
+// veći trošak; uži filter, manje promašaja.
+export const KLJUCNE_RECI = [
+  'prozor', 'vrata', 'stakl', 'ostakljen', 'zastakljen', 'staklopaket',
+  'fasad', 'stolarij', 'bravarij', 'okov', 'profil',
+  'pvc', 'aluminij', 'aluminijum', 'drvo alu', 'termoprekid', 'termo prekid',
+  'roletn', 'zaluzin', 'senil', 'komarnik', 'zavesa zid',
+  'u-vrednost', 'uf ', 'uw ', 'energetska efikasnost zgrad', 'energetski pasos',
+  'nadstresnic', 'zimska basta', 'krovni prozor', 'svetlarnik',
+];
+
+const normRec = (s) => String(s || '').toLowerCase()
+  .replace(/[čć]/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z').replace(/đ/g, 'dj');
+
+// Da li stavka iz opšteg portala uopšte govori o stolariji.
+export function ticeSeStolarije(item) {
+  const t = normRec((item.title || '') + ' ' + (item.summary || '') + ' ' + (item.excerpt || ''));
+  return KLJUCNE_RECI.some(k => t.includes(normRec(k)));
+}
 
 const UA = 'Mozilla/5.0 (compatible; StokIKriloBot/1.0; +https://stok-i-krilo.netlify.app)';
 
@@ -98,7 +131,18 @@ async function parseHTML(list, src, limit) {
 }
 
 export async function fetchSource(src, limit = 5) {
-  if (src.rss) { const xml = await grab(src.rss); return parseRSS(xml, src).slice(0, limit); }
+  if (src.rss) {
+    const xml = await grab(src.rss);
+    let stavke = parseRSS(xml, src);
+    // Opšti portal se prvo proseje, pa tek onda seče na limit. Obrnuto bi
+    // prvih nekoliko stavki pojelo kvotu i stolarija bi ostala neuzeta.
+    if (src.opsti) {
+      const pre = stavke.length;
+      stavke = stavke.filter(ticeSeStolarije);
+      console.log('[' + src.id + '] filter stolarije: ' + stavke.length + ' od ' + pre);
+    }
+    return stavke.slice(0, limit);
+  }
   const list = await grab(src.html);
   return await parseHTML(list, src, limit);
 }

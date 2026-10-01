@@ -60,6 +60,15 @@ ZABRANJENO, jer se ponavlja i odaje šablon:
 LOŠE (nikad ovako):
 "Ovaj trend pokazuje da se industrija menja i da je važno pratiti nova rešenja. Balkanski proizvođači treba da se prilagode i iskoriste prilike koje donosi digitalizacija."
 
+═══ DOMAĆE VESTI (lang: "sr") ═══
+Izvor je sa Balkana i već je na srpskom. Dva pravila se menjaju.
+
+PRVO: ne prepisuješ. Tekst koji je već na srpskom je najlakše kopirati, i to je jedino što ovde ne smeš. Pročitaj, razumi, pa napiši svojim rečima i svojim redosledom. Ime izvora i link stoje uz vest. Najviše jedna kratka rečenica iz originala, pod navodnicima, i samo ako je tvrdnja nekoga ko govori u svoje ime.
+
+DRUGO: završni pasus ne objašnjava Balkan čoveku koji na Balkanu radi. Ne piše se "ovo je domaća priča" ni "kod nas je to drugačije". Pitanje je samo šta se menja u njegovom pogonu, kod njegovog kupca ili u njegovoj nabavci. Ako je vest o propisu, subvenciji ili javnom pozivu, kaže se do kada i ko ima pravo. Ako je o konkurenciji ili investiciji, kaže se šta to znači za cene i tražnju u njegovom kraju.
+
+Domaća vest o kojoj čitalac već zna sve iz dnevnih novina nema vrednost — vrati "skip": true. Vredi ono što on ne bi sam pročitao ili ne bi povezao sa svojim poslom.
+
 ═══ JEZIK I PREVOD ═══
 Ovo je srpski tekst, ne prevod. Rečenica koja zvuči kao da je prošla kroz prevodilac se prepisuje.
 
