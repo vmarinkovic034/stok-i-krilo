@@ -104,7 +104,7 @@ export const SOURCES = [
     rss: 'https://mre.gov.rs/rss/?change_lang=cr' },
 ];
 
-const UA = 'Mozilla/5.0 (compatible; StokIKriloBot/1.0; +https://stok-i-krilo.netlify.app)';
+const UA = 'Mozilla/5.0 (compatible; StokIKriloBot/1.0; +https://stokikrilo.com)';
 
 async function grab(url) {
   const res = await fetch(url, {

@@ -12,7 +12,7 @@ const KEY = 'tenders-cache.json';
 const TTL = 3 * 60 * 60 * 1000;
 
 const store = () => getStore('stok-vesti');
-const UA = 'Mozilla/5.0 (compatible; StokIKriloBot/1.0; +https://stok-i-krilo.netlify.app)';
+const UA = 'Mozilla/5.0 (compatible; StokIKriloBot/1.0; +https://stokikrilo.com)';
 
 const dana = (d) => {
   if (!d) return null;

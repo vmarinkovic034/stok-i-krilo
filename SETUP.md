@@ -33,7 +33,7 @@ Posle unosa: **Deploys → Trigger deploy → Clear cache and deploy site.**
 
 ## Provera da radi
 
-1. Otvori `https://stok-i-krilo.netlify.app/admin.html`
+1. Otvori `https://stokikrilo.com/admin.html`
 2. Unesi `ADMIN_TOKEN`
 3. Klikni **Povuci nove vesti sada** (traje do 2 minuta)
 4. Pojaviće se nacrti — pročitaj ih i odobri one koje želiš

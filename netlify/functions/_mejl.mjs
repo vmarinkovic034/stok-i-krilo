@@ -39,7 +39,7 @@ export function proveriPotpis(id, akcija, istice, dati) {
 }
 
 export function bazniURL() {
-  return (process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://stok-i-krilo.netlify.app')
+  return (process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://stokikrilo.com')
     .replace(/\/+$/, '');
 }
 
