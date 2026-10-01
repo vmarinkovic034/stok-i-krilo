@@ -243,6 +243,26 @@ Vrati JSON niz sa TAČNO JEDNIM objektom: [{"cat","catLabel","title","desc","bod
 // poIzvoru — koliko članaka se gleda po izvoru (dnevno 4 je dovoljno)
 // maks     — koliko tekstova se najviše napiše u jednom pokretanju
 // Oba se podižu samo kad se nadoknađuje propušteno, jer svaki tekst košta.
+// Uzima po jednu stavku iz svakog izvora u krug, dok se ne popuni kvota.
+// Izvor koji ostane bez stavki ispada iz kruga, pa se kvota ipak potroši.
+function naizmenicnoPoIzvorima(stavke, kvota) {
+  const grupe = new Map();
+  for (const s of stavke) {
+    const k = s.sourceId || s.source || 'bez-izvora';
+    if (!grupe.has(k)) grupe.set(k, []);
+    grupe.get(k).push(s);
+  }
+  const redovi = [...grupe.values()];
+  const out = [];
+  let i = 0;
+  while (out.length < kvota && redovi.some(r => r.length)) {
+    const red = redovi[i % redovi.length];
+    if (red.length) out.push(red.shift());
+    i++;
+  }
+  return out;
+}
+
 export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od = null, do: doDatuma = null } = {}) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return json({ error: 'Nedostaje ANTHROPIC_API_KEY u Netlify env varijablama' }, 500);
@@ -285,7 +305,11 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
     });
   }
 
-  const novi = kandidati.slice(0, maks);
+  // Kvota se deli naizmenično po izvorima, a ne redom kojim su upisani.
+  // Ranije su strani izvori, koji stoje prvi u listi i daju po dvadeset
+  // stavki, popunjavali celu kvotu, pa domaći nikad nisu dolazili na red —
+  // povukli bi dvanaest stavki i nijedna ne bi bila napisana.
+  const novi = naizmenicnoPoIzvorima(kandidati, maks);
   if (!novi.length) {
     return json({
       ok: true, poruka: 'Nema novih vesti u izvorima.', povuceno: all.length, greske: errors,
