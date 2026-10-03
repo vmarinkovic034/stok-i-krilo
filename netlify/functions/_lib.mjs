@@ -123,7 +123,7 @@ export const SOURCES = [
   // oznaku opsti: true — propuštaju se samo stavke čiji naslov ili najava
   // pominju prozore, vrata, staklo, fasadu ili okov. Bez tog filtera bi se
   // trošio model na sportske hale, osvetljenje i UPS uređaje.
-  { id: 'gradnja', name: 'Gradnja.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true, stranicenje: true,
+  { id: 'gradnja', name: 'Gradnja.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true, stranicenje: true, dubina: 25,
     rss: 'https://www.gradnja.rs/feed/' },
   { id: 'gradjevinarstvo-vesti', name: 'Gradjevinarstvo.rs', lang: 'sr', region: 'Srbija', tier: 1, opsti: true,
     rss: 'https://www.gradjevinarstvo.rs/rss/vesti' },
@@ -147,17 +147,17 @@ export const SOURCES = [
   // Jezik: bosanski i crnogorski nose lang 'sr' da bi dobili urednička pravila
   // za domaću vest, jer prevod nije potreban. Makedonski, bugarski i grčki
   // imaju svoje oznake i prolaze kroz prevod.
-  { id: 'porta3', name: 'Porta3', lang: 'mk', region: 'Makedonija', tier: 1, opsti: true,
+  { id: 'porta3', name: 'Porta3', lang: 'mk', region: 'Makedonija', tier: 1, opsti: true, dubina: 25,
     rss: 'https://www.porta3.mk/feed/' },
-  { id: 'akta', name: 'Akta.ba', lang: 'sr', region: 'BiH', tier: 1, opsti: true,
+  { id: 'akta', name: 'Akta.ba', lang: 'sr', region: 'BiH', tier: 1, opsti: true, dubina: 40,
     rss: 'https://www.akta.ba/rss' },
-  { id: 'ecoportal', name: 'Ecoportal.me', lang: 'sr', region: 'Crna Gora', tier: 1, opsti: true,
+  { id: 'ecoportal', name: 'Ecoportal.me', lang: 'sr', region: 'Crna Gora', tier: 1, opsti: true, dubina: 30,
     rss: 'https://www.ecoportal.me/feed/' },
   { id: 'stroitel', name: 'Строител', lang: 'bg', region: 'Bugarska', tier: 1,
-    opsti: true, kljucne: KLJUCNE_BG,
+    opsti: true, kljucne: KLJUCNE_BG, dubina: 40,
     rss: 'https://vestnikstroitel.bg/rss' },
   { id: 'b2green', name: 'B2Green', lang: 'el', region: 'Grcka', tier: 1,
-    opsti: true, kljucne: KLJUCNE_GR,
+    opsti: true, kljucne: KLJUCNE_GR, dubina: 40,
     rss: 'https://news.b2green.gr/feed' },
 ];
 
@@ -222,6 +222,12 @@ async function parseHTML(list, src, limit) {
 }
 
 export async function fetchSource(src, limit = 5, strane = 1) {
+  // Opšti portal objavi tридесетak vesti dnevno, a o stolariji jednu-dve
+  // nedeljno. Ako se iz njega uzme samo prvih nekoliko stavki, filter nema
+  // šta da prosejava i izvor stalno vraća nulu. Zato takav izvor sme da nosi
+  // svoju dubinu. Ne poskupljuje posao: filter radi pre rezanja, pa model i
+  // dalje dobija samo ono što je u temi.
+  if (src.opsti && src.dubina) limit = Math.max(limit, src.dubina);
   if (src.rss) {
     // Više strana se traži samo za nadoknadu arhive i samo tamo gde feed to
     // podržava. Dnevno povlačenje ostaje na prvoj strani.
