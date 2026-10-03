@@ -180,7 +180,7 @@ tailwind.config = {
 <!-- ===================== SITEWIDE SPONSOR BANNER (ISPOD HEDERA) ===================== -->
 <!-- ===================== OGLASNE POZICIJE - ISPOD TIKERA ===================== -->
 <section class="ad-section py-4" id="sitewide-sponsor-banner">
-  <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
+  <div class="ad-label">OGLASNI PROSTOR</div>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" data-ad-top="3"></div>
   </div>
@@ -282,7 +282,7 @@ tailwind.config = {
 
   <!-- AD SLOT 1 - LEADERBOARD SPONZORI -->
   <section class="ad-section py-5">
-    <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
+    <div class="ad-label">OGLASNI PROSTOR</div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
       <div class="ad-leaderboard" data-ad-strip="3"></div>
       <div class="flex justify-between items-center mt-2 px-0.5">
@@ -316,7 +316,7 @@ tailwind.config = {
 
   <!-- AD SLOT 2 - NATIVE SPONSORED (između vesti i BWI teasera) -->
   <section class="ad-section py-5">
-    <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
+    <div class="ad-label">OGLASNI PROSTOR</div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" data-ad-native="2"></div>
       <div class="flex justify-between items-center mt-2 px-0.5">
@@ -422,12 +422,15 @@ tailwind.config = {
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
       <div class="lg:col-span-3">
 
-        <!-- TED INFO BOX (shown until key is set) -->
+        <!-- TED kutija. Stoji na „učitavam" dok traje povlačenje; kad stignu
+             tenderi postane zelena sa brojem, a ako ih nema sakrije se.
+             Ranije je ovde pisalo uputstvo uredniku da registruje TED ključ —
+             to je čitalac video kao nedovršen sajt. -->
         <div id="ted-info-box" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 flex items-start gap-3">
           <div class="text-blue-500 text-xl flex-shrink-0">ℹ</div>
           <div>
-            <div class="text-sm font-semibold text-blue-800 mb-1">EU tenderi (HR, SI, RO, BG, IT, DE, AT, FR) + Švajcarska</div>
-            <div class="text-xs text-blue-700">Registrujte besplatni TED API key na <span class="font-mono bg-blue-100 px-1 rounded">developer.ted.europa.eu</span> i ubacite ga u portal za live EU tendere.</div>
+            <div class="text-sm font-semibold text-blue-800 mb-1">EU tenderi — Hrvatska, Slovenija, Rumunija, Bugarska, Italija, Nemačka, Austrija, Francuska</div>
+            <div class="text-xs text-blue-700">Učitavam objave sa ted.europa.eu…</div>
           </div>
           <button onclick="document.getElementById('ted-info-box').style.display='none'" class="text-blue-400 hover:text-blue-600 text-lg flex-shrink-0 ml-auto">×</button>
         </div>
@@ -462,7 +465,7 @@ tailwind.config = {
       <!-- SIDEBAR SPONZOR BANER -->
       <aside class="lg:col-span-1">
         <div class="sticky" style="top:88px;">
-          <div class="ad-label" style="position:static; display:inline-block; margin-bottom:10px; background:transparent; padding:0;">PRIMER POZICIJE</div>
+          <div class="ad-label" style="position:static; display:inline-block; margin-bottom:10px; background:transparent; padding:0;">OGLASNI PROSTOR</div>
           <div data-ad-box="1"></div>
           <div class="ad-card p-4 text-center mt-4 border-dashed border-gray-300 bg-gray-50" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">
             <div class="w-10 h-10 border-2 border-dashed border-gray-300 flex items-center justify-center mx-auto mb-2 text-gray-300 text-lg">+</div>
@@ -516,7 +519,7 @@ tailwind.config = {
 
     <!-- AD SLOT - CENE STRANICA -->
     <div class="ad-section mt-8 py-5 relative">
-      <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
+      <div class="ad-label">OGLASNI PROSTOR</div>
       <div class="pt-4">
         <div data-ad-wide="1"></div>
         <div class="flex justify-end mt-1.5">
@@ -629,7 +632,7 @@ tailwind.config = {
 
     <!-- AD SLOT -->
     <div class="ad-section mt-10 py-5 relative">
-      <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
+      <div class="ad-label">OGLASNI PROSTOR</div>
       <div class="pt-4">
         <div data-ad-wide="1"></div>
         <div class="flex justify-end mt-1.5"><span class="text-xs text-gray-300">OGLAS</span></div>
@@ -696,7 +699,7 @@ tailwind.config = {
 
     <!-- AD SLOT - KOMPANIJE STRANICA -->
     <div class="ad-section mt-10 py-5 relative">
-      <div class="ad-label">PRIMER OGLASNE POZICIJE</div>
+      <div class="ad-label">OGLASNI PROSTOR</div>
       <div class="max-w-7xl mx-auto pt-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" data-ad-cards="2">
           <div class="ad-card p-4 text-center border-dashed border-gray-300 bg-gray-50" onclick="showToast('Kontakt za oglašavanje: media@windowbalkan.com')">
@@ -1020,7 +1023,7 @@ tailwind.config = {
     </div>
     <div class="border-t border-gray-800 pt-6 flex flex-wrap justify-between items-center gap-2">
       <div class="text-gray-600 text-xs">© 2026 ŠTOK I KRILO. Sva prava zadržana. Izdavač: GP GALAXY d.o.o. Kragujevac.</div>
-      <div class="text-gray-600 text-xs">Blokovi označeni „PRIMER POZICIJE" prikazuju izgled oglasnog prostora. Prikazane firme nisu sponzori portala.</div>
+      <div class="text-gray-600 text-xs">Polja označena „OGLASNI PROSTOR" su slobodne oglasne pozicije. Portal trenutno nema plaćene oglašivače.</div>
     </div>
   </div>
 </footer>
@@ -1476,7 +1479,8 @@ const events = [
 ];
 
 // ==================== TENDERI ====================
-const TED_API_KEY = 'dec3c29a94794d2896513c7a7f29da92'; // dodati key od developer.ted.europa.eu
+// TED ključ više ne stoji ovde. Zahtev ide na /api/ted, a ključ ostaje na
+// serveru — ranije se video u izvoru stranice i u javnom repozitorijumu.
 
 const tenderPlaceholders = []; // bez izmisljenih tendera - prikazuju se samo stvarni sa nabavke.gov.rs i TED-a
 
@@ -1578,47 +1582,26 @@ function mapTEDNotice(n, idx) {
   };
 }
 
-async function fetchTEDTenders() {
-  if (!TED_API_KEY) return null;
-  try {
-    const body = JSON.stringify({
-      query: 'cpv-code IN ("44221000","44221100","44221200","45421000","45421100","44112400","44163100") AND (buyer-country IN ("HR","SI","RO","BG","IT","DE","AT","FR")) AND publication-date >= 20260601',
-      fields: ['publication-number','title','buyer-name','buyer-country','notice-type',
-               'cpv-code','estimated-value','deadline-date','dispatch-date',
-               'place-of-performance','ted-url'],
-      page: 1,
-      limit: 30,
-      sort: [{ field: 'publication-date', order: 'desc' }]
-    });
+// Kad EU tendera nema — bilo zato što ključ nije podešen, bilo zato što TED
+// ne odgovara — kutija se sklanja. Čitaocu se ne objašnjava zašto nečega nema.
+function sakrijTedKutiju() {
+  const box = document.getElementById('ted-info-box');
+  if (box) box.style.display = 'none';
+}
 
-    // Try direct first (TED API supports CORS for GET; POST may need proxy)
-    let res = null;
-    try {
-      res = await Promise.race([
-        fetch('https://api.ted.europa.eu/v3/notices/search', {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json', 'TED-API-Key': TED_API_KEY },
-          body,
-        }),
-        new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 8000))
-      ]);
-    } catch(e) {
-      // CORS fallback via proxy
-      const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.ted.europa.eu/v3/notices/search');
-      res = await Promise.race([
-        fetch(proxyUrl, {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json', 'TED-API-Key': TED_API_KEY },
-          body,
-        }),
-        new Promise((_,r) => setTimeout(() => r(new Error('timeout')), 10000))
-      ]);
-    }
+async function fetchTEDTenders() {
+  try {
+    // Ključ i poziv ka TED-u su na serveru. Odavde ide običan zahtev na svoj
+    // domen — bez ključa u stranici i bez tuđeg posrednika.
+    const res = await Promise.race([
+      fetch('/api/ted', { cache: 'no-cache' }),
+      new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 25000))
+    ]);
 
     if (!res || !res.ok) throw new Error('TED response: ' + (res?.status || 'no response'));
     const data = await res.json();
-    const notices = data.notices || data.results || data.items || [];
-    if (!notices.length) return null;
+    const notices = data.notices || [];
+    if (!notices.length) { sakrijTedKutiju(); return null; }
 
     const items = notices.map((n, i) => mapTEDNotice(n, i)).filter(Boolean);
 
@@ -1634,6 +1617,7 @@ async function fetchTEDTenders() {
     return items;
   } catch(e) {
     console.warn('TED fetch failed:', e.message);
+    sakrijTedKutiju();
     return null;
   }
 }
@@ -1777,20 +1761,11 @@ function filterTenders() {
   }
 }
 
-// ── SPONZORISANA KARTICA U LISTI TENDERA ────────────────────────────────
+// ── OGLASNA KARTICA U LISTI TENDERA ─────────────────────────────────────
+// Prazno polje među tenderima. Ovde je oglašivač najbliži kupcu koji već
+// traži posao, pa je to najskuplja pozicija na portalu.
 function renderSponsoredTenderCard() {
-  const b = _brendoviRandom(1)[0];
-  return '<div class="native-ad-card" onclick="' + _otvori(b.url) + '">' +
-    '<div class="flex items-start gap-4">' +
-      '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-10 w-auto flex-shrink-0 object-contain" />' +
-      '<div class="flex-1 min-w-0">' +
-        '<span class="text-xs font-bold tracking-widest text-gray-400">PRIMER POZICIJE</span>' +
-        '<div class="text-sm font-semibold text-gray-900 mb-1 mt-1">' + b.ime + '</div>' +
-        '<div class="text-xs text-gray-500 leading-relaxed">' + b.opis + '</div>' +
-        '<span class="text-xs text-brand font-semibold mt-2 inline-block hover:underline">Saznaj više →</span>' +
-      '</div>' +
-    '</div>' +
-  '</div>';
+  return _praznoPolje('kartica u listi tendera', 'py-10');
 }
 
 // ── RENDER CARD ───────────────────────────────────────────────────────────
@@ -3130,135 +3105,67 @@ async function fetchApprovedNews() {
   }
 }
 
-// ==================== BRENDOVI ZA PRIMERE OGLASNIH POZICIJA ====================
-// VAŽNO: ove firme NISU sponzori portala. Logotipi stoje kao vizuelni primer
-// kako izgleda oglasna pozicija - zato svaki blok nosi oznaku „PRIMER POZICIJE".
-// Kada neko potpiše saradnju, prelazi u pravu sponzorsku traku (Sunce, Okvir.io).
-const BRENDOVI = [
-  { ime: 'Rehau',           opis: 'PVC profili za prozore i vrata',            logo: 'rehau',          url: 'https://www.rehau.com' },
-  { ime: 'aluplast',        opis: 'PVC sistemi za prozore i vrata',            logo: 'aluplast',       url: 'https://www.aluplast.net' },
-  { ime: 'Salamander',      opis: 'PVC profilni sistemi',                      logo: 'salamander',     url: 'https://www.salamander-windows.com' },
-  { ime: 'profine',         opis: 'KBE, Kömmerling i Trocal profili',          logo: 'profine',        url: 'https://www.profine-group.com' },
-  { ime: 'Alumil',          opis: 'Aluminijumski arhitektonski sistemi',       logo: 'alumil',         url: 'https://www.alumil.com' },
-  { ime: 'SIEGENIA',        opis: 'Okov za prozore i vrata',                   logo: 'siegenia',       url: 'https://www.siegenia.com' },
-  { ime: 'MACO',            opis: 'Okov za PVC i ALU stolariju',               logo: 'maco',           url: 'https://www.maco.eu' },
-  { ime: 'Guardian Glass',  opis: 'SunGuard solarno i niskoemisiono staklo',   logo: 'guardian',       url: 'https://www.guardianglass.com' },
-  { ime: 'Würth',           opis: 'Alat, pričvršćivači i hemija za montažu',   logo: 'wurth',          url: 'https://www.wuerth.com' },
-  { ime: 'Klaes',           opis: 'ERP za proizvođače prozora i vrata',        logo: 'klaes',          url: 'https://www.klaes.com' },
-  { ime: 'Orgadata',        opis: 'LogiKal - CAD i kalkulacija za AL i PVC',   logo: 'orgadata',       url: 'https://www.orgadata.com' },
-  { ime: 'ift Rosenheim',   opis: 'Ispitivanje i sertifikacija stolarije',     logo: 'ift-rosenheim',  url: 'https://www.ift-rosenheim.de' },
-  { ime: 'Stublina',        opis: 'Okov i sistemi za aluminijumsku stolariju', logo: 'stublina',       url: 'https://www.stublina.com' },
-  { ime: 'Roltek',          opis: 'Roletne, komarnici i senila',               logo: 'roltek',         url: 'https://www.roltek.si' },
-  { ime: 'Mirex',           opis: 'Oprema i komponente za stolariju',          logo: 'mirex',          url: '' },
-  { ime: 'Konkav Konveks',  opis: 'Staklo i obrada stakla',                    logo: 'konkav-konveks', url: '' },
-  { ime: 'TesterAL',        opis: 'Aluminijumski sistemi i profili',           logo: 'testeral',       url: '' },
-  { ime: 'axiomaplus',      opis: 'Softver i rešenja za stolariju',            logo: 'axiomaplus',     url: '' },
-];
+// ==================== OGLASNI PROSTOR ====================
+// Ovde su ranije stajali logotipi pravih firmi — Roltek, aluplast, SIEGENIA,
+// Guardian Glass, ift Rosenheim i drugi — sa oznakom da su samo primer.
+// Posetilac tu oznaku ne čita; vidi logo na sajtu i zaključi da sarađujemo.
+// Nekoliko tih firmi su nam potencijalni oglašivači, a ift Rosenheim je
+// sertifikaciona kuća, pa se njen znak čita kao potvrda kvaliteta.
+//
+// Zato pozicije sada stoje prazne i same prodaju prostor. Kad neko potpiše,
+// na njegovo mesto ide njegov materijal.
 
-// Meša listu jednom po učitavanju i deli je pozicijama bez ponavljanja,
-// da se u istom pregledu ne pojavi ista firma na dva mesta.
-let _pool = [];
-function _brendoviRandom(n) {
-  if (_pool.length < n) {
-    const a = BRENDOVI.slice();
-    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-    _pool = _pool.concat(a);
-  }
-  return _pool.splice(0, n);
+const OGLAS_LABELA = 'OGLASNI PROSTOR';
+
+// Jedno prazno polje. `format` je kratak opis dimenzije, da oglašivač odmah
+// vidi šta kupuje.
+function _praznoPolje(format, visina) {
+  return '<div class="flex flex-col items-center justify-center text-center border border-dashed border-gray-300 bg-gray-50 ' +
+    'hover:border-brand hover:bg-blue-50 transition-colors cursor-pointer px-4 ' + visina + '" ' +
+    'onclick="openDemoModal(\'oglasni prostor — ' + format + '\')">' +
+      '<div class="text-xs font-bold tracking-widest text-gray-400">' + OGLAS_LABELA + '</div>' +
+      '<div class="text-sm font-semibold text-gray-600 mt-1">Vaš brend ovde</div>' +
+      '<div class="text-xs text-gray-400 mt-0.5">' + format + '</div>' +
+      '<div class="text-xs text-brand font-semibold mt-2 hover:underline">Zakupite poziciju →</div>' +
+    '</div>';
 }
-const _otvori = (u) => u ? "window.open('" + u + "','_blank')" : "showToast('Primer oglasne pozicije')";
+
+const _polja = (n, format, visina) =>
+  Array.from({ length: n }, () => _praznoPolje(format, visina)).join('');
 
 function renderAdStrips() {
   document.querySelectorAll('[data-ad-strip]').forEach(el => {
     const n = parseInt(el.dataset.adStrip, 10) || 3;
-    el.innerHTML = _brendoviRandom(n).map((b, i) =>
-      (i ? '<div class="hidden ' + (i > 1 ? 'lg' : 'sm') + ':block w-px bg-gray-200 self-stretch"></div>' : '') +
-      '<div class="items-center gap-4 flex-1 min-w-0 ' + (i > 1 ? 'hidden lg:flex' : 'flex') + '" onclick="' + _otvori(b.url) + '">' +
-        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-8 w-auto flex-shrink-0 object-contain" />' +
-        '<div class="min-w-0">' +
-          '<div class="text-sm font-semibold text-gray-900">' + b.ime + '</div>' +
-          '<div class="text-xs text-gray-500 truncate">' + b.opis + '</div>' +
-        '</div>' +
-        '<span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline cursor-pointer ml-2">Saznaj više →</span>' +
-      '</div>'
-    ).join('');
+    el.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3';
+    el.innerHTML = _polja(n, '970×90', 'py-6');
   });
 
   document.querySelectorAll('[data-ad-top]').forEach(el => {
     const n = parseInt(el.dataset.adTop, 10) || 3;
-    el.innerHTML = _brendoviRandom(n).map(b =>
-      '<div class="ad-card px-4 py-3 flex items-center gap-3" onclick="' + _otvori(b.url) + '">' +
-        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-8 w-auto flex-shrink-0 object-contain" />' +
-        '<div class="min-w-0 flex-1">' +
-          '<div class="text-sm font-semibold text-gray-900 leading-tight">' + b.ime + '</div>' +
-          '<div class="text-xs text-gray-500 truncate">' + b.opis + '</div>' +
-        '</div>' +
-        '<span class="text-xs text-brand font-semibold whitespace-nowrap hover:underline">→</span>' +
-      '</div>'
-    ).join('');
+    el.innerHTML = _polja(n, '300×100', 'py-5');
   });
 
   document.querySelectorAll('[data-ad-wall]').forEach(el => {
-    el.innerHTML = BRENDOVI.map(b =>
-      '<div class="bg-white flex items-center justify-center p-6 h-24 cursor-pointer transition-opacity hover:opacity-60" ' +
-        'title="' + b.ime + ' — ' + b.opis + '" onclick="' + _otvori(b.url) + '">' +
-        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="max-h-10 max-w-full w-auto object-contain" />' +
-      '</div>'
-    ).join('');
+    el.innerHTML = _polja(6, '200×80', 'h-24');
   });
 
   document.querySelectorAll('[data-ad-box]').forEach(el => {
-    const b = _brendoviRandom(1)[0];
-    el.innerHTML =
-      '<div class="ad-card p-5 text-center" onclick="' + _otvori(b.url) + '">' +
-        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-10 w-auto mx-auto mb-3 object-contain" />' +
-        '<div class="text-sm font-semibold text-gray-900 mb-1">' + b.ime + '</div>' +
-        '<div class="text-xs text-gray-500 mb-3">' + b.opis + '</div>' +
-        '<span class="text-xs text-brand font-semibold hover:underline cursor-pointer">Saznaj više →</span>' +
-      '</div>';
+    el.innerHTML = _praznoPolje('300×250', 'py-10');
   });
 
   document.querySelectorAll('[data-ad-native]').forEach(el => {
     const n = parseInt(el.dataset.adNative, 10) || 2;
-    el.innerHTML = _brendoviRandom(n).map(b =>
-      '<div class="native-ad-card" onclick="' + _otvori(b.url) + '">' +
-        '<div class="flex items-start gap-4">' +
-          '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-9 w-auto flex-shrink-0 object-contain mt-0.5" />' +
-          '<div class="min-w-0">' +
-            '<div class="text-xs font-bold tracking-widest text-gray-400 mb-1">PRIMER POZICIJE</div>' +
-            '<div class="text-base font-semibold text-gray-900 leading-snug">' + b.ime + ' — ' + b.opis + '</div>' +
-            '<div class="text-xs text-brand font-semibold mt-2 hover:underline">Saznaj više →</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>'
-    ).join('');
+    el.innerHTML = _polja(n, 'native — tekst i logo', 'py-8');
   });
 
   document.querySelectorAll('[data-ad-wide]').forEach(el => {
-    const b = _brendoviRandom(1)[0];
-    el.innerHTML =
-      '<div class="ad-card p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4" onclick="' + _otvori(b.url) + '">' +
-        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-12 w-auto flex-shrink-0 object-contain" />' +
-        '<div class="flex-1">' +
-          '<div class="text-xs font-bold tracking-widest text-gray-400 mb-1">PRIMER POZICIJE</div>' +
-          '<div class="text-base font-semibold text-gray-900">' + b.ime + '</div>' +
-          '<div class="text-xs text-gray-500 mt-1">' + b.opis + '</div>' +
-        '</div>' +
-        '<button class="btn-outline text-sm flex-shrink-0">Saznaj više →</button>' +
-      '</div>';
+    el.innerHTML = _praznoPolje('728×120', 'py-8');
   });
 
   document.querySelectorAll('[data-ad-cards]').forEach(el => {
     const n = parseInt(el.dataset.adCards, 10) || 2;
     const post = el.innerHTML;
-    el.innerHTML = _brendoviRandom(n).map(b =>
-      '<div class="ad-card p-4 text-center" onclick="' + _otvori(b.url) + '">' +
-        '<img src="assets/sponsors/' + b.logo + '-logo.png" alt="' + b.ime + '" class="h-10 w-auto mx-auto mb-2 object-contain" />' +
-        '<div class="text-sm font-semibold text-gray-900 mb-1">' + b.ime + '</div>' +
-        '<div class="text-xs text-gray-500 mb-2">' + b.opis + '</div>' +
-        '<span class="text-xs text-brand font-semibold hover:underline cursor-pointer">Saznaj više →</span>' +
-      '</div>'
-    ).join('') + post;
+    el.innerHTML = _polja(n, '300×250', 'py-8') + post;
   });
 }
 
