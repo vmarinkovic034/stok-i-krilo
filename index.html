@@ -3334,5 +3334,11 @@ if (document.readyState === 'loading') {
     </div>
   </div>
 </div>
+
+<!-- Cloudflare Web Analytics. Bez kolačića, pa portalu ne treba traka za
+     pristanak. Ugrađuje se ručno jer saobraćaj ne prolazi kroz Cloudflare
+     proksi (DNS pokazuje na Netlify), pa automatsko ubacivanje ne radi.
+     Token nije tajna — po prirodi stoji u izvoru stranice. -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b6a99868c26e4c70894f1cc3c801c77d"}'></script>
 </body>
 </html>
