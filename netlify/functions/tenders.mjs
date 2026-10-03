@@ -63,8 +63,10 @@ const tekst = (v) => {
 
 // ── TED EU ────────────────────────────────────────────────────────────────
 async function ted(dijag) {
-  // Ključ iz env varijable; ako nije podešen, koristi se onaj iz koda (besplatan, javan).
-  const key = process.env.TED_API_KEY || 'dec3c29a94794d2896513c7a7f29da92';
+  // Ključ isključivo iz Netlify promenljive. Ranije je ovde stajao i zapisan
+  // u kodu, kao rezerva — a repozitorijum je javan, pa je svako mogao da ga
+  // pročita i potroši dnevnu kvotu umesto nas.
+  const key = (process.env.TED_API_KEY || '').trim();
   if (!key) { dijag.ted = 'nema TED_API_KEY'; return []; }
 
   const od = new Date(Date.now() - 25 * 86400000).toISOString().slice(0, 10).replace(/-/g, '');
