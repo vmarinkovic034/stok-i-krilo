@@ -1883,12 +1883,13 @@ function renderHero() {
     <div class="lg:col-span-2 card-hover cursor-pointer" onclick="openArticle(${featuredIdx})">
       <div class="relative overflow-hidden" style="height:300px; ${bgStyle}">
         ${featured.img ? '' : svgFallback}
-        <div class="absolute bottom-0 left-0 right-0 p-6" style="background:linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%);">
+        <div class="absolute bottom-0 left-0 right-0 p-5 sm:p-6" style="background:linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%);">
           <div class="tag text-yellow-300 mb-2">${featured.catLabel}</div>
           <h2 class="font-serif text-white text-2xl sm:text-3xl font-bold leading-tight">${featured.title}</h2>
         </div>
       </div>
-      <div class="pt-4 pb-2">
+      <!-- Isti levi odmak kao naslov u slici (p-5 / sm:p-6), da tekst ne beži ka ivici. -->
+      <div class="pt-4 pb-2 px-5 sm:px-6">
         <p class="text-gray-500 text-sm leading-relaxed">${featured.desc}</p>
         <button class="mt-3 text-brand text-sm font-semibold hover:underline">Pročitaj više →</button>
       </div>
