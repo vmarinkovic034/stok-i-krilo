@@ -3115,16 +3115,14 @@ async function fetchApprovedNews() {
 // Zato pozicije sada stoje prazne i same prodaju prostor. Kad neko potpiše,
 // na njegovo mesto ide njegov materijal.
 
-const OGLAS_LABELA = 'OGLASNI PROSTOR';
-
 // Jedno prazno polje. `format` je kratak opis dimenzije, da oglašivač odmah
-// vidi šta kupuje.
+// vidi šta kupuje. Oznaka „OGLASNI PROSTOR" stoji iznad traka kao zaseban
+// natpis, pa se u samom polju ne ponavlja.
 function _praznoPolje(format, visina) {
   return '<div class="flex flex-col items-center justify-center text-center border border-dashed border-gray-300 bg-gray-50 ' +
     'hover:border-brand hover:bg-blue-50 transition-colors cursor-pointer px-4 ' + visina + '" ' +
     'onclick="openDemoModal(\'oglasni prostor — ' + format + '\')">' +
-      '<div class="text-xs font-bold tracking-widest text-gray-400">' + OGLAS_LABELA + '</div>' +
-      '<div class="text-sm font-semibold text-gray-600 mt-1">Vaš brend ovde</div>' +
+      '<div class="text-sm font-semibold text-gray-600">Vaš brend ovde</div>' +
       '<div class="text-xs text-gray-400 mt-0.5">' + format + '</div>' +
       '<div class="text-xs text-brand font-semibold mt-2 hover:underline">Zakupite poziciju →</div>' +
     '</div>';
