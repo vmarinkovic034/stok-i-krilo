@@ -14,8 +14,13 @@ export const KEY_LAST_RUN = 'last-run.json';
 
 export function store() { return getStore(STORE); }
 
+// consistency: 'strong' je obavezno. Podrazumevano čitanje iz Blobs-a je
+// eventualno konzistentno, pa zapis upisan pre nekoliko sekundi ne mora da se
+// vidi. To je pravilo pogodilo digest: nacrti se upišu, pa se odmah zatim
+// pročitaju radi slanja — i mejl je stizao sa manje nacrta nego što ih stvarno
+// ima. Dana 3. 10. 2026. upisano je pet nacrta, a mejl je najavio dva.
 export async function readJSON(key, fallback) {
-  try { const v = await store().get(key, { type: 'json' }); return v ?? fallback; }
+  try { const v = await store().get(key, { type: 'json', consistency: 'strong' }); return v ?? fallback; }
   catch { return fallback; }
 }
 export async function writeJSON(key, value) { await store().setJSON(key, value); }
