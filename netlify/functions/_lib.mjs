@@ -32,10 +32,15 @@ export async function writeJSON(key, value) { await store().setJSON(key, value);
 // Reči po kojima se iz opšteg građevinskog portala izdvaja ono što se tiče
 // stolarije. Lista se slobodno dopunjuje — širi je filter, više materijala i
 // veći trošak; uži filter, manje promašaja.
+// Lista pokriva srpski, hrvatski, bosanski i crnogorski, a preko preslovljavanja
+// i makedonski: „прозорец" postane „prozorec" i pogodi koren „prozor", „стакло"
+// postane „staklo", „столарија" postane „stolarija".
 export const KLJUCNE_RECI = [
-  'prozor', 'vrata', 'stakl', 'ostakljen', 'zastakljen', 'staklopaket',
+  'prozor', 'vrata', 'vrati', 'stakl', 'ostakljen', 'zastakljen', 'staklopaket',
   'fasad', 'stolarij', 'bravarij', 'okov', 'profil',
-  'pvc', 'aluminij', 'aluminijum', 'drvo alu', 'termoprekid', 'termo prekid',
+  // „alumini" namerno, jer pokriva i aluminij, i aluminijum, i makedonsko
+  // „алуминиум", i bugarsko „алуминий" — sva tri su ranije promašivala.
+  'pvc', 'alumini', 'drvo alu', 'termoprekid', 'termo prekid',
   'roletn', 'zaluzin', 'senil', 'komarnik', 'zavesa zid',
   'u-vrednost', 'uf ', 'uw ', 'energetska efikasnost zgrad', 'energetski pasos',
   'nadstresnic', 'zimska basta', 'krovni prozor', 'svetlarnik',
@@ -43,15 +48,40 @@ export const KLJUCNE_RECI = [
 
 // Ministarstvo objavljuje ćirilicom, portali latinicom. Filter mora da radi
 // na oba pisma, pa se sve prvo prevodi u latinicu bez dijakritika.
+//
+// Mapa pokriva i makedonsku i bugarsku ćirilicu, jer su u izvore ušli
+// Porta3 iz Skoplja i Строител iz Sofije. Bugarsko „ъ" se namerno čita kao
+// „a": „стъкло" tako postane „staklo" i pogodi isti koren kao naše „staklo".
 const CIR = {
   а:'a', б:'b', в:'v', г:'g', д:'d', ђ:'dj', е:'e', ж:'z', з:'z', и:'i', ј:'j',
   к:'k', л:'l', љ:'lj', м:'m', н:'n', њ:'nj', о:'o', п:'p', р:'r', с:'s', т:'t',
   ћ:'c', у:'u', ф:'f', х:'h', ц:'c', ч:'c', џ:'dz', ш:'s',
+  // makedonski i bugarski
+  ѓ:'g', ќ:'k', ѕ:'dz', ъ:'a', ь:'', ю:'ju', я:'ja', щ:'st', ы:'i', э:'e', і:'i',
 };
 
+// Skidanje akcenata ide pre preslovljavanja, pa isti korak sredi i grčke
+// naglaske (κούφωμα → κουφωμα) i naše kvačice. Grčko završno „ς" se izjednačava
+// sa „σ", inače reč na kraju rečenice ne bi pogodila koren.
 const normRec = (s) => String(s || '').toLowerCase()
-  .replace(/[а-џѐ-џ]/g, c => CIR[c] ?? c)
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/ς/g, 'σ')
+  .replace(/[Ѐ-ӿ]/g, c => CIR[c] ?? c)
   .replace(/[čć]/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z').replace(/đ/g, 'dj');
+
+// Bugarski ima svoju reč za stolariju — „дограма" — i nje nema ni u jednom
+// našem korenu. Bez ove liste bi Строител davao nulu.
+export const KLJUCNE_BG = [
+  'dograma', 'prozor', 'vrati', 'stakl', 'ostakl', 'fasad', 'alumini', 'pvc',
+  'energijn', 'toploizolac', 'sanir', 'ograzdane', 'remont',
+];
+
+// Grčki se ne preslovljava, pa reči stoje u originalu. Porede se korenovi bez
+// nastavaka, jer grčki menja završetak po padežu i broju.
+export const KLJUCNE_GR = [
+  'κουφωμ', 'παραθυρ', 'τζαμ', 'υαλοπιν', 'προσοψ', 'αλουμιν',
+  'μονωτικ', 'θερμομον', 'ενεργειακ', 'ανακαινισ', 'pvc',
+];
 
 // Reči po kojima se iz izvora javne uprave izdvajaju pozivi koji se tiču
 // zamene stolarije. Ministarstvo retko napiše „prozor" — piše „energetska
@@ -108,6 +138,27 @@ export const SOURCES = [
   { id: 'mre', name: 'Ministarstvo rudarstva i energetike', lang: 'sr', region: 'Srbija', tier: 1,
     opsti: true, kljucne: KLJUCNE_SUBVENCIJE,
     rss: 'https://mre.gov.rs/rss/?change_lang=cr' },
+
+  // ── OSTATAK BALKANA ────────────────────────────────────────────────────
+  // Portal se zove balkanski, pa mora da ima i Makedoniju, Bosnu, Crnu Goru,
+  // Bugarsku i Grčku. Svi su opšti portali — specijalizovanog lista za
+  // stolariju sa feedom u ovim zemljama nema — pa idu kroz filter po rečima.
+  //
+  // Jezik: bosanski i crnogorski nose lang 'sr' da bi dobili urednička pravila
+  // za domaću vest, jer prevod nije potreban. Makedonski, bugarski i grčki
+  // imaju svoje oznake i prolaze kroz prevod.
+  { id: 'porta3', name: 'Porta3', lang: 'mk', region: 'Makedonija', tier: 1, opsti: true,
+    rss: 'https://www.porta3.mk/feed/' },
+  { id: 'akta', name: 'Akta.ba', lang: 'sr', region: 'BiH', tier: 1, opsti: true,
+    rss: 'https://www.akta.ba/rss' },
+  { id: 'ecoportal', name: 'Ecoportal.me', lang: 'sr', region: 'Crna Gora', tier: 1, opsti: true,
+    rss: 'https://www.ecoportal.me/feed/' },
+  { id: 'stroitel', name: 'Строител', lang: 'bg', region: 'Bugarska', tier: 1,
+    opsti: true, kljucne: KLJUCNE_BG,
+    rss: 'https://vestnikstroitel.bg/rss' },
+  { id: 'b2green', name: 'B2Green', lang: 'el', region: 'Grcka', tier: 1,
+    opsti: true, kljucne: KLJUCNE_GR,
+    rss: 'https://news.b2green.gr/feed' },
 ];
 
 const UA = 'Mozilla/5.0 (compatible; StokIKriloBot/1.0; +https://stokikrilo.com)';

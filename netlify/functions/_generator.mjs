@@ -96,6 +96,13 @@ DRUGO: završni pasus ne objašnjava Balkan čoveku koji na Balkanu radi. Ne pi�
 
 Domaća vest o kojoj čitalac već zna sve iz dnevnih novina nema vrednost — vrati "skip": true. Vredi ono što on ne bi sam pročitao ili ne bi povezao sa svojim poslom.
 
+═══ REGIONALNE VESTI (lang: "mk", "bg", "el") ═══
+Izvor je sa Balkana, ali na drugom jeziku. Prevodi se kao i svaka strana vest, ali završni pasus ide po pravilu za domaću vest — čitaocu se ne objašnjava „šta ovo znači za Balkan", jer se događa na Balkanu. Kaže se šta se menja kod njegovog kupca, u njegovoj nabavci ili kod njegove konkurencije.
+
+Imena mesta, firmi i institucija transkribuju se po srpskom pravopisu: Skoplje, Sofija, Solun, Podgorica, Bitolj. Naziv programa ili zakona daje se u prevodu, a original u zagradi samo ako čitalac treba da ga nađe u dokumentaciji.
+
+Subvencije, javni pozivi i propisi iz ovih zemalja vrede i kad se ne tiču Srbije — proizvođač koji izvozi u Makedoniju ili Grčku ima kupca koji na tome zarađuje. Kaže se do kada važi i ko ima pravo.
+
 ═══ JEZIK I PREVOD ═══
 Ovo je srpski tekst, ne prevod. Rečenica koja zvuči kao da je prošla kroz prevodilac se prepisuje.
 
