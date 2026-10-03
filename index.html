@@ -210,10 +210,13 @@ tailwind.config = {
   <section class="bg-white border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div class="snapshot-grid grid grid-cols-3 gap-6 sm:gap-8">
+        <!-- Vrednosti se popunjavaju iz istog niza `prices` iz kojeg se puni i
+             traka na vrhu. Ranije su bile tvrdo upisane, pa je naslovna umela
+             da pokaže jednu cenu aluminijuma, a traka iznad nje drugu. -->
         <div class="text-center sm:text-left">
-          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950">2.684 <span class="text-xl font-sans font-normal text-gray-400">EUR/t</span></div>
+          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950"><span id="stat-al-value">—</span> <span class="text-xl font-sans font-normal text-gray-400">EUR/t</span></div>
           <div class="text-sm text-gray-500 mt-1">Aluminijum</div>
-          <div class="text-xs font-semibold mt-1" style="color:#16a34a;">+4.8% za 30 dana</div>
+          <div class="text-xs font-semibold mt-1" id="stat-al-change">&nbsp;</div>
         </div>
         <div class="text-center sm:text-left">
           <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950" id="stat-companies">—</div>
@@ -221,9 +224,9 @@ tailwind.config = {
           <div class="text-xs font-semibold mt-1 text-gray-400">Verifikovano ručno</div>
         </div>
         <div class="text-center sm:text-left">
-          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950">117.25</div>
+          <div class="font-serif text-3xl sm:text-4xl font-bold text-gray-950" id="stat-rsd-value">—</div>
           <div class="text-sm text-gray-500 mt-1">EUR/RSD kurs</div>
-          <div class="text-xs font-semibold mt-1" style="color:#16a34a;">+0.1%</div>
+          <div class="text-xs font-semibold mt-1" id="stat-rsd-change">&nbsp;</div>
         </div>
       </div>
     </div>
@@ -1948,6 +1951,7 @@ function savePriceEdits() {
   closePriceEditor();
   renderPriceGroups();
   buildTicker();
+  renderSnapshot();
 }
 
 function resetManualPrices() {
@@ -2118,14 +2122,42 @@ async function fetchAllPrices() {
   const now     = new Date();
   const timeStr = now.toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' });
   const liveCount = prices.filter(p => p.fetched).length;
-  if (statusEl) statusEl.textContent = `Ažurirano ${timeStr} · ${liveCount} live`;
+  // Kad nijedan izvor ne odgovori, na ekranu ostaju rezervne vrednosti iz koda.
+  // Tada se ne sme pisati „Ažurirano u 14:06" — čitalac bi stare brojeve čitao
+  // kao današnje, a nema načina da primeti razliku.
+  if (statusEl) {
+    statusEl.textContent = liveCount
+      ? `Ažurirano ${timeStr} · ${liveCount} live`
+      : 'Izvori trenutno nedostupni — prikazane poslednje poznate vrednosti';
+  }
 
   renderPriceGroups();
   buildTicker();
+  renderSnapshot();
 
   // ── 4. Schedule next refresh (5 min) ──
   if (_pricesRefreshTimer) clearTimeout(_pricesRefreshTimer);
   _pricesRefreshTimer = setTimeout(fetchAllPrices, 5 * 60 * 1000);
+}
+
+// ==================== BLOK SA TRI PODATKA NA NASLOVNOJ ====================
+// Čita iz istog niza `prices` kao traka i stranica CENE. Jedan izvor podatka,
+// pa nema šanse da naslovna i traka pokažu dve različite cene aluminijuma.
+function renderSnapshot() {
+  try {
+    const postavi = (id, p, formatVrednosti) => {
+      const v = document.getElementById('stat-' + id + '-value');
+      const c = document.getElementById('stat-' + id + '-change');
+      if (!p) return;
+      if (v) v.textContent = formatVrednosti ? formatVrednosti(p.value) : p.value;
+      if (c) {
+        c.textContent = p.change || '';
+        c.style.color = p.up ? '#16a34a' : '#dc2626';
+      }
+    };
+    postavi('al', prices.find(p => p.id === 'al'));
+    postavi('rsd', prices.find(p => p.id === 'eurrsd'));
+  } catch(e) { console.error('renderSnapshot error:', e); }
 }
 
 // ==================== TICKER ====================
@@ -3256,6 +3288,7 @@ function initPortal() {
   try { fetchApprovedNews(); } catch(e) { console.error('fetchApprovedNews:', e); }
   try { loadSavedPrices(); } catch(e) { console.error('loadSavedPrices:', e); }
   try { buildTicker(); } catch(e) { console.error('buildTicker:', e); }
+  try { renderSnapshot(); } catch(e) { console.error('renderSnapshot:', e); }
   try { renderNews('sve'); } catch(e) { console.error('renderNews:', e); }
   try { renderHero(); } catch(e) { console.error('renderHero:', e); }
   try { fetchAllPrices(); } catch(e) { console.error('fetchAllPrices:', e); }

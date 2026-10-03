@@ -77,10 +77,11 @@ export const SOURCES = [
   { id: 'oknonet', name: 'OknoNet', lang: 'pl', region: 'Poljska', tier: 1,
     html: 'https://oknonet.pl/',
     linkPattern: /href="(https:\/\/oknonet\.pl\/[a-z0-9-]{25,}\/)"/gi },
+  // Ranije se čitao HTML stranice regularnim izrazom i to je prestalo da vraća
+  // išta čim je sajt promenio šablon. Sajt nudi svoj feed, pa nema razloga da
+  // pogađamo strukturu stranice.
   { id: 'windowdoor', name: 'Window + Door', lang: 'en', region: 'SAD', tier: 1,
-    html: 'https://www.windowanddoor.com/news',
-    linkPattern: /href="(\/news\/[a-z0-9-]{15,})"/gi,
-    base: 'https://www.windowanddoor.com' },
+    rss: 'https://www.windowanddoor.com/rss.xml' },
 
   // ── DOMAĆI IZVORI ──────────────────────────────────────────────────────
   // Opšti građevinski portali, ne specijalizovani za stolariju. Zato nose
