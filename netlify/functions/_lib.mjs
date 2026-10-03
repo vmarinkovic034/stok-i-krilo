@@ -242,6 +242,11 @@ export async function fetchSource(src, limit = 5, strane = 1) {
         if (!deo.length) break;          // dalje strane su prazne
         sveStavke.push(...deo);
       } catch (e) {
+        // Pad prve strane znači da izvor nije ni pročitan. Ranije se i to
+        // tiho vraćalo kao nula stavki, pa je u izveštaju izgledalo isto kao
+        // „izvor radi, ali danas nema ništa u temi" — dve sasvim različite
+        // stvari. Zato prva strana puca naglas, a dalje strane i dalje tiho.
+        if (p === 1) throw e;
         console.log('[' + src.id + '] strana ' + p + ' nije uspela: ' + e.message);
         break;
       }
