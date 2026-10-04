@@ -61,6 +61,34 @@ const tekst = (v) => {
   return String(v);
 };
 
+const POLJA = ['publication-number','notice-title','buyer-name','buyer-country','classification-cpv',
+  'deadline-receipt-request','deadline-receipt-tender-date-lot','publication-date',
+  'total-value','links'];
+
+// Jedan upit po zemlji. Ranije je išao jedan zajednički upit sa limitom 250 za
+// svih deset zemalja — a Nemačka objavljuje toliko nabavki da je sama punila
+// celu kvotu. Od 120 upotrebljivih, 109 je bilo nemačkih, dok iz Hrvatske,
+// Slovenije i Bugarske nije prolazila nijedna. Portal se zove balkanski, pa
+// svaka zemlja treba da ima svoj prozor, a ne da se takmiči za zajednički.
+async function tedZaZemlju(kod, key, od) {
+  const body = {
+    query: `classification-cpv IN (${CPV.map(c => `"${c}"`).join(' ')}) AND buyer-country IN ("${kod}") AND publication-date >= ${od}`,
+    fields: POLJA,
+    page: 1, limit: 40,
+    scope: 'ACTIVE',
+  };
+  const r = await fetch('https://api.ted.europa.eu/v3/notices/search', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'accept': 'application/json', 'TED-API-Key': key, 'user-agent': UA },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(8000),
+  });
+  const raw = await r.text();
+  if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + raw.slice(0, 160));
+  const d = JSON.parse(raw);
+  return d.notices || d.results || d.items || [];
+}
+
 // ── TED EU ────────────────────────────────────────────────────────────────
 async function ted(dijag) {
   // Ključ isključivo iz Netlify promenljive. Ranije je ovde stajao i zapisan
@@ -70,32 +98,25 @@ async function ted(dijag) {
   if (!key) { dijag.ted = 'nema TED_API_KEY'; return []; }
 
   const od = new Date(Date.now() - 25 * 86400000).toISOString().slice(0, 10).replace(/-/g, '');
-  const body = {
-    query: `classification-cpv IN (${CPV.map(c => `"${c}"`).join(' ')}) AND buyer-country IN (${ZEMLJE.map(c => `"${c}"`).join(' ')}) AND publication-date >= ${od}`,
-    fields: ['publication-number','notice-title','buyer-name','buyer-country','classification-cpv',
-             'deadline-receipt-request','deadline-receipt-tender-date-lot','publication-date',
-             'total-value','links'],
-    page: 1, limit: 250,
-    scope: 'ACTIVE',
-  };
 
   try {
-    const r = await fetch('https://api.ted.europa.eu/v3/notices/search', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'accept': 'application/json', 'TED-API-Key': key, 'user-agent': UA },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(20000),
+    // Zemlje se traže uporedo. Deset zahteva traje koliko i jedan, a funkcija
+    // ima deset sekundi.
+    const odgovori = await Promise.allSettled(ZEMLJE.map(z => tedZaZemlju(z, key, od)));
+
+    const n = [];
+    const sirovo = {};
+    const padovi = [];
+    odgovori.forEach((o, i) => {
+      const kod = ZEMLJE[i];
+      if (o.status === 'fulfilled') { sirovo[kod] = o.value.length; n.push(...o.value); }
+      else { sirovo[kod] = 'pad'; padovi.push(kod + ': ' + o.reason.message); }
     });
-    const raw = await r.text();
-    if (!r.ok) { dijag.ted = 'HTTP ' + r.status + ': ' + raw.slice(0, 200); return []; }
-    const d = JSON.parse(raw);
-    const n = d.notices || d.results || d.items || [];
-    dijag.ted = 'ok, ' + n.length + ' zapisa';
+    dijag.sirovoPoZemlji = sirovo;
+    if (padovi.length) dijag.padovi = padovi;
+    if (!n.length) { dijag.ted = 'nijedna zemlja nije vratila zapise' + (padovi.length ? ' — ' + padovi.join(' | ') : ''); return []; }
+
     dijag.uzorakPolja = n[0] ? Object.keys(n[0]) : [];
-    dijag.uzorakRok = n.slice(0, 3).map(x => ({
-      dr: x['deadline-receipt-request'],
-      dt: x['deadline-receipt-tender-date-lot'],
-    }));
 
     const mapirani = n.map((x, i) => {
       const c = String(tekst(x['buyer-country']) || '').toUpperCase().slice(0, 3);
@@ -128,16 +149,31 @@ async function ted(dijag) {
       .filter(t => t.daysLeft !== null && t.daysLeft > 0)
       .sort((a, b) => String(b._pub).localeCompare(String(a._pub)));
 
-    const poZemlji = {};
-    const uravnotezeni = cisti.filter(t => {
-      poZemlji[t.country] = (poZemlji[t.country] || 0) + 1;
-      return poZemlji[t.country] <= 6;
-    }).slice(0, 40)
-      .map(({ _cpv, _pub, _ima, ...rest }) => rest);
+    // Izbor ide naizmenično po zemljama, a ne redom po datumu objave. Da se
+    // seklo po datumu, četrdeset mesta bi opet popunile zemlje koje objavljuju
+    // najviše, pa bi Hrvatska sa dva tendera ispala iako ih ima.
+    const grupe = {};
+    for (const t of cisti) (grupe[t.country] ||= []).push(t);
+    const redovi = Object.values(grupe);
+    const uravnotezeni = [];
+    for (let i = 0; uravnotezeni.length < 40; i++) {
+      let dodato = false;
+      for (const red of redovi) {
+        if (i >= red.length) continue;
+        uravnotezeni.push(red[i]);
+        dodato = true;
+        if (uravnotezeni.length >= 40) break;
+      }
+      if (!dodato) break;
+    }
 
-    dijag.ted = 'ok, ' + n.length + ' zapisa -> ' + poCpv.length + ' po CPV-u -> ' + cisti.length + ' sa aktivnim rokom -> ' + uravnotezeni.length + ' prikazano';
+    const poZemlji = {};
+    for (const t of uravnotezeni) poZemlji[t.country] = (poZemlji[t.country] || 0) + 1;
+    const konacno = uravnotezeni.map(({ _cpv, _pub, _ima, ...rest }) => rest);
+
+    dijag.ted = 'ok, ' + n.length + ' zapisa -> ' + poCpv.length + ' po CPV-u -> ' + cisti.length + ' sa aktivnim rokom -> ' + konacno.length + ' prikazano';
     dijag.zemlje = poZemlji;
-    return uravnotezeni;
+    return konacno;
   } catch (e) { dijag.ted = 'greška: ' + e.message; return []; }
 }
 
