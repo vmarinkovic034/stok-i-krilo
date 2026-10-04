@@ -81,7 +81,10 @@ async function tedZaZemlju(kod, key, od) {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'accept': 'application/json', 'TED-API-Key': key, 'user-agent': UA },
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(8000),
+    // Deset uporednih zahteva TED servira sporije nego jedan, pa je osam
+    // sekundi bilo premalo — četiri zemlje su padale na istek vremena.
+    // Posao sada radi pozadinska funkcija, koja ima petnaest minuta.
+    signal: AbortSignal.timeout(60000),
   });
   const raw = await r.text();
   if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + raw.slice(0, 160));
@@ -177,33 +180,50 @@ async function ted(dijag) {
   } catch (e) { dijag.ted = 'greška: ' + e.message; return []; }
 }
 
-export default async (req) => {
-  const url = new URL(req.url);
-
-
-  const debug = url.searchParams.has('debug');
-  const fresh = url.searchParams.has('fresh');
-
-  if (!fresh && !debug) {
-    try {
-      const c = await store().get(KEY, { type: 'json' });
-      if (c && Date.now() - c.ts < TTL) {
-        return new Response(JSON.stringify({ ...c, kes: true }), {
-          headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=1800' },
-        });
-      }
-    } catch {}
-  }
-
+// Povlačenje svih zemalja i upis u keš. Zove ga pozadinska funkcija, jer
+// obična ima deset sekundi, a deset uporednih zahteva ka TED-u zna da potraje.
+export async function osveziTendere() {
   const dijag = {};
   const [a, rs] = await Promise.all([ted(dijag), ucitajSrpske()]);
   dijag.srbijaUvoz = rs.length + ' uvezenih (XLSX izvoz sa Portala javnih nabavki)';
   const items = [...rs, ...a];
   const rezultat = { ts: Date.now(), broj: items.length, items, izvori: dijag };
-
   try { await store().setJSON(KEY, rezultat); } catch {}
+  return rezultat;
+}
 
-  return new Response(JSON.stringify(debug ? rezultat : { ...rezultat, izvori: undefined }), {
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+// Pokreće osvežavanje i ne čeka ga. Odgovor čitaocu ne sme da visi zbog TED-a.
+async function zatraziOsvezavanje(req) {
+  const admin = (process.env.ADMIN_TOKEN || '').trim();
+  if (!admin) return;
+  const osnova = new URL(req.url).origin;
+  try {
+    await fetch(osnova + '/.netlify/functions/tenders-background?token=' + encodeURIComponent(admin),
+      { signal: AbortSignal.timeout(3000) });
+  } catch { /* 202 stiže odmah; ako ne stigne, sledeći zahtev pokušava ponovo */ }
+}
+
+export default async (req) => {
+  const url = new URL(req.url);
+  const debug = url.searchParams.has('debug');
+
+  let c = null;
+  try { c = await store().get(KEY, { type: 'json' }); } catch {}
+
+  const svez = c && Date.now() - c.ts < TTL;
+  // Keš koji je istekao se i dalje prikazuje, a osvežavanje kreće u pozadini.
+  // Čitalac tako uvek dobije listu odmah; alternativa je prazna stranica dok
+  // se čeka TED.
+  if (!svez) await zatraziOsvezavanje(req);
+
+  const telo = c
+    ? { ...c, kes: true, svez: Boolean(svez) }
+    : { ts: Date.now(), broj: 0, items: [], kes: false, svez: false, poruka: 'Prvo povlačenje je u toku.' };
+
+  return new Response(JSON.stringify(debug ? telo : { ...telo, izvori: undefined }), {
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': svez ? 'public, max-age=900' : 'no-store',
+    },
   });
 };
