@@ -751,6 +751,7 @@ tailwind.config = {
       <button class="filter-btn" onclick="filterEvents('nemacka', this)">Nemačka</button>
       <button class="filter-btn" onclick="filterEvents('italija', this)">Italija</button>
       <button class="filter-btn" onclick="filterEvents('austrija', this)">Austrija</button>
+      <button class="filter-btn" onclick="filterEvents('turska', this)">Turska</button>
     </div>
     <div class="events-grid grid grid-cols-1 sm:grid-cols-2 gap-5" id="events-grid"></div>
   </div>
@@ -1475,6 +1476,12 @@ const events = [
     date: 'april 2027', city: 'Beograd', country: 'Srbija',
     desc: 'Najveći regionalni sajam građevinske industrije u Srbiji. Prostor za izlaganje sistema stolarije i prezentaciju projekata.',
     exhibitors: '400+'
+  },
+  {
+    name: 'Eurasia Window, Door & Glass', countryKey: 'turska',
+    date: '21–24. nov 2026', city: 'Istanbul', country: 'Turska',
+    desc: 'Tri sajma istovremeno kod Tüyapa — prozori i vrata, vrata posebno, i staklo. Najbliži veliki sajam regionu i mesto gde se dogovaraju turski profili, okov i staklo koji drže donju granicu cene na Balkanu. Prošle godine 700 izlagača i 66.632 posetioca.',
+    exhibitors: '700+'
   },
 ];
 
