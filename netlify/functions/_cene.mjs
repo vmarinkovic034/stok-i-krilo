@@ -40,7 +40,8 @@ export const POKAZATELJI = [
     napomena: 'Eurostat PPI, NACE C22 — guma i plastika, uključuje PVC' },
   // Euribor je najdirektniji pokazatelj tražnje koji postoji: stambeni krediti
   // i krediti za adaptaciju vezani su za njega.
-  { id: 'euribor', grupa: 'SIROVINE', naziv: 'Euribor 3M',    jedinica: '%',         decimale: 3 },
+  { id: 'euribor', grupa: 'SIROVINE', naziv: 'Euribor 3M',    jedinica: '%',         decimale: 3,
+    napomena: 'ECB, mesečni prosek — dnevni niz se ne objavljuje' },
   { id: 'eurrsd', grupa: 'VALUTE',   naziv: 'EUR / RSD',      jedinica: '',          decimale: 2 },
   { id: 'eurbam', grupa: 'VALUTE',   naziv: 'EUR / BAM',      jedinica: '',          decimale: 4,
     napomena: 'Fiksni kurs' },
@@ -103,8 +104,13 @@ async function eurostatPPI(nace) {
 // ── EURIBOR (ECB) ─────────────────────────────────────────────────────────
 // Portal podataka ECB-a, bez ključa. CSV je najkraći put — SDMX-JSON bi
 // tražio razmotavanje tri nivoa ugnježđenja za jedan jedini broj.
+//
+// Dnevni niz (ključ D.U2...) vraća 404 — ECB ga ne objavljuje. Postoje samo
+// mesečni, kvartalni i godišnji. Mesečni je dovoljan: Euribor se menja po
+// nekoliko bazih poena mesečno i čitaocu ne treba jučerašnja decimala, nego
+// smer u kom se krediti pomeraju.
 async function euribor() {
-  const url = 'https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.RT.MM.EURIBOR3MD_.HSTA'
+  const url = 'https://data-api.ecb.europa.eu/service/data/FM/M.U2.EUR.RT.MM.EURIBOR3MD_.HSTA'
     + '?lastNObservations=1&format=csvdata';
   const tekst = await (await uzmi(url)).text();
   const redovi = tekst.trim().split('\n');
