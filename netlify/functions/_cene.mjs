@@ -40,7 +40,7 @@ export const POKAZATELJI = [
     napomena: 'Eurostat PPI, NACE C22 — guma i plastika, uključuje PVC' },
   // Euribor je najdirektniji pokazatelj tražnje koji postoji: stambeni krediti
   // i krediti za adaptaciju vezani su za njega.
-  { id: 'euribor', grupa: 'SIROVINE', naziv: 'Euribor 3M',    jedinica: '%',         decimale: 3,
+  { id: 'euribor', grupa: 'NOVAC',    naziv: 'Euribor 3M',    jedinica: '%',         decimale: 3,
     napomena: 'ECB, mesečni prosek — dnevni niz se ne objavljuje' },
   { id: 'eurrsd', grupa: 'VALUTE',   naziv: 'EUR / RSD',      jedinica: '',          decimale: 2 },
   { id: 'eurbam', grupa: 'VALUTE',   naziv: 'EUR / BAM',      jedinica: '',          decimale: 4,
