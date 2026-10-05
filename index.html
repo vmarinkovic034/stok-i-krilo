@@ -1304,34 +1304,12 @@ const NEWS_SOURCES = [
 // Sve je preseljeno u bazu uredništva. Popunjava ga ucitajVesti() sa
 // /api/news, već poređano po datumu objave.
 let newsItems = [];
-const companies = [
-  // ── SRBIJA ──
-  { name: 'Alumil YU Industry', city: 'Čačak', country: 'Srbija', cat: 'AL profili', products: ['Ekstruzija aluminijuma', 'Arhitektonski sistemi', 'Fasadni sistemi'], verified: true, url: 'https://www.alumil.com/serbia', desc: 'Grčka grupacija Alumil u Srbiji ima vlastitu fabriku ekstruzije aluminijumskih profila u Čačku. Jedna od rijetkih lokalnih ekstruzija u regionu. Ove godine slavi 20 godina rada u Srbiji.' },
-  { name: 'ETEM Srbija', city: 'Beograd', country: 'Srbija', cat: 'AL profili', products: ['Prozorski sistemi', 'Fasadni sistemi', 'Klizna vrata'], verified: true, url: 'https://www.etem.com', desc: 'ETEM (dio EL.PROM grupe) nudi aluminijumske arhitektonske sisteme za prozore, vrata i fasade. Aktivni na tržištu Srbije, BiH i regije.' },
-  { name: 'AGC Flat Glass Jug', city: 'Beograd', country: 'Srbija', cat: 'Staklo', products: ['Float staklo', 'Niskoemisijsko staklo', 'Sigurnosno staklo'], verified: true, url: 'https://www.agc-glass.eu', desc: 'AGC distribucija i obrada ravnog stakla za srpsko tržište. Dio AGC grupe - jednog od tri najveća svetska proizvođača ravnog stakla.' },
-  { name: 'Rolomatik', city: 'Beograd', country: 'Srbija', cat: 'Garažna vrata', products: ['Garažna segmentna vrata', 'Industrijska vrata', 'Rolo vrata'], verified: false, url: 'https://rolomatik.com', desc: 'Srpski proizvođač i instalater garažnih i industrijskih vrata. Pokriva tržište Srbije i dela regije.' },
-  { name: 'Aluline', city: 'Beograd', country: 'Srbija', cat: 'Garažna vrata', products: ['Garažna rolo vrata', 'Segmentna vrata', 'Industrijska vrata'], verified: false, url: 'https://aluline.rs', desc: 'Aluline proizvodi i ugrađuje garažna rolo vrata i industrijska segmentna vrata na srpskom tržištu.' },
-  { name: 'Profilink', city: 'Beograd', country: 'Srbija', cat: 'PVC/AL sistemi', products: ['PVC profili', 'Aluminijumski sistemi', 'Roletni sistemi'], verified: false, url: 'https://www.prozorivrata.com/profilink-prosiruje-svoj-portfolio-aluminijumskim-resenjima/', desc: 'Profilink je proširio portfolio aluminijumskim rešenjima. Distribuira profile i roletne sisteme za srpske proizvođače stolarije.' },
-  { name: 'Roto Frank Srbija', city: 'Novi Sad', country: 'Srbija', cat: 'Okov', products: ['NT okretno-nagibni okov', 'Klizni okov', 'Sigurnosni okov'], verified: true, url: 'https://www.roto-frank.com', desc: 'Regionalni zastupnik Roto Frank okova za srpsko tržište. Roto je jedan od tri najveća svetska proizvođača okova za stolariju.' },
-  { name: 'Alphaline', city: 'Beograd', country: 'Srbija', cat: 'Okov', products: ['Siegenia okov', 'MACO okov', 'Sigurnosni sistemi'], verified: false, url: 'https://alphaline.rs', desc: 'Distributer Siegenia i MACO okova za Srbiju. Nudi kompletnu paletu okova za PVC i aluminijumsku stolariju.' },
-  { name: 'Mega Plus', city: 'Beograd', country: 'Srbija', cat: 'Arhitekte / projektantski biro', products: ['Projektovanje objekata', 'Idejni i glavni projekti', 'Legalizacija objekata'], verified: false, url: 'https://megaplus.rs', desc: 'Projektni biro osnovan 1991. u Beogradu, sa preko 220 izvedenih objekata za investitore poput Luke Beograd, MUP-a Srbije i Delhaize/Maxi. Bavi se kompletnom tehničkom dokumentacijom, od idejnog rešenja do upotrebne dozvole.' },
-  { name: 'Gušić Architecture', city: 'Beograd', country: 'Srbija', cat: 'Arhitekte / projektantski biro', products: ['Stambeni objekti', 'Izložbeni i kulturni prostori', 'Enterijer'], verified: false, url: 'https://www.gusicarchitecture.com', desc: 'Nagrađivani beogradski studio Aleksandra Gušića, specijalizovan za stambenu i kulturnu arhitekturu. Osvojio Grand Prix Balkanskog arhitektonskog bijenala i više nagrada na Salonu arhitekture u Beogradu.' },
-
-  // ── HRVATSKA ──
-  { name: 'Dva arhitekta', city: 'Zagreb', country: 'Hrvatska', cat: 'Arhitekte / projektantski biro', products: ['Stambeni objekti', 'Turistički objekti', 'Enterijer'], verified: false, url: 'https://www.dva-arhitekta.hr', desc: 'Zagrebački studio osnovan 1992. godine, sa nagradama na Cemex Awards, Wienerberger Brick Award i World Architecture Festival. Projekat vinarije u Slavoniji nagrađen je od strane italijanskog magazina The Plan.' },
-
-  // ── BOSNA I HERCEGOVINA ──
-  { name: 'Five Extra', city: 'Sarajevo', country: 'Bosna i Hercegovina', cat: 'Arhitekte / projektantski biro', products: ['Projektovanje i inženjering', 'Renoviranje i adaptacija', 'Dizajn enterijera'], verified: false, url: 'https://fiveextra.ba', desc: 'Sarajevski arhitektonski biro osnovan 1996, sa preko 340 realizovanih projekata - od hotela Central i Ilidža Tower do poslovnih i industrijskih objekata širom BiH.' },
-
-  // ── SLOVENIJA ──
-  { name: 'STVAR', city: 'Ljubljana', country: 'Slovenija', cat: 'Arhitekte / projektantski biro', products: ['Javni objekti', 'Stanovanjski kompleksi', 'Urbanizam'], verified: false, url: 'http://www.stvar.si', desc: 'Ljubljanski biro osnovan 2005. nakon pobede na javnom natečaju za Centralnu biblioteku u Celju. Projektovao je Nordijski centar Planica i vodi rekonstrukciju olimpijskog kupališkog kompleksa u Radovljici.' },
-
-  // ── CRNA GORA ──
-  { name: 'Biro Vukčević', city: 'Podgorica', country: 'Crna Gora', cat: 'Arhitekte / projektantski biro', products: ['Stambeni objekti', 'Poslovni objekti', 'Idejni projekti'], verified: false, url: 'https://birovukcevic.me', desc: 'Arhitektonski biro sa sedištem u Podgorici, aktivan na projektima stambene i poslovne izgradnje u Crnoj Gori.' },
-
-  // ── SEVERNA MAKEDONIJA ──
-  { name: 'Biro Brut', city: 'Skoplje', country: 'Severna Makedonija', cat: 'Arhitekte / projektantski biro', products: ['Stambeni objekti', 'Fasadni dizajn', 'Enterijer'], verified: false, url: 'https://www.birobrut.com', desc: 'Skopski studio fokusiran na stambenu arhitekturu, fasadni dizajn i enterijer, sa realizovanim projektima u Skoplju, Ilindenu i regionu.' },
-];
+// Kompanije više ne stoje u kodu. Do 5. 10. 2026. ovde je bilo petnaest firmi,
+// a preko njih se pokušavalo povlačenje iz Gugl tabele — koje nije uspelo
+// nijednom, jer je tabela privatna i vraća 401.
+//
+// Sada su u istoj bazi kao vesti i čitaju se sa /api/kompanije.
+let companies = [];
 
 // ==================== EDU ITEMS ====================
 const eduItems = [
@@ -1918,75 +1896,35 @@ function setPeriod(period, btn) {
   if (btn) btn.classList.add('active');
 }
 
-// ==================== COMPANIES ====================
-// Kompanije se prikazuju iz Google Sheet-a (live, samoupis) uz fallback na
-// hardkodovani niz `companies` ako Sheet nije dostupan (npr. offline test).
-const COMPANIES_SHEET_ID = '1Vj73Qih8vqJibrTFtE_JoaGzgYREIL23NpZfEnqmJpA';
-const COMPANIES_CSV_URL = 'https://docs.google.com/spreadsheets/d/' + COMPANIES_SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=Sheet1';
-// Apps Script Web App URL koji prima nove prijave (upisuje red u Sheet sa Odobreno=NE).
-// Ostaje prazan dok se ne deploy-uje Apps Script (vidi uputstvo poslato uz kod).
+// ==================== KOMPANIJE ====================
+// Direktorijum se čita sa /api/kompanije. Ranije je ovde stajao Gugl Sheet i
+// CSV parser: stranica je pri svakom učitavanju tražila privatnu tabelu, u
+// konzoli ostavljala „Failed to fetch" i tiho padala na spisak iz koda.
+//
+// Prijava nove firme i njeno odobravanje treba da idu kroz isti admin panel
+// kao vesti. Dok to ne bude gotovo, spisak se menja u bazi.
+let allCompanies = [];
+let currentCompanyList = [];
 
-let allCompanies = companies.slice();
-let currentCompanyList = companies.slice();
-
-function parseCsv(text) {
-  const rows = [];
-  let row = [], field = '', inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (inQuotes) {
-      if (c === '"') {
-        if (text[i + 1] === '"') { field += '"'; i++; }
-        else inQuotes = false;
-      } else field += c;
-    } else {
-      if (c === '"') inQuotes = true;
-      else if (c === ',') { row.push(field); field = ''; }
-      else if (c === '\n' || c === '\r') {
-        if (c === '\r' && text[i + 1] === '\n') i++;
-        row.push(field); field = '';
-        if (row.length > 1 || row[0] !== '') rows.push(row);
-        row = [];
-      } else field += c;
-    }
-  }
-  if (field !== '' || row.length) { row.push(field); rows.push(row); }
-  return rows;
-}
-
-async function fetchCompaniesFromSheet() {
+async function ucitajKompanije() {
   try {
-    const res = await fetch(COMPANIES_CSV_URL, { cache: 'no-store' });
-    if (!res.ok) return;
-    const text = await res.text();
-    const rows = parseCsv(text);
-    if (rows.length < 2) return;
-    const header = rows[0].map(h => h.trim().toLowerCase());
-    const idx = (needle) => header.findIndex(h => h.startsWith(needle));
-    const iName = idx('naziv'), iCity = idx('grad'), iCountry = idx('država'), iCat = idx('kategorija'),
-          iProd = idx('proizvodi'), iUrl = idx('sajt'), iDesc = idx('opis'), iVer = idx('verifikovano'),
-          iApproved = idx('odobreno');
-    const fromSheet = rows.slice(1)
-      .filter(r => iApproved >= 0 && (r[iApproved] || '').trim().toUpperCase() === 'DA')
-      .map(r => ({
-        name: (r[iName] || '').trim(),
-        city: (r[iCity] || '').trim(),
-        country: (r[iCountry] || '').trim(),
-        cat: (r[iCat] || '').trim(),
-        products: (r[iProd] || '').split(';').map(s => s.trim()).filter(Boolean),
-        verified: (r[iVer] || '').trim().toUpperCase() === 'DA',
-        url: (r[iUrl] || '').trim(),
-        desc: (r[iDesc] || '').trim()
-      }))
-      .filter(c => c.name);
-    if (fromSheet.length) {
-      allCompanies = fromSheet;
-      rebuildSearchIndex();
-      if (document.getElementById('page-kompanije').classList.contains('active')) {
-        filterCompanies();
-      }
-    }
-  } catch (e) { console.error('fetchCompaniesFromSheet:', e); }
+    const r = await fetch('/api/kompanije', { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    const stigle = Array.isArray(d && d.firme) ? d.firme.filter(c => c && c.name) : [];
+    if (!stigle.length) throw new Error('prazan odgovor');
+    companies = stigle;
+    allCompanies = stigle;
+  } catch (e) {
+    console.log('Kompanije nisu dostupne: ' + e.message);
+  }
+  try { rebuildSearchIndex(); } catch (e) { console.error('rebuildSearchIndex:', e); }
+  try { updateCompanyStat(); } catch (e) { console.error('updateCompanyStat:', e); }
+  try {
+    const strana = document.getElementById('page-kompanije');
+    if (strana && strana.classList.contains('active')) filterCompanies();
+    else renderCompanies(allCompanies);
+  } catch (e) { console.error('renderCompanies:', e); }
 }
 
 function renderCompanies(data) {
@@ -1994,6 +1932,16 @@ function renderCompanies(data) {
   const grid = document.getElementById('company-grid');
   const label = document.getElementById('company-count-label');
   if (label) label.textContent = data.length + (data.length === 1 ? ' kompanija' : ' kompanija u direktorijumu');
+  if (!data.length) {
+    // Prazan direktorijum izgleda kao pokvarena stranica, pa se kaže zašto je
+    // prazan: nema rezultata za filter, ili spisak nije stigao sa servera.
+    grid.innerHTML = '<p class="text-gray-400 col-span-3 text-center py-8">'
+      + (allCompanies.length
+          ? 'Nema kompanija koje odgovaraju izboru.'
+          : 'Direktorijum trenutno nije dostupan. Osvežite stranicu za koji minut.')
+      + '</p>';
+    return;
+  }
   grid.innerHTML = data.map((c, i) => `
     <div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover" onclick="openCompany(${i})">
       <div class="flex items-start justify-between mb-3">
@@ -2720,9 +2668,7 @@ document.addEventListener('keydown', e => {
 function updateCompanyStat() {
   const el = document.getElementById('stat-companies');
   if (!el) return;
-  const n = (typeof allCompanies !== 'undefined' && allCompanies && allCompanies.length)
-    ? allCompanies.length : companies.length;
-  el.textContent = n;
+  el.textContent = allCompanies.length || '—';
 }
 
 // ==================== ODOBRENE VESTI IZ UREDNISTVA ====================
@@ -2853,7 +2799,7 @@ function initPortal() {
   try { renderNews('sve'); } catch(e) { console.error('renderNews:', e); }
   try { renderHero(); } catch(e) { console.error('renderHero:', e); }
   try { ucitajCene(); } catch(e) { console.error('ucitajCene:', e); }
-  try { Promise.resolve(fetchCompaniesFromSheet()).then(updateCompanyStat).catch(()=>{}); } catch(e) { console.error('fetchCompaniesFromSheet:', e); }
+  try { ucitajKompanije(); } catch(e) { console.error('ucitajKompanije:', e); }
   // Dubinski link se rešava tek kad vesti stignu sa servera — vidi
   // fetchApprovedNews. Ovde ih još nema.
 }

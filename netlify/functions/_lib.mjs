@@ -11,6 +11,9 @@ export const KEY_SEEN = 'seen-urls.json';
 // rezultat ostavlja samo u Netlify logovima — ovde ga čuvamo da urednik vidi
 // šta se desilo i bez otvaranja Netlify panela.
 export const KEY_LAST_RUN = 'last-run.json';
+// Direktorijum kompanija. Stajao je u Gugl tabeli do koje portal nije imao
+// pristup — vidi _firme-seme.mjs.
+export const KLJUC_FIRME = 'firme.json';
 
 export function store() { return getStore(STORE); }
 
