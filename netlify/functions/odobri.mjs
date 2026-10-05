@@ -85,7 +85,7 @@ export default async (req) => {
     let approved = await readJSON(KEY_APPROVED, []);
     const d = { ...drafts[i], status: 'objavljeno', approvedAt: new Date().toISOString() };
     drafts.splice(i, 1);
-    approved = [d, ...approved].slice(0, 200);
+    approved = [d, ...approved].slice(0, 400);
     await writeJSON(KEY_DRAFTS, drafts);
     await writeJSON(KEY_APPROVED, approved);
     return strana('Objavljeno', `<h1>Objavljeno</h1><div class="t">${esc(d.title)}</div>
