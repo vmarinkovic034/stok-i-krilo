@@ -1749,8 +1749,12 @@ async function ucitajCene() {
         value: brojSrpski(s.vrednost, s.decimale),
         change: s.promena === null || s.promena === undefined
           ? ''
-          : (s.promena >= 0 ? '+' : '') + brojSrpski(s.promena, 2) + '%',
-        up: s.gore !== false,
+          : (s.promena > 0 ? '+' : '') + brojSrpski(s.promena, 2) + '%',
+        // Tri stanja, ne dva: rast, pad i „nije se pomerilo". Fiksni kurs
+        // marke se nikad ne menja, pa bi večito zeleno „+0,00%" bilo ukras.
+        up: s.gore === true,
+        boja: s.gore === true ? '#16a34a' : (s.gore === false ? '#dc2626' : '#9ca3af'),
+        bojaTraka: s.gore === true ? '#4ade80' : (s.gore === false ? '#f87171' : '#9ca3af'),
         note: s.napomena || '',
         live: true,
         fetched: true,
@@ -1807,7 +1811,7 @@ function renderSnapshot() {
       if (v) v.textContent = formatVrednosti ? formatVrednosti(p.value) : p.value;
       if (c) {
         c.textContent = p.change || '';
-        c.style.color = p.up ? '#16a34a' : '#dc2626';
+        c.style.color = p.boja || '#9ca3af';
       }
     };
     postavi('al', prices.find(p => p.id === 'al'));
@@ -1822,7 +1826,7 @@ function buildTicker() {
       <div class="flex items-center gap-2">
         <span class="text-xs font-semibold text-gray-300">${p.label}</span>
         <span class="text-white text-xs font-bold">${p.value}${p.unit ? ' ' + p.unit : ''}</span>
-        <span class="text-xs font-bold" style="color:${p.up ? '#4ade80' : '#f87171'}">${p.change}</span>
+        <span class="text-xs font-bold" style="color:${p.bojaTraka || '#9ca3af'}">${p.change}</span>
       </div>
       <span class="text-gray-700 text-xs">|</span>
     `).join('');
@@ -1910,7 +1914,7 @@ function renderPriceGroups() {
               </div>
               <div class="font-serif text-xl font-bold text-gray-950">${p.value}</div>
               ${p.unit ? `<div class="text-xs text-gray-400">${p.unit}</div>` : ''}
-              <div class="text-xs font-bold mt-1" style="color:${p.up ? '#16a34a' : '#dc2626'}">${p.change}</div>
+              <div class="text-xs font-bold mt-1" style="color:${p.boja || '#9ca3af'}">${p.change}</div>
             </div>
           `).join('')}
         </div>
@@ -1924,7 +1928,7 @@ function renderPriceGroups() {
         <div class="text-xs font-semibold text-gray-500 mb-1">${p.label}</div>
         <div class="font-serif text-xl font-bold text-gray-950">${p.value}</div>
         <div class="text-xs text-gray-400">${p.unit}</div>
-        <div class="text-xs font-bold mt-1" style="color:${p.up ? '#16a34a' : '#dc2626'}">${p.change}</div>
+        <div class="text-xs font-bold mt-1" style="color:${p.boja || '#9ca3af'}">${p.change}</div>
       </div>
     `).join('');
   }

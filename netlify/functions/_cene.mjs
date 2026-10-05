@@ -183,11 +183,21 @@ export async function osveziCene() {
     ...fx,
   };
 
-  // Prethodno stanje treba zbog promene u odnosu na poslednje merenje.
-  let staro = {};
-  try { staro = (await store().get(KLJUC_CENE, { type: 'json', consistency: 'strong' }))?.poId || {}; } catch {}
   let istorija = {};
   try { istorija = (await store().get(KLJUC_ISTORIJA, { type: 'json', consistency: 'strong' })) || {}; } catch {}
+
+  // Promena se meri prema poslednjem merenju iz nekog ranijeg dana, a ne prema
+  // prethodnom očitavanju. Prolaz je na svaki sat, a kurs dinara i mesečni
+  // indeksi se za taj sat ne pomere, pa bi na devet od četrnaest kartica
+  // pisalo „+0,00%" — broj koji zauzima mesto, a ne govori ništa.
+  const prethodniDan = (id) => {
+    const niz = istorija[id];
+    if (!Array.isArray(niz)) return null;
+    for (let i = niz.length - 1; i >= 0; i--) {
+      if (niz[i] && niz[i].d !== dan && typeof niz[i].v === 'number') return niz[i].v;
+    }
+    return null;
+  };
 
   const stavke = [];
   const poId = {};
@@ -195,7 +205,7 @@ export async function osveziCene() {
     const v = sirove[p.id];
     if (typeof v !== 'number' || !Number.isFinite(v)) continue;
     const vrednost = Number(v.toFixed(p.decimale));
-    const pre = staro[p.id];
+    const pre = prethodniDan(p.id);
     const promena = typeof pre === 'number' && pre !== 0 ? ((vrednost - pre) / pre) * 100 : null;
     poId[p.id] = vrednost;
     upisiUIstoriju(istorija, p.id, vrednost, dan);
@@ -203,7 +213,7 @@ export async function osveziCene() {
       id: p.id, grupa: p.grupa, naziv: p.naziv, jedinica: p.jedinica, decimale: p.decimale,
       vrednost,
       promena: promena === null ? null : Number(promena.toFixed(2)),
-      gore: promena === null ? null : promena >= 0,
+      gore: promena === null ? null : (promena > 0 ? true : (promena < 0 ? false : null)),
       napomena: p.napomena || null,
     });
   }
