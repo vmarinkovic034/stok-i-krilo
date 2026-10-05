@@ -35,13 +35,22 @@ export const POKAZATELJI = [
   // Evropski trošak peći i ekstruzije određuje holandski TTF.
   { id: 'ttf',    grupa: 'ENERGIJA', naziv: 'Gas TTF',        jedinica: 'EUR/MWh',   decimale: 2 },
   { id: 'glass',  grupa: 'SIROVINE', naziv: 'Float staklo',   jedinica: 'indeks EU27', decimale: 1,
+    godisnja: true,
     napomena: 'Eurostat PPI, NACE C23 — nemetalni mineralni proizvodi, uključuje staklo' },
   { id: 'pvc',    grupa: 'SIROVINE', naziv: 'PVC granulat',   jedinica: 'indeks EU27', decimale: 1,
+    godisnja: true,
     napomena: 'Eurostat PPI, NACE C22 — guma i plastika, uključuje PVC' },
   // Euribor je najdirektniji pokazatelj tražnje koji postoji: stambeni krediti
   // i krediti za adaptaciju vezani su za njega.
-  { id: 'euribor', grupa: 'NOVAC',    naziv: 'Euribor 3M',    jedinica: '%',         decimale: 3,
+  { id: 'euribor', grupa: 'TRAZNJA',  naziv: 'Euribor 3M',    jedinica: '%',         decimale: 3,
+    godisnja: true, promenaJedinica: 'p.p.',
     napomena: 'ECB, mesečni prosek — dnevni niz se ne objavljuje' },
+  // Dozvole su jedini pokazatelj na strani koji meri stvarnu tražnju, a ne
+  // trošak. Kasne dva meseca, što je normalno za ovaj niz. Srbije nema u
+  // Eurostatovom setu — polje za nju stoji prazno.
+  { id: 'dozvole', grupa: 'TRAZNJA',  naziv: 'Građevinske dozvole EU', jedinica: 'indeks 2021=100', decimale: 1,
+    godisnja: true,
+    napomena: 'Eurostat, m² korisne površine, sezonski prilagođeno — podatak kasni oko dva meseca' },
   { id: 'eurrsd', grupa: 'VALUTE',   naziv: 'EUR / RSD',      jedinica: '',          decimale: 2 },
   { id: 'eurbam', grupa: 'VALUTE',   naziv: 'EUR / BAM',      jedinica: '',          decimale: 4,
     napomena: 'Fiksni kurs' },
@@ -90,15 +99,38 @@ async function berza(oznaka) {
 }
 
 // ── EUROSTAT ──────────────────────────────────────────────────────────────
+// Vraća { v, pre12 }: poslednje objavljeno merenje i merenje od pre dvanaest
+// meseci. Mesečni niz se iz dana u dan ne menja, pa bi dnevna promena na
+// kartici bila večito prazna. Godina za godinu je ovde jedini broj koji nešto
+// govori: da li staklo poskupljuje i da li se gradi više ili manje.
+//
+// Ključevi u `value` nose položaj u vremenskoj osi, a ne redni broj merenja —
+// mesec bez podatka se preskače. Zato se do merenja od pre godinu dana ne
+// dolazi brojanjem unazad, nego oduzimanjem dvanaest od položaja poslednjeg.
+function izSerije(d) {
+  if (!d.value) throw new Error('nema vrednosti');
+  const polozaji = Object.keys(d.value).map(Number).filter(n => typeof d.value[n] === 'number');
+  if (!polozaji.length) throw new Error('nijedan podatak nije broj');
+  const zadnji = Math.max(...polozaji);
+  const v = d.value[zadnji];
+  const pre12 = d.value[zadnji - 12];
+  return { v, pre12: typeof pre12 === 'number' ? pre12 : null };
+}
+
 async function eurostatPPI(nace) {
   const url = 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inppd_m'
     + '?indic_bt=PRC_PRR_DOM&s_adj=NSA&unit=I15&geo=EU27_2020&lang=en&format=JSON&nace_r2=' + nace;
-  const d = await (await uzmi(url)).json();
-  if (!d.value) throw new Error('nema vrednosti');
-  const kljucevi = Object.keys(d.value).map(Number).sort((a, b) => a - b);
-  const poslednja = d.value[kljucevi[kljucevi.length - 1]];
-  if (typeof poslednja !== 'number') throw new Error('poslednja vrednost nije broj');
-  return poslednja;
+  return izSerije(await (await uzmi(url)).json());
+}
+
+// Dozvole za gradnju, sve zgrade, kvadrati korisne površine, sezonski
+// prilagođeno. Traži se osamnaest meseci: niz kasni oko dva meseca, pa prozor
+// mora biti širi od dvanaest da bi u njemu bio i isti mesec prošle godine.
+async function eurostatDozvole() {
+  const url = 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_cobp_m'
+    + '?indic_bt=BPRM_SQM&cpa2_1=CPA_F41001_41002&s_adj=SCA&unit=I21&geo=EU27_2020'
+    + '&lang=en&format=JSON&lastTimePeriod=18';
+  return izSerije(await (await uzmi(url, {}, 15000)).json());
 }
 
 // ── EURIBOR (ECB) ─────────────────────────────────────────────────────────
@@ -110,18 +142,25 @@ async function eurostatPPI(nace) {
 // nekoliko bazih poena mesečno i čitaocu ne treba jučerašnja decimala, nego
 // smer u kom se krediti pomeraju.
 async function euribor() {
+  // Trinaest merenja: poslednje i isti mesec prošle godine. Za kamatu se
+  // promena iskazuje u procentnim poenima, ne u procentima od same sebe.
   const url = 'https://data-api.ecb.europa.eu/service/data/FM/M.U2.EUR.RT.MM.EURIBOR3MD_.HSTA'
-    + '?lastNObservations=1&format=csvdata';
+    + '?lastNObservations=13&format=csvdata';
   const tekst = await (await uzmi(url)).text();
-  const redovi = tekst.trim().split('\n');
+  const redovi = tekst.trim().split('\n').filter(r => r.trim());
   if (redovi.length < 2) throw new Error('prazan CSV');
-  const zaglavlje = redovi[0].split(',').map(s => s.trim().replace(/^"|"$/g, ''));
+  const zaglavlje = redovi[0].split(',').map(x => x.trim().replace(/^"|"$/g, ''));
   const i = zaglavlje.indexOf('OBS_VALUE');
   if (i < 0) throw new Error('nema kolone OBS_VALUE');
-  const polja = redovi[redovi.length - 1].split(',').map(s => s.trim().replace(/^"|"$/g, ''));
-  const v = parseFloat(polja[i]);
-  if (!Number.isFinite(v)) throw new Error('vrednost nije broj');
-  return v;
+
+  const brojevi = redovi.slice(1)
+    .map(r => parseFloat((r.split(',')[i] || '').trim().replace(/^"|"$/g, '')))
+    .filter(Number.isFinite);
+  if (!brojevi.length) throw new Error('nijedna vrednost nije broj');
+
+  const v = brojevi[brojevi.length - 1];
+  const pre12 = brojevi.length >= 13 ? brojevi[brojevi.length - 13] : null;
+  return { v, pre12 };
 }
 
 // ── ISTORIJA ──────────────────────────────────────────────────────────────
@@ -144,7 +183,7 @@ export async function osveziCene() {
     kursevi(dijag),
     Promise.allSettled([
       berza('ALI=F'), berza('HG=F'), berza('BZ=F'), berza('TTF=F'),
-      eurostatPPI('C23'), eurostatPPI('C22'), euribor(),
+      eurostatPPI('C23'), eurostatPPI('C22'), euribor(), eurostatDozvole(),
     ]),
   ]);
 
@@ -159,14 +198,30 @@ export async function osveziCene() {
     return null;
   };
 
-  const [pAl, pCu, pBrent, pTtf, pGlass, pPvc, pEuribor] = poslovi;
+  // Mesečni nizovi vraćaju { v, pre12 }, berze goli broj.
+  const uzmiNiz = (p, ime) => {
+    if (p.status === 'fulfilled' && p.value && Number.isFinite(p.value.v)) {
+      dijag[ime] = p.value.pre12 === null ? 'ok, bez podatka od pre godinu dana' : 'ok';
+      return p.value;
+    }
+    dijag[ime] = 'greška: ' + (p.status === 'rejected' ? p.reason?.message || 'nepoznato' : 'vrednost nije broj');
+    return { v: null, pre12: null };
+  };
+
+  const [pAl, pCu, pBrent, pTtf, pGlass, pPvc, pEuribor, pDozvole] = poslovi;
   const al = uzmiRez(pAl, 'aluminijum');
   const cu = uzmiRez(pCu, 'bakar');
   const brent = uzmiRez(pBrent, 'brent');
   const ttf = uzmiRez(pTtf, 'ttf');
-  const glass = uzmiRez(pGlass, 'staklo');
-  const pvc = uzmiRez(pPvc, 'pvc');
-  const eur3m = uzmiRez(pEuribor, 'euribor');
+  const glass = uzmiNiz(pGlass, 'staklo');
+  const pvc = uzmiNiz(pPvc, 'pvc');
+  const eur3m = uzmiNiz(pEuribor, 'euribor');
+  const dozvole = uzmiNiz(pDozvole, 'dozvole');
+
+  // Merenje od pre godinu dana, po pokazatelju koji ga ima.
+  const preGodinu = {
+    glass: glass.pre12, pvc: pvc.pre12, euribor: eur3m.pre12, dozvole: dozvole.pre12,
+  };
 
   const eurusd = typeof fx.eurusd === 'number' && fx.eurusd > 0 ? fx.eurusd : null;
   if (!eurusd) dijag.pretvaranje = 'bez EUR/USD — aluminijum i bakar se ne mogu prikazati u evrima';
@@ -177,9 +232,10 @@ export async function osveziCene() {
     cu: cu !== null && eurusd ? (cu * 2204.62) / eurusd : null,
     brent,
     ttf,
-    glass,
-    pvc,
-    euribor: eur3m,
+    glass: glass.v,
+    pvc: pvc.v,
+    euribor: eur3m.v,
+    dozvole: dozvole.v,
     ...fx,
   };
 
@@ -205,14 +261,27 @@ export async function osveziCene() {
     const v = sirove[p.id];
     if (typeof v !== 'number' || !Number.isFinite(v)) continue;
     const vrednost = Number(v.toFixed(p.decimale));
-    const pre = prethodniDan(p.id);
-    const promena = typeof pre === 'number' && pre !== 0 ? ((vrednost - pre) / pre) * 100 : null;
+
+    // Mesečni niz se iz dana u dan ne menja, pa bi mu dnevna promena bila
+    // večito prazna. Takav pokazatelj se poredi sa istim mesecom prošle
+    // godine. Za kamatu se razlika iskazuje u procentnim poenima: Euribor sa
+    // 3,05 na 2,64 nije „pao 13 odsto", nego za 0,41 procentni poen.
+    const pre = p.godisnja ? preGodinu[p.id] : prethodniDan(p.id);
+    let promena = null;
+    if (typeof pre === 'number') {
+      promena = p.promenaJedinica === 'p.p.'
+        ? vrednost - pre
+        : (pre !== 0 ? ((vrednost - pre) / pre) * 100 : null);
+    }
+
     poId[p.id] = vrednost;
     upisiUIstoriju(istorija, p.id, vrednost, dan);
     stavke.push({
       id: p.id, grupa: p.grupa, naziv: p.naziv, jedinica: p.jedinica, decimale: p.decimale,
       vrednost,
       promena: promena === null ? null : Number(promena.toFixed(2)),
+      promenaJedinica: p.promenaJedinica || '%',
+      promenaOpis: p.godisnja ? 'god./god.' : 'dan',
       gore: promena === null ? null : (promena > 0 ? true : (promena < 0 ? false : null)),
       napomena: p.napomena || null,
     });

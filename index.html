@@ -1749,7 +1749,12 @@ async function ucitajCene() {
         value: brojSrpski(s.vrednost, s.decimale),
         change: s.promena === null || s.promena === undefined
           ? ''
-          : (s.promena > 0 ? '+' : '') + brojSrpski(s.promena, 2) + '%',
+          : (s.promena > 0 ? '+' : '') + brojSrpski(s.promena, 2)
+            + (s.promenaJedinica === 'p.p.' ? ' p.p.' : '%'),
+        // Mesečni nizovi se porede sa istim mesecom prošle godine, berze i
+        // kursevi sa prethodnim danom. Bez ove oznake bi „+3,4%" kod stakla i
+        // „+3,4%" kod nafte izgledali kao isti podatak.
+        period: s.promena === null || s.promena === undefined ? '' : (s.promenaOpis || ''),
         // Tri stanja, ne dva: rast, pad i „nije se pomerilo". Fiksni kurs
         // marke se nikad ne menja, pa bi večito zeleno „+0,00%" bilo ukras.
         up: s.gore === true,
@@ -1885,14 +1890,14 @@ const GROUP_LABELS = {
   METALI: 'Metali',
   ENERGIJA: 'Energija',
   SIROVINE: 'Sirovine',
-  NOVAC: 'Cena novca',
+  TRAZNJA: 'Tražnja',
   VALUTE: 'Valute Balkana'
 };
 
 function renderPriceGroups() {
   const container = document.getElementById('prices-by-group');
   if (!container) return;
-  const groups = ['METALI', 'ENERGIJA', 'SIROVINE', 'NOVAC', 'VALUTE'];
+  const groups = ['METALI', 'ENERGIJA', 'SIROVINE', 'TRAZNJA', 'VALUTE'];
   container.innerHTML = groups.map(g => {
     const items = prices.filter(p => p.group === g);
     const cols = g === 'VALUTE' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-4';
@@ -1915,7 +1920,10 @@ function renderPriceGroups() {
               </div>
               <div class="font-serif text-xl font-bold text-gray-950">${p.value}</div>
               ${p.unit ? `<div class="text-xs text-gray-400">${p.unit}</div>` : ''}
-              <div class="text-xs font-bold mt-1" style="color:${p.boja || '#9ca3af'}">${p.change}</div>
+              <div class="text-xs font-bold mt-1 flex items-baseline gap-1.5">
+                <span style="color:${p.boja || '#9ca3af'}">${p.change}</span>
+                ${p.change && p.period && p.period !== 'dan' ? `<span class="font-normal text-gray-400">${p.period}</span>` : ''}
+              </div>
             </div>
           `).join('')}
         </div>
