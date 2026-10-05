@@ -14,6 +14,8 @@ export const KEY_LAST_RUN = 'last-run.json';
 // Direktorijum kompanija. Stajao je u Gugl tabeli do koje portal nije imao
 // pristup — vidi _firme-seme.mjs.
 export const KLJUC_FIRME = 'firme.json';
+// Barometar cena prozora — merenja fiksne korpe, jedno po krugu.
+export const KLJUC_BAROMETAR = 'barometar.json';
 
 export function store() { return getStore(STORE); }
 

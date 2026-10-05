@@ -50,6 +50,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/barometar"
+  to = "/.netlify/functions/barometar"
+  status = 200
+
+[[redirects]]
   from = "/api/tenders"
   to = "/.netlify/functions/tenders"
   status = 200
