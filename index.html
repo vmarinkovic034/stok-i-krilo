@@ -495,21 +495,20 @@ tailwind.config = {
     </div>
     <!-- Grouped price sections -->
     <div id="prices-by-group" class="mb-8"></div>
-    <!-- Chart section -->
+    <!-- Grafikon je sklonjen 5. 10. 2026.
+         Linija se crtala funkcijom genData, koja je nasumičnim brojevima
+         pravila „istoriju" oko trenutne cene — dva osvežavanja stranice davala
+         su dve različite krive, uz prave datume ispod. Čitalac to čita kao
+         podatak i po njemu donosi odluku o nabavci.
+         Vraća se kad server počne da beleži stvarne vrednosti pri svakom
+         povlačenju, pa bude šta da se nacrta. -->
     <div class="bg-white border border-gray-200 p-6">
-      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div>
-          <div class="font-serif text-xl font-bold text-gray-950" id="chart-title">Aluminijum - EUR/t</div>
-          <div class="text-gray-400 text-sm mt-0.5" id="chart-subtitle">Dnevni podaci, poslenjih 30 dana</div>
-        </div>
-        <div class="flex gap-2" id="period-btns">
-          <button class="period-btn" onclick="setPeriod('1D', this)">1D</button>
-          <button class="period-btn active" onclick="setPeriod('30D', this)">30D</button>
-          <button class="period-btn" onclick="setPeriod('90D', this)">90D</button>
-          <button class="period-btn" onclick="setPeriod('1Y', this)">1Y</button>
-        </div>
+      <div class="font-serif text-xl font-bold text-gray-950">Kretanje cena</div>
+      <div class="text-gray-500 text-sm mt-2 leading-relaxed">
+        Portal od 5. oktobra 2026. beleži vrednosti pri svakom povlačenju.
+        Grafikon se uključuje kada se skupi dovoljno stvarnih merenja.
+        Do tada se prikazuju samo trenutne vrednosti iznad, sa vremenom poslednjeg očitavanja.
       </div>
-      <div style="height:280px;"><canvas id="main-chart"></canvas></div>
     </div>
     <!-- What this means -->
     <div class="mt-8 bg-gray-50 border border-gray-200 p-6">
@@ -2128,7 +2127,11 @@ function genLabels(n, period) {
 
 const periodConfig = { '1D': { n: 24, vol: 4, subtitle: 'Sat po sat, poslednja 24h' }, '30D': { n: 30, vol: 18, subtitle: 'Dnevni podaci, poslenjih 30 dana' }, '90D': { n: 90, vol: 22, subtitle: 'Dnevni podaci, poslenjih 90 dana' }, '1Y': { n: 52, vol: 28, subtitle: 'Nedeljni podaci, poslenjih 12 meseci' } };
 
-function updateChart() {
+// Privremeno bez dejstva. Ranije je crtala nasumičnu „istoriju" cene.
+// Ostaje kao prazna funkcija da je pozivi sa drugih mesta ne obore.
+function updateChart() { return; }
+
+function _updateChartStari() {
   const p = prices.find(x => x.id === activePriceId);
   const baseVal = parseFloat(p.value.replace(',', '.'));
   const cfg = periodConfig[activePeriod];
