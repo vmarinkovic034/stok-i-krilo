@@ -1679,6 +1679,9 @@ async function ucitajCene() {
         // kursevi sa prethodnim danom. Bez ove oznake bi „+3,4%" kod stakla i
         // „+3,4%" kod nafte izgledali kao isti podatak.
         period: s.promena === null || s.promena === undefined ? '' : (s.promenaOpis || ''),
+        // Mesečni pokazatelj zadržava poslednju vrednost kad izvor ne odgovori.
+        // Tada se piše od kog je dana, da se ne čita kao današnje očitavanje.
+        rezervaOd: s.rezervaOd || '',
         // Tri stanja, ne dva: rast, pad i „nije se pomerilo". Fiksni kurs
         // marke se nikad ne menja, pa bi večito zeleno „+0,00%" bilo ukras.
         up: s.gore === true,
@@ -1848,6 +1851,7 @@ function renderPriceGroups() {
                 <span style="color:${p.boja || '#9ca3af'}">${p.change}</span>
                 ${p.change && p.period && p.period !== 'dan' ? `<span class="font-normal text-gray-400">${p.period}</span>` : ''}
               </div>
+              ${p.rezervaOd ? `<div class="text-xs text-gray-400 mt-1">poslednje očitavanje ${p.rezervaOd}</div>` : ''}
             </div>
           `).join('')}
         </div>

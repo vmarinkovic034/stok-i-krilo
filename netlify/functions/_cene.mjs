@@ -148,7 +148,7 @@ async function euribor() {
     + '?lastNObservations=13&format=csvdata';
   // ECB-u za trinaest merenja treba i preko dvanaest sekundi. Posao radi u
   // pozadinskoj funkciji, koja ima petnaest minuta, pa nema razloga za žurbu.
-  const tekst = await (await uzmi(url, {}, 25000)).text();
+  const tekst = await (await uzmi(url, {}, 40000)).text();
   const redovi = tekst.trim().split('\n').filter(r => r.trim());
   if (redovi.length < 2) throw new Error('prazan CSV');
   const zaglavlje = redovi[0].split(',').map(x => x.trim().replace(/^"|"$/g, ''));
@@ -257,10 +257,27 @@ export async function osveziCene() {
     return null;
   };
 
+  // Mesečni niz ne postaje netačan zato što povlačenje danas nije uspelo. ECB
+  // ume da ne odgovori i za četrdeset sekundi, a Euribor se objavljuje jednom
+  // mesečno — izbaciti ga sa strane zbog jednog neuspelog poziva znači
+  // kazniti čitaoca za tuđu sporost. Berze i kursevi nemaju ovu rezervu: oni
+  // se menjaju svaki dan i tu jučerašnji broj jeste pogrešan.
+  const izIstorije = (id) => {
+    const niz = istorija[id];
+    if (!Array.isArray(niz) || !niz.length) return null;
+    const t = niz[niz.length - 1];
+    return t && typeof t.v === 'number' ? t : null;
+  };
+
   const stavke = [];
   const poId = {};
   for (const p of POKAZATELJI) {
-    const v = sirove[p.id];
+    let v = sirove[p.id];
+    let rezerva = null;
+    if ((typeof v !== 'number' || !Number.isFinite(v)) && p.godisnja) {
+      const t = izIstorije(p.id);
+      if (t) { v = t.v; rezerva = t.d; dijag[p.id + 'Rezerva'] = 'korišćeno merenje od ' + t.d; }
+    }
     if (typeof v !== 'number' || !Number.isFinite(v)) continue;
     const vrednost = Number(v.toFixed(p.decimale));
 
@@ -277,7 +294,7 @@ export async function osveziCene() {
     }
 
     poId[p.id] = vrednost;
-    upisiUIstoriju(istorija, p.id, vrednost, dan);
+    if (!rezerva) upisiUIstoriju(istorija, p.id, vrednost, dan);
     stavke.push({
       id: p.id, grupa: p.grupa, naziv: p.naziv, jedinica: p.jedinica, decimale: p.decimale,
       vrednost,
@@ -286,6 +303,8 @@ export async function osveziCene() {
       promenaOpis: p.godisnja ? 'god./god.' : 'dan',
       gore: promena === null ? null : (promena > 0 ? true : (promena < 0 ? false : null)),
       napomena: p.napomena || null,
+      // Kad je vrednost iz rezerve, čitalac treba da zna od kog je dana.
+      rezervaOd: rezerva,
     });
   }
 
