@@ -45,7 +45,11 @@ export default async (req) => {
   const svez = c && Date.now() - c.ts < TTL;
   // Istekao keš se i dalje prikazuje, a osvežavanje kreće u pozadini. Bolje
   // je videti jučerašnji kurs sa tačnim vremenom očitavanja nego prazno polje.
-  if (!svez) await zatraziOsvezavanje(req);
+  //
+  // ?fresh=1 traži osvežavanje i kad je keš svež, ali ne češće od pet minuta.
+  // Bez te brane bi svako mogao da pokreće pozadinsku funkciju u krug.
+  const star5 = !c || Date.now() - c.ts > 5 * 60 * 1000;
+  if (!svez || (url.searchParams.has('fresh') && star5)) await zatraziOsvezavanje(req);
 
   const telo = c
     ? { ...c, kes: true, svez: Boolean(svez) }

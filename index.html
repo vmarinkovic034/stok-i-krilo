@@ -173,7 +173,7 @@ tailwind.config = {
         <div class="flex items-center gap-8 px-6 whitespace-nowrap" id="ticker-content-2"></div>
       </div>
     </div>
-    <div class="flex-shrink-0 text-gray-500 text-xs px-4 hidden sm:block">Ažurirano danas, 08:15</div>
+    <div class="flex-shrink-0 text-gray-500 text-xs px-4 hidden sm:block" id="ticker-ocitano"></div>
   </div>
 </div>
 
@@ -485,12 +485,11 @@ tailwind.config = {
     <div class="flex items-start justify-between flex-wrap gap-4 mb-8">
       <div>
         <h1 class="font-serif text-4xl font-bold text-gray-950 mb-2">Cene koje pokreću industriju</h1>
-        <p class="text-gray-500">Metali, energija, sirovine i valute - automatski osvježavano.</p>
+        <p class="text-gray-500">Metali, energija, sirovine i valute — server ih povlači na svaki sat.</p>
       </div>
       <div class="flex items-center gap-3 mt-2">
         <span class="text-xs text-gray-400" id="prices-updated">Učitavam…</span>
-        <button onclick="fetchAllPrices()" class="btn-outline text-xs px-3 py-1.5">↻ Osveži</button>
-        <button onclick="openPriceEditor()" class="btn-outline text-xs px-3 py-1.5">✎ Uredi</button>
+        <button onclick="ucitajCene()" class="btn-outline text-xs px-3 py-1.5">↻ Osveži</button>
       </div>
     </div>
     <!-- Grouped price sections -->
@@ -1159,26 +1158,17 @@ tailwind.config = {
 
 <script>
 // ==================== DATA ====================
-const prices = [
-  // ── METALI ──
-  { id: 'al',     group: 'METALI',   label: 'Aluminijum LME', value: '2.684',  unit: 'EUR/t',    change: '+1.8%', up: true,  live: true,  ticker: 'ALI=F', conv: 'usd_t_eur_t'   },
-  { id: 'cu',     group: 'METALI',   label: 'Bakar LME',      value: '9.412',  unit: 'EUR/t',    change: '-0.7%', up: false, live: true,  ticker: 'HG=F',  conv: 'usd_lb_eur_t'  },
-  // ── ENERGIJA ──
-  { id: 'brent',  group: 'ENERGIJA', label: 'Nafta Brent',    value: '68.42',  unit: 'USD/bbl',  change: '+0.4%', up: true,  live: true,  ticker: 'BZ=F',  conv: 'direct'        },
-  { id: 'gas',    group: 'ENERGIJA', label: 'Gas HH',         value: '3.18',   unit: 'USD/MMBtu',change: '+1.2%', up: true,  live: true,  ticker: 'NG=F',  conv: 'direct'        },
-  // ── SIROVINE (manual) ──
-  { id: 'pvc',    group: 'SIROVINE', label: 'PVC granulat',   value: '1.050',  unit: 'EUR/t',    change: '+2.1%', up: true,  live: false },
-  { id: 'glass',  group: 'SIROVINE', label: 'Float staklo',   value: '104.8',  unit: 'INDEX',    change: '+0.8%', up: true,  live: false },
-  { id: 'sil',    group: 'SIROVINE', label: 'Silikon sealant',value: '3.20',   unit: 'EUR/kg',   change: '0.0%',  up: true,  live: false },
-  { id: 'epdm',   group: 'SIROVINE', label: 'EPDM profili',   value: '2.85',   unit: 'EUR/kg',   change: '-0.5%', up: false, live: false },
-  // ── VALUTE ──
-  { id: 'eurrsd', group: 'VALUTE',   label: 'EUR / RSD',      value: '117.25', unit: '',         change: '+0.1%', up: true,  live: true,  fxCode: 'RSD' },
-  { id: 'eurbam', group: 'VALUTE',   label: 'EUR / BAM',      value: '1.9558', unit: '',         change: '0.0%',  up: true,  live: false, note: 'Fiksni kurs' },
-  { id: 'eurmkd', group: 'VALUTE',   label: 'EUR / MKD',      value: '61.52',  unit: '',         change: '+0.0%', up: true,  live: true,  fxCode: 'MKD' },
-  { id: 'eurall', group: 'VALUTE',   label: 'EUR / ALL',      value: '123.45', unit: '',         change: '+0.1%', up: true,  live: true,  fxCode: 'ALL' },
-  { id: 'eurron', group: 'VALUTE',   label: 'EUR / RON',      value: '4.977',  unit: '',         change: '-0.1%', up: false, live: true,  fxCode: 'RON' },
-  { id: 'eurusd', group: 'VALUTE',   label: 'EUR / USD',      value: '1.0842', unit: '',         change: '+0.2%', up: true,  live: true,  fxCode: 'USD' },
-];
+// ==================== CENE ====================
+// Niz je prazan dok server ne odgovori, i to namerno. Ranije su u kodu stajale
+// rezervne vrednosti: kad izvor padne, čitalac je stare brojeve čitao kao
+// današnje i nije imao načina da to primeti. Prazno polje je bolje od
+// pogrešnog broja.
+//
+// Popunjava ga ucitajCene() sa /api/cene. Oblik stavke je isti kao ranije
+// (id, group, label, value, unit, change, up), pa traka, kartice i blok na
+// naslovnoj rade bez izmena.
+let prices = [];
+let ceneOcitano = null;
 
 // ==================== NEWS EDITORIAL STANDARD ====================
 // Svaka vest u newsItems mora imati tri dela (dogovoreno sa urednikom):
@@ -1715,239 +1705,94 @@ function renderHero() {
 
 
 
-// ==================== PRICE EDITOR ====================
-const STORAGE_KEY = 'stokikrilo_prices_v1';
+// Uređivač cena je sklonjen 5. 10. 2026.
+// Dok su cene stajale u kodu, imao je smisla: neke su se povlačile, neke su se
+// unosile rukom. Sada svih trinaest pokazatelja povlači server, pa uređivač
+// više nije mogao da ispravi podatak — samo da ga, u pregledaču vlasnika,
+// prikaže drugačije nego što jeste. To je ista zamka kao izmišljena istorija
+// na grafikonu, pa je uklonjen zajedno sa čuvanjem u localStorage.
 
-function loadSavedPrices() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    prices.forEach(p => {
-      if (saved[p.id]) {
-        if (saved[p.id].value !== undefined) p.value  = saved[p.id].value;
-        if (saved[p.id].change !== undefined) p.change = saved[p.id].change;
-        if (saved[p.id].up    !== undefined) p.up     = saved[p.id].up;
-      }
-    });
-  } catch(e) {}
+// ==================== CENE SA SERVERA ====================
+// Do 5. 10. 2026. ovo je radio pregledač čitaoca: Jahu berza i Eurostat preko
+// tuđeg besplatnog posrednika (r.jina.ai), a kad posrednik padne, u kodu su
+// stajale rezervne vrednosti. Čitalac je tada video stare brojeve sa svežim
+// vremenom iznad njih.
+//
+// Sada povlači server, na svaki sat (netlify/functions/_cene.mjs), a stranica
+// samo čita gotov rezultat sa /api/cene i ispisuje vreme očitavanja.
+let _ceneTajmer = null;
+
+// Brojevi po srpskom pravopisu: hiljade se razdvajaju tačkom, decimale zapetom.
+function brojSrpski(v, decimale) {
+  if (typeof v !== 'number' || !Number.isFinite(v)) return '—';
+  return new Intl.NumberFormat('sr-Latn-RS', {
+    minimumFractionDigits: decimale,
+    maximumFractionDigits: decimale,
+  }).format(v);
 }
 
-function savePriceEdits() {
-  const saved = {};
-  prices.forEach(p => {
-    const valEl = document.getElementById('pe-val-' + p.id);
-    const chgEl = document.getElementById('pe-chg-' + p.id);
-    if (!valEl) return;
-    const newVal = valEl.value.trim();
-    const newChg = chgEl ? chgEl.value.trim() : p.change;
-    const up = !newChg.startsWith('-');
-    p.value  = newVal  || p.value;
-    p.change = newChg  || p.change;
-    p.up     = up;
-    if (!p.live) {
-      saved[p.id] = { value: p.value, change: p.change, up: p.up };
-    }
-  });
-  // Also save manually-overridden live prices that user edited
-  prices.forEach(p => {
-    const valEl = document.getElementById('pe-val-' + p.id);
-    if (valEl && p.live) {
-      const overrideVal = valEl.value.trim();
-      if (overrideVal !== String(p.value)) {
-        saved[p.id] = { value: p.value, change: p.change, up: p.up };
-      }
-    }
-  });
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); } catch(e) {}
-  closePriceEditor();
-  renderPriceGroups();
-  buildTicker();
-  renderSnapshot();
-}
-
-function resetManualPrices() {
-  if (!confirm('Resetovati sve ručno unesene vrijednosti?')) return;
-  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
-  closePriceEditor();
-  location.reload();
-}
-
-function openPriceEditor() {
-  const body = document.getElementById('price-editor-body');
-  const groups = ['METALI', 'ENERGIJA', 'SIROVINE', 'VALUTE'];
-  const groupLabels = { METALI: 'Metali', ENERGIJA: 'Energija', SIROVINE: 'Sirovine', VALUTE: 'Valute' };
-  body.innerHTML = groups.map(g => {
-    const items = prices.filter(p => p.group === g);
-    return `
-      <div class="mb-5">
-        <div class="text-xs font-bold tracking-widest text-gray-400 mb-3 pb-1 border-b border-gray-100">${groupLabels[g]}</div>
-        ${items.map(p => `
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-36 flex-shrink-0">
-              <div class="text-sm font-medium text-gray-800">${p.label}</div>
-              <div class="text-xs text-gray-400">${p.unit || 'valuta'} ${p.live ? '<span class="text-green-600">● live</span>' : '<span class="text-gray-400">- ručno</span>'}</div>
-            </div>
-            <input id="pe-val-${p.id}" type="text" value="${p.value}"
-              class="border border-gray-300 px-3 py-1.5 text-sm w-32 font-mono"
-              placeholder="npr. 2.684" ${p.live ? 'style="color:#9ca3af" title="Live - automatski se ažurira"' : ''} />
-            <input id="pe-chg-${p.id}" type="text" value="${p.change}"
-              class="border border-gray-300 px-3 py-1.5 text-sm w-24 font-mono"
-              placeholder="+1.2%" />
-            <div class="text-xs text-gray-400">${p.note || ''}</div>
-          </div>
-        `).join('')}
-      </div>`;
-  }).join('');
-  document.getElementById('price-editor-overlay').classList.add('open');
-}
-
-function closePriceEditor() {
-  document.getElementById('price-editor-overlay').classList.remove('open');
-}
-
-// ==================== LIVE PRICE FETCH ====================
-// NAPOMENA: corsproxy.io je prestao da radi besplatno za produkcione domene (samo localhost).
-// r.jina.ai je besplatan reader proxy koji vraća sadržaj bez CORS ogranicenja - odgovor
-// dolazi umotan u tekst ("Markdown Content:\n" + telo), pa ga parsiramo posebno (vidi _fetchViaJina).
-const CORS_PROXY = 'https://r.jina.ai/';
-const YF_BASE    = 'https://query1.finance.yahoo.com/v8/finance/chart/';
-let _pricesRefreshTimer = null;
-
-function _fetchTimeout(url, ms) {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(t));
-}
-
-async function _fetchViaJina(targetUrl, ms) {
-  const r = await _fetchTimeout(CORS_PROXY + targetUrl, ms);
-  const text = await r.text();
-  const marker = 'Markdown Content:\n';
-  const idx = text.indexOf(marker);
-  const jsonStr = idx >= 0 ? text.slice(idx + marker.length) : text;
-  return JSON.parse(jsonStr);
-}
-
-async function fetchAllPrices() {
+async function ucitajCene() {
   const statusEl = document.getElementById('prices-updated');
-  if (statusEl) statusEl.textContent = 'Učitavam…';
+  if (statusEl && !prices.length) statusEl.textContent = 'Učitavam…';
 
-  let eurusd = parseFloat(prices.find(p => p.id === 'eurusd').value) || 1.08;
-
-  // ── 1. Valute: ExchangeRate-API (CORS-enabled, no key needed) ──
   try {
-    const r = await _fetchTimeout('https://open.er-api.com/v6/latest/EUR', 7000);
+    const r = await fetch('/api/cene', { signal: AbortSignal.timeout(10000) });
     const d = await r.json();
-    if (d.result === 'success' && d.rates) {
-      eurusd = d.rates.USD || eurusd;
-      prices.forEach(p => {
-        if (!p.fxCode || !d.rates[p.fxCode]) return;
-        const newVal = d.rates[p.fxCode];
-        const oldVal = parseFloat(p.value) || newVal;
-        const chg    = ((newVal - oldVal) / oldVal * 100);
-        p.value   = newVal.toFixed(p.fxCode === 'USD' ? 4 : 2);
-        p.change  = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-        p.up      = chg >= 0;
-        p.fetched = true;
-      });
+    const stavke = Array.isArray(d.stavke) ? d.stavke : [];
+
+    if (stavke.length) {
+      prices = stavke.map(s => ({
+        id: s.id,
+        group: s.grupa,
+        label: s.naziv,
+        unit: s.jedinica || '',
+        value: brojSrpski(s.vrednost, s.decimale),
+        change: s.promena === null || s.promena === undefined
+          ? ''
+          : (s.promena >= 0 ? '+' : '') + brojSrpski(s.promena, 2) + '%',
+        up: s.gore !== false,
+        note: s.napomena || '',
+        live: true,
+        fetched: true,
+      }));
+      ceneOcitano = d.ocitano || null;
     }
-  } catch(e) { console.warn('FX fetch error:', e.message); }
 
-  // ── 2. Metali & energija: Yahoo Finance via CORS proxy ──
-  const metalJobs = [
-    { id: 'al',    ticker: 'ALI=F', convFn: v => (v / eurusd).toFixed(0)                   }, // USD/t  → EUR/t
-    { id: 'cu',    ticker: 'HG=F',  convFn: v => (v * 2204.62 / eurusd).toFixed(0)          }, // USD/lb → EUR/t
-    { id: 'brent', ticker: 'BZ=F',  convFn: v => v.toFixed(2)                               }, // USD/bbl direct
-    { id: 'gas',   ticker: 'NG=F',  convFn: v => v.toFixed(3)                               }, // USD/MMBtu direct
-  ];
-
-  await Promise.allSettled(metalJobs.map(async ({ id, ticker, convFn }) => {
-    try {
-      const d = await _fetchViaJina(YF_BASE + ticker, 12000);
-      const meta = d?.chart?.result?.[0]?.meta;
-      if (!meta) return;
-      const current  = meta.regularMarketPrice;
-      const prevClose = meta.previousClose || meta.chartPreviousClose || current;
-      const chg = ((current - prevClose) / prevClose * 100);
-      const p = prices.find(x => x.id === id);
-      if (!p) return;
-      p.value   = convFn(current);
-      p.change  = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-      p.up      = chg >= 0;
-      p.fetched = true;
-    } catch(e) { console.warn(ticker + ' fetch error:', e.message); }
-  }));
-
-  // ── 3. Statisticki indeksi: Eurostat PPI (proizvodjacke cene u industriji, EU27) ──
-  // Napomena: dataset sts_inppd_m nema fine NACE potklase (npr. C23.1 za staklo posebno
-  // ne postoji u ovom datasetu) - koristimo najblize dostupne dvocifrene/trocifrene sifre:
-  // C23 = "Ostali nemetalni mineralni proizvodi" (uklj. staklo) za staklo,
-  // C22 = "Guma i plasticni proizvodi" (uklj. PVC granulat) za PVC.
-  async function fetchEurostatPPI(naceCode) {
-    const url = 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inppd_m'
-      + '?indic_bt=PRC_PRR_DOM&s_adj=NSA&unit=I15&geo=EU27_2020&lang=en&format=JSON&nace_r2=' + naceCode;
-    const r = await _fetchTimeout(url, 8000);
-    const d = await r.json();
-    if (!d.value) return null;
-    const vals = d.value;
-    const keys = Object.keys(vals).map(Number).sort((a, b) => a - b);
-    const last  = vals[keys[keys.length - 1]];
-    const prev2 = vals[keys[keys.length - 2]];
-    if (!last || !prev2) return null;
-    return { last, chg: (last - prev2) / prev2 * 100 };
+    if (statusEl) {
+      if (!stavke.length) {
+        statusEl.textContent = d.poruka || 'Izvori trenutno nedostupni';
+      } else {
+        const t = ceneOcitano ? new Date(ceneOcitano) : null;
+        const kada = t && !isNaN(t)
+          ? t.toLocaleString('sr-Latn-RS', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : null;
+        statusEl.textContent = (kada ? 'Očitano ' + kada : 'Očitano')
+          + ' · ' + stavke.length + ' pokazatelja'
+          + (d.svez === false ? ' · osvežavanje u toku' : '');
+      }
+    }
+  } catch (e) {
+    console.warn('cene:', e.message);
+    if (statusEl && !prices.length) statusEl.textContent = 'Izvori trenutno nedostupni';
   }
 
-  try {
-    const res = await fetchEurostatPPI('C23');
-    if (res) {
-      const p = prices.find(x => x.id === 'glass');
-      if (p) {
-        p.value   = res.last.toFixed(1);
-        p.unit    = 'INDEX (EU27)';
-        p.change  = (res.chg >= 0 ? '+' : '') + res.chg.toFixed(2) + '%';
-        p.up      = res.chg >= 0;
-        p.fetched = true;
-        p.live    = true;
-        p.note    = 'Eurostat PPI, NACE C23 (nemetalni min. proizvodi, uklj. staklo)';
-      }
-    }
-  } catch(e) { console.warn('Eurostat glass PPI error:', e.message); }
-
-  try {
-    const res = await fetchEurostatPPI('C22');
-    if (res) {
-      const p = prices.find(x => x.id === 'pvc');
-      if (p) {
-        p.value   = res.last.toFixed(1);
-        p.unit    = 'INDEX (EU27)';
-        p.change  = (res.chg >= 0 ? '+' : '') + res.chg.toFixed(2) + '%';
-        p.up      = res.chg >= 0;
-        p.fetched = true;
-        p.live    = true;
-        p.note    = 'Eurostat PPI, NACE C22 (guma i plasticni proizvodi, uklj. PVC)';
-      }
-    }
-  } catch(e) { console.warn('Eurostat PVC PPI error:', e.message); }
-
-  // ── 4. Refresh UI ──
-  const now     = new Date();
-  const timeStr = now.toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' });
-  const liveCount = prices.filter(p => p.fetched).length;
-  // Kad nijedan izvor ne odgovori, na ekranu ostaju rezervne vrednosti iz koda.
-  // Tada se ne sme pisati „Ažurirano u 14:06" — čitalac bi stare brojeve čitao
-  // kao današnje, a nema načina da primeti razliku.
-  if (statusEl) {
-    statusEl.textContent = liveCount
-      ? `Ažurirano ${timeStr} · ${liveCount} live`
-      : 'Izvori trenutno nedostupni — prikazane poslednje poznate vrednosti';
+  // Sat iznad trake. Ranije je tu u kodu stajalo „Ažurirano danas, 08:15", bez
+  // obzira na to kad su brojevi stvarno očitani.
+  const trakaEl = document.getElementById('ticker-ocitano');
+  if (trakaEl) {
+    const t = ceneOcitano ? new Date(ceneOcitano) : null;
+    trakaEl.textContent = t && !isNaN(t)
+      ? 'Očitano ' + t.toLocaleString('sr-Latn-RS', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : '';
   }
 
   renderPriceGroups();
   buildTicker();
   renderSnapshot();
 
-  // ── 4. Schedule next refresh (5 min) ──
-  if (_pricesRefreshTimer) clearTimeout(_pricesRefreshTimer);
-  _pricesRefreshTimer = setTimeout(fetchAllPrices, 5 * 60 * 1000);
+  // Keš na serveru traje sat, pa češće od ovoga nema šta da se vidi.
+  if (_ceneTajmer) clearTimeout(_ceneTajmer);
+  _ceneTajmer = setTimeout(ucitajCene, 15 * 60 * 1000);
 }
 
 // ==================== BLOK SA TRI PODATKA NA NASLOVNOJ ====================
@@ -2089,88 +1934,29 @@ function renderPriceGroups() {
 function renderPriceCards() { renderPriceGroups(); }
 
 function selectPrice(id) {
+  const p = prices.find(x => x.id === id);
+  if (!p) return;
   activePriceId = id;
   renderPriceCards();
-  const p = prices.find(x => x.id === id);
-  document.getElementById('chart-title').textContent = `${p.label} - ${p.unit || 'Index'}`;
-  updateChart();
+  // Naslov grafikona se postavljao ovde. Grafikon je sklonjen, pa je element
+  // nestao iz dokumenta, a ovaj red je obarao svaki klik na karticu cene.
+  const naslov = document.getElementById('chart-title');
+  if (naslov) naslov.textContent = `${p.label} — ${p.unit || 'indeks'}`;
 }
 
-function genData(n, base, vol) {
-  const d = [];
-  let v = base;
-  for (let i = 0; i < n; i++) {
-    v = v + (Math.random() - 0.48) * vol;
-    d.push(Math.max(base * 0.85, +v.toFixed(2)));
-  }
-  return d;
-}
-
-function genLabels(n, period) {
-  const labels = [];
-  const now = new Date();
-  for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(now);
-    if (period === '1D') {
-      d.setHours(now.getHours() - i, 0, 0, 0);
-      labels.push(d.toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' }));
-    } else if (period === '1Y') {
-      d.setDate(now.getDate() - i * 7);
-      labels.push(d.toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' }));
-    } else {
-      d.setDate(now.getDate() - i);
-      labels.push(d.toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' }));
-    }
-  }
-  return labels;
-}
-
-const periodConfig = { '1D': { n: 24, vol: 4, subtitle: 'Sat po sat, poslednja 24h' }, '30D': { n: 30, vol: 18, subtitle: 'Dnevni podaci, poslenjih 30 dana' }, '90D': { n: 90, vol: 22, subtitle: 'Dnevni podaci, poslenjih 90 dana' }, '1Y': { n: 52, vol: 28, subtitle: 'Nedeljni podaci, poslenjih 12 meseci' } };
-
-// Privremeno bez dejstva. Ranije je crtala nasumičnu „istoriju" cene.
-// Ostaje kao prazna funkcija da je pozivi sa drugih mesta ne obore.
+// Ovde su stajali genData, genLabels, periodConfig i stari updateChart.
+// genData je nasumičnim brojevima pravio „istoriju" oko trenutne cene, pa su
+// dva osvežavanja stranice davala dve različite prošlosti. Obrisano 5. 10.
+// 2026, zajedno sa grafikonom.
+//
+// Prava istorija se od tada beleži na serveru, po jednoj tački dnevno, i čita
+// se sa /api/cene?istorija=1. Grafikon se vraća kad bude dovoljno tačaka.
 function updateChart() { return; }
-
-function _updateChartStari() {
-  const p = prices.find(x => x.id === activePriceId);
-  const baseVal = parseFloat(p.value.replace(',', '.'));
-  const cfg = periodConfig[activePeriod];
-  const labels = genLabels(cfg.n, activePeriod);
-  const data = genData(cfg.n, baseVal, cfg.vol);
-  data[data.length - 1] = baseVal;
-  document.getElementById('chart-subtitle').textContent = cfg.subtitle;
-  const ctx = document.getElementById('main-chart').getContext('2d');
-  if (mainChart) mainChart.destroy();
-  mainChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        data,
-        borderColor: p.up ? '#16a34a' : '#dc2626',
-        backgroundColor: p.up ? 'rgba(22,163,74,0.06)' : 'rgba(220,38,38,0.06)',
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.35,
-        fill: true,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, callbacks: { label: ctx => `${p.value.split('.')[0]} - ${ctx.parsed.y.toFixed(2)} ${p.unit}` } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10 }, color: '#9ca3af' } },
-        y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 }, color: '#9ca3af' } },
-      }
-    }
-  });
-}
 
 function setPeriod(period, btn) {
   activePeriod = period;
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  updateChart();
+  if (btn) btn.classList.add('active');
 }
 
 // ==================== COMPANIES ====================
@@ -3030,12 +2816,11 @@ function initPortal() {
   try { renderAdStrips(); } catch(e) { console.error('renderAdStrips:', e); }
   try { updateCompanyStat(); } catch(e) { console.error('updateCompanyStat:', e); }
   try { fetchApprovedNews(); } catch(e) { console.error('fetchApprovedNews:', e); }
-  try { loadSavedPrices(); } catch(e) { console.error('loadSavedPrices:', e); }
   try { buildTicker(); } catch(e) { console.error('buildTicker:', e); }
   try { renderSnapshot(); } catch(e) { console.error('renderSnapshot:', e); }
   try { renderNews('sve'); } catch(e) { console.error('renderNews:', e); }
   try { renderHero(); } catch(e) { console.error('renderHero:', e); }
-  try { fetchAllPrices(); } catch(e) { console.error('fetchAllPrices:', e); }
+  try { ucitajCene(); } catch(e) { console.error('ucitajCene:', e); }
   try { Promise.resolve(fetchCompaniesFromSheet()).then(updateCompanyStat).catch(()=>{}); } catch(e) { console.error('fetchCompaniesFromSheet:', e); }
   try {
     const m = location.hash.match(/^#vest-(\d+)$/);
@@ -3055,29 +2840,6 @@ if (document.readyState === 'loading') {
   initPortal();
 }
 </script>
-
-<!-- ===================== ADMIN: PRICE EDITOR ===================== -->
-<div id="price-editor-overlay" class="modal-overlay" onclick="if(event.target===this)closePriceEditor()">
-  <div class="bg-white w-full max-w-2xl" style="margin:auto;">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-      <div>
-        <div class="font-serif text-xl font-bold text-gray-950">Uredi cene</div>
-        <div class="text-xs text-gray-400 mt-0.5">Live indikatori se automatski ažuriraju. Ručne vrijednosti čuvaju se lokalno.</div>
-      </div>
-      <button onclick="closePriceEditor()" class="text-gray-400 hover:text-gray-700 text-xl font-light">✕</button>
-    </div>
-    <div class="px-6 py-4 overflow-y-auto" style="max-height:70vh;">
-      <div id="price-editor-body"></div>
-    </div>
-    <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100">
-      <button onclick="resetManualPrices()" class="text-xs text-gray-400 hover:text-gray-600">Resetuj na podrazumijevane</button>
-      <div class="flex gap-3">
-        <button onclick="closePriceEditor()" class="btn-outline text-sm">Otkaži</button>
-        <button onclick="savePriceEdits()" class="btn-primary text-sm">Sačuvaj</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Cloudflare Web Analytics. Bez kolačića, pa portalu ne treba traka za
      pristanak. Ugrađuje se ručno jer saobraćaj ne prolazi kroz Cloudflare
