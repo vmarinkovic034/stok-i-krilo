@@ -2782,10 +2782,16 @@ function otvoriIzLinka() {
   const m = location.hash.match(/^#vest-(.+)$/);
   if (!m) return;
   const i = nadjiVest(m[1]);
-  if (i < 0) return;
+  if (i < 0) { console.log('deep-link: nema vesti za ' + m[1]); return; }
   // Članak je preklop preko strane, pa se strana ne menja — inače bi link
   // oblika /kompanije#vest-x prebacio čitaoca na naslovnu.
-  setTimeout(() => openArticle(i), 50);
+  //
+  // Greška unutar setTimeout-a ne bi stigla do pozivaoca, pa se hvata ovde.
+  // Bez toga podeljeni link tiho ne radi, a u konzoli ništa ne piše.
+  setTimeout(() => {
+    try { openArticle(i); }
+    catch (e) { console.error('deep-link: openArticle pukao — ' + e.message, e); }
+  }, 50);
 }
 
 
