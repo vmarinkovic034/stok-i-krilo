@@ -120,7 +120,7 @@ function izSerije(d) {
 async function eurostatPPI(nace) {
   const url = 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inppd_m'
     + '?indic_bt=PRC_PRR_DOM&s_adj=NSA&unit=I15&geo=EU27_2020&lang=en&format=JSON&nace_r2=' + nace;
-  return izSerije(await (await uzmi(url)).json());
+  return izSerije(await (await uzmi(url, {}, 20000)).json());
 }
 
 // Dozvole za gradnju, sve zgrade, kvadrati korisne površine, sezonski
@@ -130,7 +130,7 @@ async function eurostatDozvole() {
   const url = 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_cobp_m'
     + '?indic_bt=BPRM_SQM&cpa2_1=CPA_F41001_41002&s_adj=SCA&unit=I21&geo=EU27_2020'
     + '&lang=en&format=JSON&lastTimePeriod=18';
-  return izSerije(await (await uzmi(url, {}, 15000)).json());
+  return izSerije(await (await uzmi(url, {}, 20000)).json());
 }
 
 // ── EURIBOR (ECB) ─────────────────────────────────────────────────────────
@@ -146,7 +146,9 @@ async function euribor() {
   // promena iskazuje u procentnim poenima, ne u procentima od same sebe.
   const url = 'https://data-api.ecb.europa.eu/service/data/FM/M.U2.EUR.RT.MM.EURIBOR3MD_.HSTA'
     + '?lastNObservations=13&format=csvdata';
-  const tekst = await (await uzmi(url)).text();
+  // ECB-u za trinaest merenja treba i preko dvanaest sekundi. Posao radi u
+  // pozadinskoj funkciji, koja ima petnaest minuta, pa nema razloga za žurbu.
+  const tekst = await (await uzmi(url, {}, 25000)).text();
   const redovi = tekst.trim().split('\n').filter(r => r.trim());
   if (redovi.length < 2) throw new Error('prazan CSV');
   const zaglavlje = redovi[0].split(',').map(x => x.trim().replace(/^"|"$/g, ''));
