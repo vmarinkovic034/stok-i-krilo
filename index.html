@@ -781,7 +781,7 @@ tailwind.config = {
     <div class="mb-10 border-b border-gray-200 pb-8">
       <div class="tag text-brand mb-2">DIREKTORIJUM SOFTVERA</div>
       <h1 class="font-serif text-4xl font-bold text-gray-950 mb-3">Alati za proizvođače</h1>
-      <p class="text-gray-500 max-w-2xl">Kurirani pregled softvera i digitalnih alata za industriju prozora, vrata i fasada. Svaki alat je ručno provjeren - listujemo samo rješenja s podrškom ili lokalizacijom za balkanske tržište.</p>
+      <p class="text-gray-500 max-w-2xl">Kurirani pregled softvera i digitalnih alata za industriju prozora, vrata i fasada. Svaki alat je ručno proveren - listujemo samo rešenja s podrškom ili lokalizacijom za balkanske tržište.</p>
       <div class="mt-6 flex flex-wrap gap-3 items-center">
         <button class="filter-btn active" onclick="filterTools('sve', this)">Sve kategorije</button>
         <button class="filter-btn" onclick="filterTools('erp', this)">ERP / Upravljanje</button>
@@ -842,7 +842,7 @@ tailwind.config = {
             <div class="flex flex-wrap gap-2 mb-5">
               <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">AL profili</span>
               <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">Statika</span>
-              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">U-vrijednost</span>
+              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">U-vrednost</span>
               <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1">DE / EN</span>
             </div>
             <div class="flex gap-2">
@@ -882,8 +882,8 @@ tailwind.config = {
         <!-- Placeholder / Vendor CTA -->
         <div class="tool-card bg-white border border-dashed border-gray-300 p-5 flex flex-col items-center justify-center text-center" style="min-height:200px;" data-category="sve">
           <div class="w-10 h-10 bg-gray-100 flex items-center justify-center text-gray-400 text-xl mb-3">+</div>
-          <div class="font-semibold text-gray-700 mb-1">Vaš softver ovdje</div>
-          <p class="text-gray-400 text-sm mb-4">Prodajete rješenje za industriju? Listajte se na Štok i Krilo i pristupite kupcima koji već traže alate.</p>
+          <div class="font-semibold text-gray-700 mb-1">Vaš softver ovde</div>
+          <p class="text-gray-400 text-sm mb-4">Prodajete rešenje za industriju? Listajte se na Štok i Krilo i pristupite kupcima koji već traže alate.</p>
           <button class="btn-outline text-xs" onclick="openDemoModal('listing')">Zatražite listing →</button>
         </div>
 
@@ -1369,11 +1369,11 @@ const companies = [
   // ── SRBIJA ──
   { name: 'Alumil YU Industry', city: 'Čačak', country: 'Srbija', cat: 'AL profili', products: ['Ekstruzija aluminijuma', 'Arhitektonski sistemi', 'Fasadni sistemi'], verified: true, url: 'https://www.alumil.com/serbia', desc: 'Grčka grupacija Alumil u Srbiji ima vlastitu fabriku ekstruzije aluminijumskih profila u Čačku. Jedna od rijetkih lokalnih ekstruzija u regionu. Ove godine slavi 20 godina rada u Srbiji.' },
   { name: 'ETEM Srbija', city: 'Beograd', country: 'Srbija', cat: 'AL profili', products: ['Prozorski sistemi', 'Fasadni sistemi', 'Klizna vrata'], verified: true, url: 'https://www.etem.com', desc: 'ETEM (dio EL.PROM grupe) nudi aluminijumske arhitektonske sisteme za prozore, vrata i fasade. Aktivni na tržištu Srbije, BiH i regije.' },
-  { name: 'AGC Flat Glass Jug', city: 'Beograd', country: 'Srbija', cat: 'Staklo', products: ['Float staklo', 'Niskoemisijsko staklo', 'Sigurnosno staklo'], verified: true, url: 'https://www.agc-glass.eu', desc: 'AGC distribucija i obrada ravnog stakla za srpsko tržište. Dio AGC grupe - jednog od tri najveća svjetska proizvođača ravnog stakla.' },
-  { name: 'Rolomatik', city: 'Beograd', country: 'Srbija', cat: 'Garažna vrata', products: ['Garažna segmentna vrata', 'Industrijska vrata', 'Rolo vrata'], verified: false, url: 'https://rolomatik.com', desc: 'Srpski proizvođač i instalater garažnih i industrijskih vrata. Pokriva tržište Srbije i dijela regije.' },
+  { name: 'AGC Flat Glass Jug', city: 'Beograd', country: 'Srbija', cat: 'Staklo', products: ['Float staklo', 'Niskoemisijsko staklo', 'Sigurnosno staklo'], verified: true, url: 'https://www.agc-glass.eu', desc: 'AGC distribucija i obrada ravnog stakla za srpsko tržište. Dio AGC grupe - jednog od tri najveća svetska proizvođača ravnog stakla.' },
+  { name: 'Rolomatik', city: 'Beograd', country: 'Srbija', cat: 'Garažna vrata', products: ['Garažna segmentna vrata', 'Industrijska vrata', 'Rolo vrata'], verified: false, url: 'https://rolomatik.com', desc: 'Srpski proizvođač i instalater garažnih i industrijskih vrata. Pokriva tržište Srbije i dela regije.' },
   { name: 'Aluline', city: 'Beograd', country: 'Srbija', cat: 'Garažna vrata', products: ['Garažna rolo vrata', 'Segmentna vrata', 'Industrijska vrata'], verified: false, url: 'https://aluline.rs', desc: 'Aluline proizvodi i ugrađuje garažna rolo vrata i industrijska segmentna vrata na srpskom tržištu.' },
-  { name: 'Profilink', city: 'Beograd', country: 'Srbija', cat: 'PVC/AL sistemi', products: ['PVC profili', 'Aluminijumski sistemi', 'Roletni sistemi'], verified: false, url: 'https://www.prozorivrata.com/profilink-prosiruje-svoj-portfolio-aluminijumskim-resenjima/', desc: 'Profilink je proširio portfolio aluminijumskim rješenjima. Distribuira profile i roletne sisteme za srpske proizvođače stolarije.' },
-  { name: 'Roto Frank Srbija', city: 'Novi Sad', country: 'Srbija', cat: 'Okov', products: ['NT okretno-nagibni okov', 'Klizni okov', 'Sigurnosni okov'], verified: true, url: 'https://www.roto-frank.com', desc: 'Regionalni zastupnik Roto Frank okova za srpsko tržište. Roto je jedan od tri najveća svjetska proizvođača okova za stolariju.' },
+  { name: 'Profilink', city: 'Beograd', country: 'Srbija', cat: 'PVC/AL sistemi', products: ['PVC profili', 'Aluminijumski sistemi', 'Roletni sistemi'], verified: false, url: 'https://www.prozorivrata.com/profilink-prosiruje-svoj-portfolio-aluminijumskim-resenjima/', desc: 'Profilink je proširio portfolio aluminijumskim rešenjima. Distribuira profile i roletne sisteme za srpske proizvođače stolarije.' },
+  { name: 'Roto Frank Srbija', city: 'Novi Sad', country: 'Srbija', cat: 'Okov', products: ['NT okretno-nagibni okov', 'Klizni okov', 'Sigurnosni okov'], verified: true, url: 'https://www.roto-frank.com', desc: 'Regionalni zastupnik Roto Frank okova za srpsko tržište. Roto je jedan od tri najveća svetska proizvođača okova za stolariju.' },
   { name: 'Alphaline', city: 'Beograd', country: 'Srbija', cat: 'Okov', products: ['Siegenia okov', 'MACO okov', 'Sigurnosni sistemi'], verified: false, url: 'https://alphaline.rs', desc: 'Distributer Siegenia i MACO okova za Srbiju. Nudi kompletnu paletu okova za PVC i aluminijumsku stolariju.' },
   { name: 'Mega Plus', city: 'Beograd', country: 'Srbija', cat: 'Arhitekte / projektantski biro', products: ['Projektovanje objekata', 'Idejni i glavni projekti', 'Legalizacija objekata'], verified: false, url: 'https://megaplus.rs', desc: 'Projektni biro osnovan 1991. u Beogradu, sa preko 220 izvedenih objekata za investitore poput Luke Beograd, MUP-a Srbije i Delhaize/Maxi. Bavi se kompletnom tehničkom dokumentacijom, od idejnog rešenja do upotrebne dozvole.' },
   { name: 'Gušić Architecture', city: 'Beograd', country: 'Srbija', cat: 'Arhitekte / projektantski biro', products: ['Stambeni objekti', 'Izložbeni i kulturni prostori', 'Enterijer'], verified: false, url: 'https://www.gusicarchitecture.com', desc: 'Nagrađivani beogradski studio Aleksandra Gušića, specijalizovan za stambenu i kulturnu arhitekturu. Osvojio Grand Prix Balkanskog arhitektonskog bijenala i više nagrada na Salonu arhitekture u Beogradu.' },
@@ -1398,7 +1398,7 @@ const companies = [
 const eduItems = [
   {
     cat: 'tehnika', catLabel: 'TEHNIKA', premium: false,
-    title: 'Kako čitati U-vrijednost: šta znači Uf, Ug i Uw za krajnji proizvod',
+    title: 'Kako čitati U-vrednost: šta znači Uf, Ug i Uw za krajnji proizvod',
     author: 'Redakcija', time: '8 min'
   },
   {
@@ -1408,12 +1408,12 @@ const eduItems = [
   },
   {
     cat: 'menadžment', catLabel: 'MENADŽMENT', premium: true,
-    title: 'Kalkulacija cijene po otvoru: od materijala do margine',
+    title: 'Kalkulacija cene po otvoru: od materijala do margine',
     author: 'Redakcija', time: '12 min'
   },
   {
     cat: 'tehnika', catLabel: 'TEHNIKA', premium: false,
-    title: 'EPBD 2026: minimalni zahtjevi za stolariju u novogradnji i renovaciji',
+    title: 'EPBD 2026: minimalni zahtevi za stolariju u novogradnji i renovaciji',
     author: 'Redakcija', time: '10 min'
   },
   {
@@ -1433,7 +1433,7 @@ const events = [
   {
     name: 'BAU München 2027', countryKey: 'nemacka',
     date: '13–18. jan 2027', city: 'München', country: 'Njemačka',
-    desc: 'Najveći svjetski sajam arhitekture, materijala i sistema za gradnju. Obavezan za sve koji prate trendove fasada, prozora i vrata.',
+    desc: 'Najveći svetski sajam arhitekture, materijala i sistema za gradnju. Obavezan za sve koji prate trendove fasada, prozora i vrata.',
     exhibitors: '2.200+'
   },
   {
@@ -1599,7 +1599,7 @@ function renderTenderCard(t) {
                       t.daysLeft <= 14 ? 'border-orange-200 bg-orange-50' :
                       'border-gray-200 bg-white';
   const urgentBadge = t.daysLeft <= 7
-    ? '<span class="inline-block bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded">Uskoro istječe</span>'
+    ? '<span class="inline-block bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded">Uskoro ističe</span>'
     : t.daysLeft <= 14
     ? '<span class="inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-0.5 rounded">Rok uskoro</span>'
     : '';
@@ -1628,7 +1628,7 @@ function renderTenderCard(t) {
     + '<h3 class="font-semibold text-gray-900 text-sm leading-snug mb-1">' + (t.title||'') + '</h3>'
     + '<div class="text-xs text-gray-500 mb-3">' + (t.buyer||'') + ' · ' + (t.location||'') + '</div>'
     + '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">'
-    + '<div><span class="text-gray-400 block">Vrijednost</span><span class="font-semibold text-gray-700">' + (t.value||'N/A') + '</span>' + valueLine + '</div>'
+    + '<div><span class="text-gray-400 block">Vrednost</span><span class="font-semibold text-gray-700">' + (t.value||'N/A') + '</span>' + valueLine + '</div>'
     + '<div><span class="text-gray-400 block">Rok</span><span class="font-semibold text-gray-700">' + (t.deadline||'') + '</span><span class="text-gray-400"> ' + (t.daysLeft||'') + ' dana</span></div>'
     + '<div><span class="text-gray-400 block">Postupak</span><span class="font-semibold text-gray-700">' + (t.procedure||'') + '</span></div>'
     + '<div><span class="text-gray-400 block">CPV</span><span class="font-semibold text-gray-700">' + (t.cpv||'') + '</span><span class="text-gray-400 block">' + (t.cpvLabel||'') + '</span></div>'
