@@ -15,8 +15,9 @@ import { STORE_CENE, KLJUC_CENE, KLJUC_ISTORIJA } from './_cene.mjs';
 const TTL = 60 * 60 * 1000;
 const store = () => getStore(STORE_CENE);
 
-// Pokreće osvežavanje i ne čeka ga. Odgovor čitaocu ne sme da visi zbog
-// Eurostata ili Jahua.
+// Pokreće pozadinsko povlačenje. Čeka samo da ga Netlifaj primi, nikad da se
+// završi — odgovor čitaocu ne sme da visi zbog Eurostata ili Jahua.
+//
 // `cekaj` je u milisekundama. Pozadinska funkcija odgovara sa 202 čim je
 // Netlifaj primi, ali hladan start ume da potraje. Ako prekid stigne pre
 // toga, posao se nikad ne pokrene — zato ručni poziv (?fresh=1) čeka duže
