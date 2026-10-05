@@ -11,7 +11,11 @@ export default async () => {
   const items = approved
     .slice()
     .sort((a, b) => new Date(b.datumISO || b.approvedAt || 0) - new Date(a.datumISO || a.approvedAt || 0))
+    // `id` ide uz vest zbog linkova za deljenje. Ranije je link nosio redni
+    // broj, pa je svaka nova objava pomerala sve ranije: ko je podelio vest
+    // na Vajberu, sutradan je slao nekog drugog.
     .map(d => ({
+      id: d.id,
       cat: d.cat, catLabel: d.catLabel, date: d.date, title: d.title,
       desc: d.desc, body: d.body, read: d.read, source: d.source, url: d.url, img: d.img,
     }));
