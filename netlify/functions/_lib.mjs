@@ -147,17 +147,17 @@ export const SOURCES = [
   // Jezik: bosanski i crnogorski nose lang 'sr' da bi dobili urednička pravila
   // za domaću vest, jer prevod nije potreban. Makedonski, bugarski i grčki
   // imaju svoje oznake i prolaze kroz prevod.
-  { id: 'porta3', name: 'Porta3', lang: 'mk', region: 'Makedonija', tier: 1, opsti: true, dubina: 25,
+  { id: 'porta3', name: 'Porta3', lang: 'mk', region: 'Makedonija', tier: 1, opsti: true, dubina: 25, stranicenje: true,
     rss: 'https://www.porta3.mk/feed/' },
   { id: 'akta', name: 'Akta.ba', lang: 'sr', region: 'BiH', tier: 1, opsti: true, dubina: 40,
     rss: 'https://www.akta.ba/rss' },
-  { id: 'ecoportal', name: 'Ecoportal.me', lang: 'sr', region: 'Crna Gora', tier: 1, opsti: true, dubina: 30,
+  { id: 'ecoportal', name: 'Ecoportal.me', lang: 'sr', region: 'Crna Gora', tier: 1, opsti: true, dubina: 30, stranicenje: true,
     rss: 'https://www.ecoportal.me/feed/' },
   { id: 'stroitel', name: 'Строител', lang: 'bg', region: 'Bugarska', tier: 1,
     opsti: true, kljucne: KLJUCNE_BG, dubina: 40,
     rss: 'https://vestnikstroitel.bg/rss' },
   { id: 'b2green', name: 'B2Green', lang: 'el', region: 'Grcka', tier: 1,
-    opsti: true, kljucne: KLJUCNE_GR, dubina: 40,
+    opsti: true, kljucne: KLJUCNE_GR, dubina: 40, stranicenje: true,
     rss: 'https://news.b2green.gr/feed' },
 ];
 
