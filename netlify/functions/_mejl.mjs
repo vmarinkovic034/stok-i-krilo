@@ -48,6 +48,12 @@ export function link(id, akcija, istice) {
   return `${bazniURL()}/odobri?${q}`;
 }
 
+// Isti potpis, druga strana: prijave firmi se odobravaju iz mejla kao i vesti.
+export function linkFirme(id, akcija, istice) {
+  const q = new URLSearchParams({ id, a: akcija, e: String(istice), s: potpis(id, akcija, istice) });
+  return `${bazniURL()}/odobri-firmu?${q}`;
+}
+
 // ── HTML digesta ──────────────────────────────────────────────────────────
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

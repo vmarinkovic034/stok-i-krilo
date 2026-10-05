@@ -9,6 +9,7 @@
 // se ne gubi ni kad spoljni servis ne radi.
 // ==========================================================================
 import { store, json, readJSON, writeJSON, KLJUC_FIRME } from './_lib.mjs';
+import { linkFirme, SAT, VAZI_SATI } from './_mejl.mjs';
 
 // Svaka prijava je zaseban zapis, ne red u jednom velikom JSON-u. Razlog:
 // upis u zajednički niz je čitaj-izmeni-upiši, pa dve prijave koje stignu
@@ -41,6 +42,28 @@ async function obavesti(prijava) {
          <td style="padding:6px 0;font-size:14px;color:#111827">${String(v).replace(/</g, '&lt;')}</td></tr>`
     : '';
 
+  // Prijava firme se odobrava iz samog mejla. Urednik ne mora da otvara admin
+  // panel ni da pamti token — linkovi su potpisani i važe 48 sati, a klik vodi
+  // na stranu sa potvrdom, pa skener linkova u mejlu ne može ništa da objavi.
+  // Ako potpisivanje padne (nije podešen LINK_SECRET ni ADMIN_TOKEN), mejl
+  // ide bez dugmadi. Izgubiti kontakt zato što dugme nije moglo da se napravi
+  // bilo bi gore od mejla bez dugmadi.
+  let dugmad = '';
+  try {
+  if (prijava.tip === 'firma') {
+    const idFirme = 'kmp-' + prijava.id;
+    const istice = Date.now() + VAZI_SATI * SAT;
+    const dugme = (url, tekst, boja) =>
+      `<a href="${url}" style="display:inline-block;background:${boja};color:#fff;text-decoration:none;`
+      + `padding:12px 22px;font-size:14px;font-weight:600;margin:0 8px 8px 0">${tekst}</a>`;
+    dugmad = `<div style="margin:22px 0 0;padding-top:18px;border-top:1px solid #e5e7eb">
+      ${dugme(linkFirme(idFirme, 'approve', istice), 'Objavi u direktorijumu', '#1a3a5c')}
+      ${dugme(linkFirme(idFirme, 'reject', istice), 'Odbaci', '#dc2626')}
+      <p style="color:#9ca3af;font-size:12px;margin:10px 0 0">Linkovi važe ${VAZI_SATI} sata i traže potvrdu na sledećoj strani — klik sam po sebi ništa ne objavljuje.</p>
+    </div>`;
+  }
+  } catch (e) { console.log('dugmad za odobravanje nisu napravljena: ' + e.message); }
+
   const telo = `<!doctype html><html lang="sr"><body style="margin:0;background:#f5f6f7;font-family:system-ui,sans-serif">
 <table role="presentation" width="100%" style="padding:24px 12px"><tr><td align="center">
 <table role="presentation" width="100%" style="max-width:560px;background:#fff;border:1px solid #e5e7eb">
@@ -48,6 +71,7 @@ async function obavesti(prijava) {
   Nova prijava sa sajta — ${TIPOVI[prijava.tip].naziv}</td></tr>
 <tr><td style="padding:20px 24px">
   <table role="presentation">${Object.entries(prijava.podaci).map(([k, v]) => red(k, v)).join('')}</table>
+  ${dugmad}
   <p style="color:#9ca3af;font-size:12px;margin:18px 0 0">Primljeno ${new Date(prijava.kada).toLocaleString('sr-RS')}</p>
 </td></tr></table></td></tr></table></body></html>`;
 
@@ -225,11 +249,14 @@ export default async (req) => {
 
   // Obaveštenje i Brevo idu posle upisa i nezavisno jedno od drugog. Ako bilo
   // koje padne, prijava je već sačuvana i vidi se u adminu.
-  const [mejl, brevo, direktorijum] = await Promise.all([
-    obavesti(prijava),
-    uBrevo(prijava),
-    tip === 'firma' ? uDirektorijum(prijava) : Promise.resolve({ upisano: false, razlog: 'nije prijava firme' }),
-  ]);
+  // Upis u direktorijum ide prvi, pre mejla. Mejl nosi linkove za odobravanje
+  // te firme — ako bi stigao pre nego što je zapis upisan, klik bi otvorio
+  // stranu koja kaže da prijava ne postoji.
+  const direktorijum = tip === 'firma'
+    ? await uDirektorijum(prijava)
+    : { upisano: false, razlog: 'nije prijava firme' };
+
+  const [mejl, brevo] = await Promise.all([obavesti(prijava), uBrevo(prijava)]);
   if (!mejl.poslato) console.log('prijava ' + prijava.id + ' bez mejla: ' + mejl.razlog);
   if (!brevo.upisano && brevo.razlog !== 'nije podešen') console.log('prijava ' + prijava.id + ' bez Brevo: ' + brevo.razlog);
   if (tip === 'firma' && !direktorijum.upisano) console.log('prijava ' + prijava.id + ' nije u direktorijumu: ' + direktorijum.razlog);

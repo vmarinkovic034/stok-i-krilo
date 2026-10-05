@@ -15,6 +15,11 @@
   status = 200
 
 [[redirects]]
+  from = "/odobri-firmu"
+  to = "/.netlify/functions/odobri-firmu"
+  status = 200
+
+[[redirects]]
   from = "/api/news"
   to = "/.netlify/functions/news"
   status = 200
