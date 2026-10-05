@@ -17,14 +17,18 @@ const store = () => getStore(STORE_CENE);
 
 // Pokreće osvežavanje i ne čeka ga. Odgovor čitaocu ne sme da visi zbog
 // Eurostata ili Jahua.
-async function zatraziOsvezavanje(req) {
+// `cekaj` je u milisekundama. Pozadinska funkcija odgovara sa 202 čim je
+// Netlifaj primi, ali hladan start ume da potraje. Ako prekid stigne pre
+// toga, posao se nikad ne pokrene — zato ručni poziv (?fresh=1) čeka duže
+// nego redovno osvežavanje, gde promašaj ionako pokupi zakazani prolaz.
+async function zatraziOsvezavanje(req, cekaj) {
   const admin = (process.env.ADMIN_TOKEN || '').trim();
   if (!admin) return;
   const osnova = new URL(req.url).origin;
   try {
     await fetch(osnova + '/.netlify/functions/cene-background?token=' + encodeURIComponent(admin),
-      { signal: AbortSignal.timeout(3000) });
-  } catch { /* 202 stiže odmah; ako ne stigne, sledeći zahtev pokušava ponovo */ }
+      { signal: AbortSignal.timeout(cekaj) });
+  } catch { /* sledeći zahtev ili zakazani prolaz pokušavaju ponovo */ }
 }
 
 export default async (req) => {
@@ -48,8 +52,10 @@ export default async (req) => {
   //
   // ?fresh=1 traži osvežavanje i kad je keš svež, ali ne češće od pet minuta.
   // Bez te brane bi svako mogao da pokreće pozadinsku funkciju u krug.
+  const rucno = url.searchParams.has('fresh');
   const star5 = !c || Date.now() - c.ts > 5 * 60 * 1000;
-  if (!svez || (url.searchParams.has('fresh') && star5)) await zatraziOsvezavanje(req);
+  if (!svez) await zatraziOsvezavanje(req, 3000);
+  else if (rucno && star5) await zatraziOsvezavanje(req, 7000);
 
   const telo = c
     ? { ...c, kes: true, svez: Boolean(svez) }
