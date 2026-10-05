@@ -1655,6 +1655,14 @@ function brojSrpski(v, decimale) {
   }).format(v);
 }
 
+// „2026-10-05" je zapis za mašinu. Čitaocu se piše 5. 10. 2026.
+function datumSrpski(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00Z');
+  if (isNaN(d)) return '';
+  return d.getUTCDate() + '. ' + (d.getUTCMonth() + 1) + '. ' + d.getUTCFullYear() + '.';
+}
+
 async function ucitajCene() {
   const statusEl = document.getElementById('prices-updated');
   if (statusEl && !prices.length) statusEl.textContent = 'Učitavam…';
@@ -1681,7 +1689,7 @@ async function ucitajCene() {
         period: s.promena === null || s.promena === undefined ? '' : (s.promenaOpis || ''),
         // Mesečni pokazatelj zadržava poslednju vrednost kad izvor ne odgovori.
         // Tada se piše od kog je dana, da se ne čita kao današnje očitavanje.
-        rezervaOd: s.rezervaOd || '',
+        rezervaOd: datumSrpski(s.rezervaOd),
         // Tri stanja, ne dva: rast, pad i „nije se pomerilo". Fiksni kurs
         // marke se nikad ne menja, pa bi večito zeleno „+0,00%" bilo ukras.
         up: s.gore === true,
