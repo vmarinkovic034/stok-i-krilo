@@ -107,6 +107,12 @@
     <div id="drafts"></div>
     <h3 class="sec">Objavljeno (<span id="cnt-a">0</span>)</h3>
     <div id="approved"></div>
+
+    <h3 class="sec">Kompanije na čekanju (<span id="cnt-fc">0</span>)</h3>
+    <p class="note">Firma koja se prijavi preko „Dodaj svoju kompaniju" stiže ovde. Dok je ne odobriš, nije na sajtu.</p>
+    <div id="firme-cekanje"></div>
+    <h3 class="sec">Kompanije u direktorijumu (<span id="cnt-fo">0</span>)</h3>
+    <div id="firme-objavljene"></div>
   </div>
 </div>
 
@@ -169,6 +175,63 @@ function kartica(d, objavljena) {
     '</div></div>';
 }
 
+// ── DIREKTORIJUM KOMPANIJA ───────────────────────────────────────────────
+async function apiFirme(method, body) {
+  const r = await fetch('/api/firme', {
+    method,
+    headers: { 'x-admin-token': S.tok, 'content-type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+  return d;
+}
+
+function karticaFirme(f, objavljena) {
+  const proizvodi = Array.isArray(f.products) ? f.products.join(' · ') : '';
+  return '<div class="card' + (objavljena ? ' pub' : '') + '">'
+    + '<div class="meta">' + esc([f.city, f.country, f.cat].filter(Boolean).join(' · '))
+      + (f.poreklo === 'prijava' ? ' · <b>prijava sa sajta</b>' : '')
+      + (f.email ? ' · ' + esc(f.email) : '') + '</div>'
+    + '<h2>' + esc(f.name) + (f.verified ? ' <span style="font-size:12px;color:#1a3a5c">PROVEREN</span>' : '') + '</h2>'
+    + (proizvodi ? '<p class="desc">' + esc(proizvodi) + '</p>' : '')
+    + (f.desc ? '<div class="body" onclick="this.classList.toggle(\'open\')" title="Klikni za ceo tekst">' + esc(f.desc) + '</div>' : '')
+    + (f.url ? '<div class="src">Sajt: <a href="' + esc(f.url) + '" target="_blank" rel="noopener">' + esc(f.url) + '</a></div>' : '')
+    + '<div class="acts">' + (objavljena
+      ? '<button class="danger" onclick="akcijaFirme(\'skini\',\'' + esc(f.id) + '\')">Skini sa sajta</button>'
+      : '<button class="primary" onclick="akcijaFirme(\'odobri\',\'' + esc(f.id) + '\')">Odobri i objavi</button>'
+        + '<button class="danger" onclick="akcijaFirme(\'odbaci\',\'' + esc(f.id) + '\')">Odbaci</button>')
+    + '</div></div>';
+}
+
+async function akcijaFirme(akcija, id) {
+  if (akcija === 'odbaci' && !confirm('Odbaciti ovu prijavu? Zapis se briše.')) return;
+  try {
+    const r = await apiFirme('POST', { akcija, id });
+    msg(r.objavljeno ? 'Objavljeno: ' + r.objavljeno
+      : r.skinuto ? 'Skinuto sa sajta: ' + r.skinuto
+      : r.odbaceno ? 'Odbačeno: ' + r.odbaceno : 'Sačuvano.');
+    ucitajFirme();
+  } catch (e) { msg('Greška: ' + e.message, false); }
+}
+
+async function ucitajFirme() {
+  try {
+    const d = await apiFirme('GET');
+    const cek = d.naCekanju || [], obj = d.objavljene || [];
+    document.getElementById('cnt-fc').textContent = cek.length;
+    document.getElementById('cnt-fo').textContent = obj.length;
+    document.getElementById('firme-cekanje').innerHTML = cek.length
+      ? cek.map(f => karticaFirme(f, false)).join('')
+      : '<div class="empty">Nema prijava na čekanju.</div>';
+    document.getElementById('firme-objavljene').innerHTML = obj.length
+      ? obj.map(f => karticaFirme(f, true)).join('')
+      : '<div class="empty">Direktorijum je prazan.</div>';
+  } catch (e) {
+    document.getElementById('firme-cekanje').innerHTML = '<div class="empty">Greška: ' + esc(e.message) + '</div>';
+  }
+}
+
 async function ucitaj() {
   try {
     const d = await api('GET');
@@ -182,6 +245,7 @@ async function ucitaj() {
     document.getElementById('approved').innerHTML = d.approved.length
       ? d.approved.map(x => kartica(x, true)).join('')
       : '<div class="empty">Još ništa nije objavljeno preko uredništva.</div>';
+    ucitajFirme();
   } catch (e) {
     msg('Greška: ' + e.message, false);
     if (/401|Neovla/.test(e.message)) { sessionStorage.removeItem('sik_admin'); S.tok = ''; }

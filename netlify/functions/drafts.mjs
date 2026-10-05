@@ -43,7 +43,7 @@ export default async (req) => {
     if (i < 0) return json({ error: 'Nacrt nije pronađen' }, 404);
     const d = { ...drafts[i], ...(patch || {}), status: 'objavljeno', approvedAt: new Date().toISOString() };
     drafts.splice(i, 1);
-    approved = [d, ...approved].slice(0, 200);
+    approved = [d, ...approved].slice(0, 400);
     await writeJSON(KEY_DRAFTS, drafts);
     await writeJSON(KEY_APPROVED, approved);
     return json({ ok: true, objavljeno: d.title });

@@ -8,7 +8,7 @@
 // obaveštenje na mejl. Ako mejl padne, prijava je i dalje sačuvana — kontakt
 // se ne gubi ni kad spoljni servis ne radi.
 // ==========================================================================
-import { store, json } from './_lib.mjs';
+import { store, json, readJSON, writeJSON, KLJUC_FIRME } from './_lib.mjs';
 
 // Svaka prijava je zaseban zapis, ne red u jednom velikom JSON-u. Razlog:
 // upis u zajednički niz je čitaj-izmeni-upiši, pa dve prijave koje stignu
@@ -23,7 +23,7 @@ const kljucZa = (tip, email, kada) =>
 
 const TIPOVI = {
   newsletter: { naziv: 'Newsletter', polja: ['email'] },
-  firma: { naziv: 'Prijava firme', polja: ['naziv', 'grad', 'email', 'kategorija', 'telefon', 'proizvodi', 'sajt', 'opis'] },
+  firma: { naziv: 'Prijava firme', polja: ['naziv', 'grad', 'drzava', 'email', 'kategorija', 'telefon', 'proizvodi', 'sajt', 'opis'] },
   demo: { naziv: 'Zahtev za demo', polja: ['ime', 'kompanija', 'email', 'zaposlenih', 'poruka', 'povod'] },
 };
 
@@ -116,6 +116,43 @@ async function uBrevo(prijava) {
   }
 }
 
+// Prijava firme se, pored upisa u prijave i slanja na mejl, odmah upisuje i u
+// direktorijum — ali neodobrena. Tako urednik u admin panelu vidi tačno ono
+// što će se pojaviti na sajtu, umesto da podatke prekucava iz mejla.
+//
+// `odobreno: false` je ono što je drži van sajta: /api/kompanije propušta samo
+// zapise kod kojih to nije netačno.
+async function uDirektorijum(prijava) {
+  const d = prijava.podaci;
+  if (!d.naziv) return { upisano: false, razlog: 'bez naziva firme' };
+  try {
+    const sve = await readJSON(KLJUC_FIRME, []);
+    const isti = String(d.naziv).trim().toLowerCase();
+    if (sve.some(f => String(f.name || '').trim().toLowerCase() === isti)) {
+      return { upisano: false, razlog: 'firma već postoji u direktorijumu' };
+    }
+    sve.push({
+      id: 'kmp-' + prijava.id,
+      name: d.naziv,
+      city: d.grad || '',
+      country: d.drzava || '',
+      cat: d.kategorija || '',
+      products: String(d.proizvodi || '').split(';').map(x => x.trim()).filter(Boolean),
+      url: d.sajt || '',
+      desc: d.opis || '',
+      email: d.email || '',
+      verified: false,
+      odobreno: false,
+      poreklo: 'prijava',
+      upisano: prijava.kada,
+    });
+    await writeJSON(KLJUC_FIRME, sve);
+    return { upisano: true };
+  } catch (e) {
+    return { upisano: false, razlog: e.message };
+  }
+}
+
 export default async (req) => {
   // ── Uredništvo: spisak prijava ───────────────────────────────────────────
   if (req.method === 'GET') {
@@ -188,9 +225,14 @@ export default async (req) => {
 
   // Obaveštenje i Brevo idu posle upisa i nezavisno jedno od drugog. Ako bilo
   // koje padne, prijava je već sačuvana i vidi se u adminu.
-  const [mejl, brevo] = await Promise.all([obavesti(prijava), uBrevo(prijava)]);
+  const [mejl, brevo, direktorijum] = await Promise.all([
+    obavesti(prijava),
+    uBrevo(prijava),
+    tip === 'firma' ? uDirektorijum(prijava) : Promise.resolve({ upisano: false, razlog: 'nije prijava firme' }),
+  ]);
   if (!mejl.poslato) console.log('prijava ' + prijava.id + ' bez mejla: ' + mejl.razlog);
   if (!brevo.upisano && brevo.razlog !== 'nije podešen') console.log('prijava ' + prijava.id + ' bez Brevo: ' + brevo.razlog);
+  if (tip === 'firma' && !direktorijum.upisano) console.log('prijava ' + prijava.id + ' nije u direktorijumu: ' + direktorijum.razlog);
 
   // Posetiocu se uvek javlja uspeh — prijava jeste sačuvana. Stanje spoljnih
   // servisa je naša briga, ne njegova.
