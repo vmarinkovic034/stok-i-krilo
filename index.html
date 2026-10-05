@@ -895,7 +895,7 @@ tailwind.config = {
       <div>
         <div class="text-xs font-bold tracking-widest text-blue-300 mb-2">ZA SOFTVERSKE VENDORE</div>
         <h2 class="font-serif text-2xl font-bold mb-2">Dođite do odlučilaca u industriji</h2>
-        <p class="text-blue-100 text-sm max-w-lg">Štok i Krilo čitaju direktori, vlasnici fabrika i tehnički menadžeri. Featured listing dovodi kvalificirane leadove direktno na vaš demo.</p>
+        <p class="text-blue-100 text-sm max-w-lg">Štok i Krilo čitaju direktori, vlasnici fabrika i tehnički menadžeri. Featured listing dovodi kvalifikovane kontakte direktno na vaš demo.</p>
       </div>
       <div class="flex flex-col gap-3 flex-shrink-0">
         <button class="bg-white text-brand font-bold text-sm px-6 py-3 hover:bg-blue-50 transition-colors" onclick="openDemoModal('vendor-listing')">Zatražite paket</button>
@@ -911,13 +911,13 @@ tailwind.config = {
   <div class="bg-white w-full max-w-lg rounded-sm mt-8" onclick="event.stopPropagation()">
     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
       <div>
-        <div class="tag text-brand mb-0.5">ZAHTJEV ZA DEMO</div>
+        <div class="tag text-brand mb-0.5" id="demo-modal-oznaka">ZAHTEV ZA DEMO</div>
         <div class="font-serif text-lg font-bold text-gray-950" id="demo-modal-title">Zatražite demo</div>
       </div>
       <button onclick="closeDemoModal()" class="text-gray-400 hover:text-gray-700 text-xl font-light leading-none">✕</button>
     </div>
     <div class="px-6 py-6">
-      <p class="text-gray-500 text-sm mb-6">Ostavite kontakt podatke i tim kompanije će vas kontaktirati u roku od 1-2 radna dana.</p>
+      <p class="text-gray-500 text-sm mb-6" id="demo-modal-uvod">Ostavite kontakt podatke i tim kompanije će vas kontaktirati u roku od 1-2 radna dana.</p>
       <form id="demo-form" onsubmit="submitDemoForm(event)">
         <div class="space-y-4">
           <div>
@@ -932,7 +932,7 @@ tailwind.config = {
             <label class="block text-xs font-semibold text-gray-700 mb-1.5">E-mail *</label>
             <input required type="email" name="email" placeholder="marko@kompanija.rs" class="w-full border border-gray-200 px-3 py-2.5 text-sm" />
           </div>
-          <div>
+          <div id="demo-polje-zaposlenih">
             <label class="block text-xs font-semibold text-gray-700 mb-1.5">Broj zaposlenih</label>
             <select name="zaposlenih" class="w-full border border-gray-200 px-3 py-2.5 text-sm text-gray-600">
               <option value="">Izaberite...</option>
@@ -2639,17 +2639,53 @@ function toggleMobileMenu() {
 function closeMobileMenu() { document.getElementById('mobile-menu').classList.remove('open'); }
 
 // ==================== ALATI / DEMO MODAL ====================
-function openDemoModal(toolName) {
+// Isti prozor opslužuje tri različita povoda, a do 5. 10. 2026. je svima
+// pisalo „ZAHTJEV ZA DEMO". Oglašivač koji klikne „Zakupite poziciju" video je
+// naslov „oglasni prostor — 300×100" i tekst da će ga kontaktirati „tim
+// kompanije". To je ispadalo kao greška na sajtu, a stoji na putu kojim
+// dolazi novac.
+function openDemoModal(povod) {
   const modal = document.getElementById('demo-modal');
-  const title = document.getElementById('demo-modal-title');
-  if (toolName === 'listing' || toolName === 'vendor-listing') {
-    title.textContent = 'Zatražite listing na Štok i Krilo';
+  const oznaka = document.getElementById('demo-modal-oznaka');
+  const naslov = document.getElementById('demo-modal-title');
+  const uvod = document.getElementById('demo-modal-uvod');
+  const zaposleni = document.getElementById('demo-polje-zaposlenih');
+  const p = String(povod || '');
+
+  let tekst;
+  if (p.startsWith('oglasni prostor')) {
+    const format = p.split('—')[1] ? p.split('—')[1].trim() : '';
+    tekst = {
+      oznaka: 'OGLASNI PROSTOR',
+      naslov: 'Zakup oglasnog prostora',
+      uvod: (format ? 'Pozicija: ' + format + '. ' : '')
+        + 'Ostavite kontakt i šaljemo vam dostupne pozicije, dimenzije i cene u roku od jednog radnog dana.',
+      zaposleni: false,
+    };
+  } else if (p === 'listing' || p === 'vendor-listing') {
+    tekst = {
+      oznaka: 'LISTING',
+      naslov: 'Zatražite listing na Štok i Krilo',
+      uvod: 'Ostavite kontakt i javljamo vam se u roku od jednog do dva radna dana.',
+      zaposleni: true,
+    };
   } else {
-    title.textContent = toolName;
+    tekst = {
+      oznaka: 'ZAHTEV ZA DEMO',
+      naslov: p ? 'Zatražite demo: ' + p : 'Zatražite demo',
+      uvod: 'Ostavite kontakt podatke i tim proizvođača javiće vam se u roku od jednog do dva radna dana.',
+      zaposleni: true,
+    };
   }
-  // Povod se šalje uz prijavu, da se u adminu vidi sa kog dugmeta je došla.
-  const povod = document.getElementById('demo-povod');
-  if (povod) povod.value = toolName || '';
+
+  if (oznaka) oznaka.textContent = tekst.oznaka;
+  if (naslov) naslov.textContent = tekst.naslov;
+  if (uvod) uvod.textContent = tekst.uvod;
+  if (zaposleni) zaposleni.style.display = tekst.zaposleni ? '' : 'none';
+
+  // Povod ide uz prijavu, da se u adminu vidi sa kog dugmeta je došla.
+  const polje = document.getElementById('demo-povod');
+  if (polje) polje.value = p;
   modal.classList.add('open');
 }
 
