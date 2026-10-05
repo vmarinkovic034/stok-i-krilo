@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Uredništvo i potvrde iz mejla nemaju šta da traže u pretrazi.
+Disallow: /admin.html
+Disallow: /odobri
+Disallow: /odobri-firmu
+Disallow: /api/
+
+Sitemap: https://stokikrilo.com/sitemap.xml

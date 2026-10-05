@@ -2537,9 +2537,65 @@ function renderBarometarRupe() {
   box.dataset.done = '1';
 }
 
-function showPage(name) {
+// ==================== ADRESE STRANA ====================
+// Do 5. 10. 2026. portal je imao jednu jedinu adresu. Sve strane su se
+// otvarale klikom, a adresa je ostajala stokikrilo.com. To znači tri stvari:
+// nikome se ne može poslati link na direktorijum ili cene, niko ne može da
+// obeleži stranu, i dugme „nazad" u pregledaču vodi sa portala umesto na
+// prethodnu stranu.
+//
+// Sada svaka strana ima svoju adresu. Netlifaj sve te putanje servira isti
+// index.html (vidi netlify.toml), a ovde se iz putanje otvara prava strana.
+const STRANE = {
+  '': 'home', 'vesti': 'home',
+  'cene': 'cene', 'barometar': 'barometar', 'kompanije': 'kompanije',
+  'edukacija': 'edukacija', 'sajmovi': 'sajmovi', 'tenderi': 'tenderi',
+  'analize': 'analize', 'alati': 'alati',
+};
+
+// Naslov i opis se menjaju uz stranu. Bez toga bi svaka adresa nosila isti
+// naslov, pa bi i u rezultatima pretrage i u podeljenom linku sve izgledalo
+// isto.
+const OPISI = {
+  home: ['ŠTOK I KRILO — industrijski portal za prozore, vrata, staklo i fasade',
+    'Vesti, cene, tenderi i analize za proizvođače prozora, vrata, stakla i fasada na Balkanu.'],
+  cene: ['Cene sirovina, energije i valuta — ŠTOK I KRILO',
+    'Aluminijum, bakar, nafta, gas TTF, indeksi stakla i PVC-a, Euribor, građevinske dozvole i kursevi Balkana. Server ih povlači na svaki sat.'],
+  barometar: ['Barometar cena prozora — ŠTOK I KRILO',
+    'Cena gotovog prozora po kvadratu, po klasama ekonomik, standard i premium.'],
+  kompanije: ['Industrijski direktorijum kompanija — ŠTOK I KRILO',
+    'Proizvođači, distributeri, arhitekte i partneri iz industrije prozora i vrata na Balkanu.'],
+  edukacija: ['Edukacija — ŠTOK I KRILO',
+    'Stručni tekstovi o prodaji, proizvodnji, montaži i tehnici stolarije.'],
+  sajmovi: ['Industrijski kalendar i sajmovi — ŠTOK I KRILO',
+    'Sajmovi prozora, vrata, stakla i fasada u Evropi i na Balkanu.'],
+  tenderi: ['Tenderi i javne nabavke — ŠTOK I KRILO',
+    'Javni pozivi za stolariju, fasade i montažu iz TED-a i srpskog Portala javnih nabavki.'],
+  analize: ['Analize tržišta — ŠTOK I KRILO',
+    'Tržišne analize za industriju prozora, vrata, stakla i fasada.'],
+  alati: ['Alati — ŠTOK I KRILO',
+    'Kalkulator i konvertor za proizvođače stolarije.'],
+};
+
+function putanjaZa(name) { return name === 'home' ? '/' : '/' + name; }
+
+function postaviOpis(name) {
+  const o = OPISI[name] || OPISI.home;
+  document.title = o[0];
+  const meta = document.querySelector('meta[name="description"]');
+  if (meta) meta.setAttribute('content', o[1]);
+  const kanon = document.querySelector('link[rel="canonical"]');
+  if (kanon) kanon.setAttribute('href', 'https://stokikrilo.com' + putanjaZa(name));
+  const ogU = document.querySelector('meta[property="og:url"]');
+  if (ogU) ogU.setAttribute('content', 'https://stokikrilo.com' + putanjaZa(name));
+  const ogT = document.querySelector('meta[property="og:title"]');
+  if (ogT) ogT.setAttribute('content', o[0]);
+}
+
+function showPage(name, bezAdrese) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + name);
+  const stvarna = target ? name : 'home';
   if (target) {
     target.classList.add('active');
     if (name === 'cene') { setTimeout(() => { renderPriceCards(); updateChart(); }, 50); }
@@ -2551,8 +2607,20 @@ function showPage(name) {
   } else {
     document.getElementById('page-home').classList.add('active');
   }
+
+  postaviOpis(stvarna);
+  if (!bezAdrese) {
+    const cilj = putanjaZa(stvarna);
+    if (location.pathname !== cilj) history.pushState({ strana: stvarna }, '', cilj);
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// Dugme „nazad" u pregledaču vraća na prethodnu stranu portala.
+window.addEventListener('popstate', () => {
+  const deo = location.pathname.replace(/^\/+|\/+$/g, '');
+  showPage(STRANE[deo] || 'home', true);
+});
 
 function setNav(el) {
   document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
@@ -2715,7 +2783,8 @@ function otvoriIzLinka() {
   if (!m) return;
   const i = nadjiVest(m[1]);
   if (i < 0) return;
-  showPage('home');
+  // Članak je preklop preko strane, pa se strana ne menja — inače bi link
+  // oblika /kompanije#vest-x prebacio čitaoca na naslovnu.
   setTimeout(() => openArticle(i), 50);
 }
 
@@ -2803,6 +2872,12 @@ function _imgFallback(el, cat) {
 }
 
 function initPortal() {
+  // Strana se otvara iz adrese, pre svega ostalog — da onaj ko dođe na
+  // /kompanije odmah vidi direktorijum, a ne naslovnu pa onda skok.
+  try {
+    const deo = location.pathname.replace(/^\/+|\/+$/g, '');
+    showPage(STRANE[deo] || 'home', true);
+  } catch(e) { console.error('strana iz adrese:', e); }
   try { renderAdStrips(); } catch(e) { console.error('renderAdStrips:', e); }
   try { updateCompanyStat(); } catch(e) { console.error('updateCompanyStat:', e); }
   try { fetchApprovedNews(); } catch(e) { console.error('fetchApprovedNews:', e); }

@@ -58,3 +58,52 @@
   from = "/api/tenders-import"
   to = "/.netlify/functions/tenders-import"
   status = 200
+
+# Svaka strana portala ima svoju adresu. Netlifaj ih sve servira kao
+# index.html, a JavaScript iz putanje otvara pravu stranu. Putanje su
+# nabrojane poimence, da slučajno ne pokupe /api/*, /odobri ili admin.html.
+
+[[redirects]]
+  from = "/vesti"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cene"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/barometar"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/kompanije"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/edukacija"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/sajmovi"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tenderi"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/analize"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/alati"
+  to = "/index.html"
+  status = 200
