@@ -343,6 +343,18 @@ export const IZVORI = [
 // Isto važi za svaki katalog koji odgovori izazovom: probni poziv sa
 // ?dijagnoza=1 pokaže naslov strane, pa se to vidi odmah.
 
+// Kandidati čiji parser još nije napisan. Ne ulaze u mesečni prolaz; služe
+// samo da probni poziv sa ?dijagnoza=1 pokaže da li server uopšte dobija
+// pravu stranu, pre nego što se troši vreme na parser.
+export const KANDIDATI = [
+  { id: 'merkur-si', url: 'https://www.merkur.si/gradnja/okna-vrata-in-stopnice/okna/' },
+  { id: 'dedeman-ro', url: 'https://www.dedeman.ro/ro/ferestre-pvc-verticale-cu-geam-termopan/c/638' },
+  { id: 'leroymerlin-ro', url: 'https://www.leroymerlin.ro/produse/usi-ferestre-tamplarie/ferestre-pvc/ferestre-pvc/' },
+  { id: 'bauhaus-hr', url: 'https://www.bauhaus.hr/prozori/c/10000800' },
+  { id: 'plastmarket-bg', url: 'https://plast-market.bg/pvc-prozortsi' },
+  { id: 'kips-me', url: 'https://kips.me/kategorija/309/pvc-stolarija' },
+];
+
 // Jedan izvor od početka do kraja: povuci, pročitaj, pretvori u zapise.
 export async function ocitajIzvor(izv, prekid) {
   const html = await povuci(izv.url, prekid);

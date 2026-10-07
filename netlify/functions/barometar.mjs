@@ -17,7 +17,7 @@
 // ==========================================================================
 import { readJSON, KLJUC_BAROMETAR } from './_lib.mjs';
 import { KLJUC_ZAPISI, KLJUC_PROLAZI } from './_barometar-zapisi.mjs';
-import { IZVORI, ocitajIzvor, povuci } from './_barometar-izvori.mjs';
+import { IZVORI, KANDIDATI, ocitajIzvor, povuci } from './_barometar-izvori.mjs';
 
 const json = (telo, kes) => new Response(JSON.stringify(telo), {
   headers: {
@@ -32,9 +32,10 @@ export default async (req) => {
 
   const proba = q.get('proba');
   if (proba) {
-    const izv = IZVORI.find(i => i.id === proba);
+    const izv = IZVORI.find(i => i.id === proba)
+      || (q.get('dijagnoza') ? KANDIDATI.find(i => i.id === proba) : null);
     if (!izv) {
-      return json({ greska: 'nepoznat izvor', poznati: IZVORI.map(i => i.id) }, 'no-store');
+      return json({ greska: 'nepoznat izvor', poznati: IZVORI.concat(KANDIDATI).map(i => i.id) }, 'no-store');
     }
     // ?dijagnoza=1 vraća šta je server stvarno dobio, jer sajt ume da
     // pošalje drugu stranu botu nego čoveku (blokada, izazov, prazan okvir).
