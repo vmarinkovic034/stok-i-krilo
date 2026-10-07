@@ -3,6 +3,7 @@
 //   GET /api/barometar             → ručno merena korpa (sa ugradnjom)
 //   GET /api/barometar?zapisi=1    → automatska očitavanja (bez montaže)
 //   GET /api/barometar?prolazi=1   → izveštaj poslednjih prolaza robota
+//   GET /api/barometar?indeks=1[&ref=A|B] → vrednost po zemlji na referentnom prozoru
 //   GET /api/barometar?proba=<id>  → suvi prolaz jednog izvora, bez upisa
 //
 // Proba ne traži token jer ništa ne menja i vraća samo ono što je i inače
@@ -17,6 +18,7 @@
 // ==========================================================================
 import { readJSON, KLJUC_BAROMETAR } from './_lib.mjs';
 import { KLJUC_ZAPISI, KLJUC_PROLAZI } from './_barometar-zapisi.mjs';
+import { izracunaj } from './_barometar-racun.mjs';
 import { IZVORI, KANDIDATI, ocitajIzvor, povuci } from './_barometar-izvori.mjs';
 
 const json = (telo, kes) => new Response(JSON.stringify(telo), {
@@ -59,6 +61,13 @@ export default async (req) => {
 
   if (q.get('prolazi')) {
     return json({ prolazi: await readJSON(KLJUC_PROLAZI, []) }, 'no-store');
+  }
+
+  if (q.get('indeks')) {
+    const zapisi = await readJSON(KLJUC_ZAPISI, []);
+    if (!zapisi.length) return json({ poruka: 'Još nema očitavanja. Prvi prolaz robota nije pokrenut.' }, 'no-store');
+    try { return json(izracunaj(zapisi, q.get('ref') || 'A'), 'public, max-age=900'); }
+    catch (e) { return json({ greska: e.message }, 'no-store'); }
   }
 
   if (q.get('zapisi')) {
