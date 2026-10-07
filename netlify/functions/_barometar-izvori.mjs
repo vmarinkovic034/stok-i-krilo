@@ -336,6 +336,37 @@ export const IZVORI = [
   },
 ];
 
+// Merkur SI: kartica artikla ima naziv u `.desktop-name` i redovnu cenu u
+// prvom `.price` unutar `.price-wrapper`. Drugi iznos na kartici je cena sa
+// spletno kodo (promocija) i namerno se ne čita — barometar meri redovnu
+// cenu, ne akciju. Isti prozor postoji u levoj i desnoj izvedbi, ponekad sa
+// različitom cenom; uzima se niža, da izbor strane šarke ne pomera uzorak.
+export function merkurSI(html) {
+  const re = /class="[^"]*desktop-name[^"]*"[^>]*>([^<]+)<[\s\S]{0,2500}?class="[^"]*price-wrapper[^"]*"[^>]*>\s*<span[^>]*class="[^"]*\bprice\b[^"]*"[^>]*>\s*([\d.,]+)/g;
+  const poDimenziji = new Map();
+  let m;
+  while ((m = re.exec(html))) {
+    const naziv = ocisti(m[1]);
+    if (!/PVC OKNO/i.test(naziv) || !/\bBELO\b/i.test(naziv)) continue;
+    const { sirina, visina } = dimenzija(naziv);
+    const cena = broj(m[2]);
+    if (!sirina || cena == null) continue;
+    const komore = (naziv.match(/(\d)\s*-?\s*KOMORN/i) || [])[1];
+    const kljuc = sirina + 'x' + visina;
+    const red = {
+      sirina, visina, krila: krilaIz(naziv) ?? 1,
+      sistem: komore ? komore + ' komorno' : null,
+      zastakljenje: /TROJN|TROSLOJ|3-?SLOJ|TRIPLE/i.test(naziv) ? 'troslojno'
+        : /DVOJN|DVOSLOJ|2-?SLOJ/i.test(naziv) ? 'dvoslojno' : null,
+      cena, valuta: 'EUR', cenaEur: cena,
+    };
+    const prosli = poDimenziji.get(kljuc);
+    if (!prosli || cena < prosli.cena) poDimenziji.set(kljuc, red);
+  }
+  if (!poDimenziji.size) throw new Error('nijedan PVC prozor nije pročitan sa kartica');
+  return [...poDimenziji.values()];
+}
+
 // Hornbach RO nije u registru. Parser za njegove nazive radi (provereno na
 // stvarnim nazivima), ali server od sajta dobija stranu „Client Challenge",
 // to jest proveru da li je posetilac čovek. Zaobilaženje takve zaštite nije
@@ -347,13 +378,30 @@ export const IZVORI = [
 // samo da probni poziv sa ?dijagnoza=1 pokaže da li server uopšte dobija
 // pravu stranu, pre nego što se troši vreme na parser.
 export const KANDIDATI = [
-  { id: 'merkur-si', url: 'https://www.merkur.si/gradnja/okna-vrata-in-stopnice/okna/' },
   { id: 'dedeman-ro', url: 'https://www.dedeman.ro/ro/ferestre-pvc-verticale-cu-geam-termopan/c/638' },
   { id: 'leroymerlin-ro', url: 'https://www.leroymerlin.ro/produse/usi-ferestre-tamplarie/ferestre-pvc/ferestre-pvc/' },
   { id: 'bauhaus-hr', url: 'https://www.bauhaus.hr/prozori/c/10000800' },
   { id: 'plastmarket-bg', url: 'https://plast-market.bg/pvc-prozortsi' },
   { id: 'kips-me', url: 'https://kips.me/kategorija/309/pvc-stolarija' },
 ];
+
+// Kategorija „PVC okna" ima osam artikala (jedan proizvođač, četiri veličine,
+// leva i desna izvedba). Nadređena kategorija „Okna" pokazuje 2.367 artikala,
+// ali to su i krovna okna i sve ostalo — ne PVC prozori.
+// Cene su sa PDV-om (maloprodaja, B2C), bez montaže.
+IZVORI.push({
+  id: 'merkur-si',
+  zemlja: 'SI',
+  firma: 'Merkur',
+  url: 'https://www.merkur.si/gradnja/okna-vrata-in-stopnice/okna/pvc-okna/',
+  tipIzvora: 'webshop',
+  materijal: 'PVC',
+  pdv: 'uklj',
+  pdvStopa: 22,
+  montaza: 'bez',
+  tipCene: 'tvrda',
+  citaj: merkurSI,
+});
 
 // Jedan izvor od početka do kraja: povuci, pročitaj, pretvori u zapise.
 export async function ocitajIzvor(izv, prekid) {
