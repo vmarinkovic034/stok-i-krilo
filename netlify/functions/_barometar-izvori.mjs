@@ -197,10 +197,15 @@ export async function ocitajIzvor(izv, prekid) {
 
 // Datum sa strane, ako ga sajt objavljuje. Nije isto što i datum očitavanja:
 // cenovnik može da stoji nepromenjen mesecima, i to je podatak za sebe.
+//
+// Uzima se samo iz meta oznaka. Prva verzija je tražila bilo koji datum u
+// tekstu i na Danitu pokupila „Akcija važi do 31.10.2026" — datum koji sa
+// cenovnikom nema veze. Prazno polje je bolje od pogrešnog datuma, jer se
+// na osnovu ovog polja kasnije zaključuje kada se cena stvarno pomerila.
 function datumSaStrane(html) {
   const meta = html.match(/<meta[^>]+(?:article:modified_time|article:published_time|dateModified)["'][^>]+content=["']([^"']+)/i);
   if (meta) return meta[1].slice(0, 10);
-  const srp = html.match(/(\d{1,2})\.\s?(\d{1,2})\.\s?(20\d{2})/);
-  if (srp) return `${srp[3]}-${String(srp[2]).padStart(2, '0')}-${String(srp[1]).padStart(2, '0')}`;
+  const ld = html.match(/"dateModified"\s*:\s*"(\d{4}-\d{2}-\d{2})/);
+  if (ld) return ld[1];
   return null;
 }
