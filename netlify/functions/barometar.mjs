@@ -17,7 +17,7 @@
 // ==========================================================================
 import { readJSON, KLJUC_BAROMETAR } from './_lib.mjs';
 import { KLJUC_ZAPISI, KLJUC_PROLAZI } from './_barometar-zapisi.mjs';
-import { IZVORI, ocitajIzvor } from './_barometar-izvori.mjs';
+import { IZVORI, ocitajIzvor, povuci } from './_barometar-izvori.mjs';
 
 const json = (telo, kes) => new Response(JSON.stringify(telo), {
   headers: {
@@ -35,6 +35,18 @@ export default async (req) => {
     const izv = IZVORI.find(i => i.id === proba);
     if (!izv) {
       return json({ greska: 'nepoznat izvor', poznati: IZVORI.map(i => i.id) }, 'no-store');
+    }
+    // ?dijagnoza=1 vraća šta je server stvarno dobio, jer sajt ume da
+    // pošalje drugu stranu botu nego čoveku (blokada, izazov, prazan okvir).
+    if (q.get('dijagnoza')) {
+      try {
+        const html = await povuci(izv.url, 8000);
+        return json({ izvor: izv.id, duzina: html.length,
+          imaDefaultPrice: html.includes('defaultPrice'),
+          imaFereastra: (html.match(/Fereastr/g) || []).length,
+          naslov: (html.match(/<title>([^<]*)/i) || [])[1] || null,
+          pocetak: html.slice(0, 300) }, 'no-store');
+      } catch (e) { return json({ izvor: izv.id, greska: e.message }, 'no-store'); }
     }
     try {
       const zapisi = await ocitajIzvor(izv, 8000);
