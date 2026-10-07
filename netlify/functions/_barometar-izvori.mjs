@@ -336,23 +336,12 @@ export const IZVORI = [
   },
 ];
 
-// Prva strana kategorije, 56 artikala. Pored nje stoje i dva konfiguratora
-// sa cenom „od" — ona se filtrom odbacuju, jer nemaju dimenziju.
-// Strana doslovno piše: „Toate prețurile conțin TVA" (sve cene sadrže PDV).
-// Montaže nema — to je maloprodaja robe.
-IZVORI.push({
-  id: 'hornbach-ro',
-  zemlja: 'RO',
-  firma: 'Hornbach',
-  url: 'https://www.hornbach.ro/c/lemn-ferestre-usi/ferestre/ferestre-pvc/S21004/',
-  tipIzvora: 'webshop',
-  materijal: 'PVC',
-  pdv: 'uklj',
-  pdvStopa: 21,
-  montaza: 'bez',
-  tipCene: 'tvrda',
-  citaj: (html) => proizvodiIzStanja(html, { naslovRe: 'Fereastr', filter: artikalRO }),
-});
+// Hornbach RO nije u registru. Parser za njegove nazive radi (provereno na
+// stvarnim nazivima), ali server od sajta dobija stranu „Client Challenge",
+// to jest proveru da li je posetilac čovek. Zaobilaženje takve zaštite nije
+// opcija — izvor je klasa E i ostaje van automatskog prikupljanja.
+// Isto važi za svaki katalog koji odgovori izazovom: probni poziv sa
+// ?dijagnoza=1 pokaže naslov strane, pa se to vidi odmah.
 
 // Jedan izvor od početka do kraja: povuci, pročitaj, pretvori u zapise.
 export async function ocitajIzvor(izv, prekid) {
