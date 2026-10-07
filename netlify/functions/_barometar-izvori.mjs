@@ -367,6 +367,97 @@ export function merkurSI(html) {
   return [...poDimenziji.values()];
 }
 
+// Plast Market (BG), OpenCart katalog. Kartica nosi naziv, oznaku „Цена без
+// монтаж" i cenu u levima i evrima: „от 383,00 лв. с ДДС (195,82€)".
+// „двоен/троен" u nazivu znači broj sekcija prozora (dve ili tri), a NE
+// broj slojeva stakla — zato zastakljenje ostaje prazno, a ne „dvoslojno".
+// Sekcija je zabeležena u polju krila; ovde to nisu isti krilni sklopovi
+// kao kod dvokrilnog 140×140 sa Danita, pa se u statistici ne mešaju slepo.
+// Oznaka „ляво/дясно/едно крило" je samo strana otvaranja; ista veličina u
+// dve varijante daje jedan zapis, sa nižom cenom.
+// Dimenzija „150/140" je širina/visina; za površinu je svejedno.
+export function plastMarketBG(html) {
+  const re = /<div class="name">\s*<a[^>]*>([^<]+)<\/a>[\s\S]{0,1500}?class="price-(?:normal|new)">\s*([^<]+)</g;
+  const poKljucu = new Map();
+  let m;
+  while ((m = re.exec(html))) {
+    const naziv = ocisti(m[1]);
+    const mm = naziv.match(/(двоен|троен)\s+(.+?)\s+(?:с|със)\s+(?:едно|ляво|дясно|средно|две)\s+крило\s+(\d+)\/(\d+)\s*см/i);
+    if (!mm) continue;
+    const eur = m[2].match(/\(\s*([\d.,]+)\s*€\s*\)/);
+    const cena = eur ? broj(eur[1]) : null;
+    if (cena == null) continue;
+    const sekcije = /^двоен$/i.test(mm[1]) ? 2 : 3;
+    const sistem = mm[2].replace(/[\s-]*\d+\s*(?:mm|мм)\s*$/i, '').replace(/\s+/g, ' ').trim();
+    const sirina = +mm[3], visina = +mm[4];
+    const red = { sirina, visina, krila: sekcije, sistem, cena, valuta: 'EUR', cenaEur: cena };
+    const kljuc = [sistem, sirina, visina, sekcije].join('|');
+    const prosli = poKljucu.get(kljuc);
+    if (!prosli || cena < prosli.cena) poKljucu.set(kljuc, red);
+  }
+  if (!poKljucu.size) throw new Error('nijedan prozor nije pročitan sa kartica');
+  return [...poKljucu.values()];
+}
+
+IZVORI.push({
+  id: 'plastmarket-bg',
+  zemlja: 'BG',
+  firma: 'Plast Market',
+  url: 'https://plast-market.bg/pvc-prozortsi',
+  dodatneStrane: ['https://plast-market.bg/pvc-prozortsi?page=2'],
+  tipIzvora: 'webshop',
+  materijal: 'PVC',
+  pdv: 'uklj',
+  pdvStopa: 20,
+  montaza: 'bez',
+  tipCene: 'od',
+  citaj: plastMarketBG,
+});
+
+// KIPS (CG), Laravel + Inertia: katalog stoji kao JSON u samoj strani, pa se
+// čita on, a ne generisane CSS klase. Naziv nosi tip i dimenziju:
+// „PROZOR J. PVC 80x140 D." (J = jednokrilni, DV = dvokrilni; L/D strana).
+// Uzima se original_price: oko petine artikala je na popustu, a barometar
+// meri redovnu cenu, ne akciju. Izbacuju se izvedbe koje menjaju cenu mimo
+// veličine (mat staklo, prečka) i sva vrata.
+export function kipsME(html) {
+  const re = /\\?"title\\?":\\?"([^"\\]+)\\?",\\?"slug[\s\S]{0,300}?\\?"price\\?":([\d.]+),\\?"original_price\\?":([\d.]+|null)/g;
+  const poKljucu = new Map();
+  let m;
+  while ((m = re.exec(html))) {
+    const naziv = ocisti(m[1]);
+    if (!/^PROZOR\b/i.test(naziv) || !/PVC/i.test(naziv)) continue;
+    if (/MATIRAN|PRE[CČ]K|VRATA/i.test(naziv)) continue;
+    const mm = naziv.match(/PROZOR\s+(J|DV)\.?\s+PVC\s+(\d+)\s*x\s*(\d+)/i);
+    if (!mm) continue;
+    const cena = broj(m[3] !== 'null' ? m[3] : m[2]);
+    if (cena == null) continue;
+    const krila = mm[1].toUpperCase() === 'J' ? 1 : 2;
+    const sirina = +mm[2], visina = +mm[3];
+    const red = { sirina, visina, krila, sistem: null, cena, valuta: 'EUR', cenaEur: cena };
+    const kljuc = [sirina, visina, krila].join('|');
+    const prosli = poKljucu.get(kljuc);
+    if (!prosli || cena < prosli.cena) poKljucu.set(kljuc, red);
+  }
+  if (!poKljucu.size) throw new Error('nijedan prozor nije pročitan iz podataka strane');
+  return [...poKljucu.values()];
+}
+
+IZVORI.push({
+  id: 'kips-me',
+  zemlja: 'CG',
+  firma: 'KIPS',
+  url: 'https://kips.me/kategorija/310/prozori',
+  dodatneStrane: ['https://kips.me/kategorija/310/prozori?page=2'],
+  tipIzvora: 'webshop',
+  materijal: 'PVC',
+  pdv: 'uklj',
+  pdvStopa: 21,
+  montaza: 'bez',
+  tipCene: 'tvrda',
+  citaj: kipsME,
+});
+
 // Hornbach RO nije u registru. Parser za njegove nazive radi (provereno na
 // stvarnim nazivima), ali server od sajta dobija stranu „Client Challenge",
 // to jest proveru da li je posetilac čovek. Zaobilaženje takve zaštite nije
@@ -381,8 +472,6 @@ export const KANDIDATI = [
   { id: 'dedeman-ro', url: 'https://www.dedeman.ro/ro/ferestre-pvc-verticale-cu-geam-termopan/c/638' },
   { id: 'leroymerlin-ro', url: 'https://www.leroymerlin.ro/produse/usi-ferestre-tamplarie/ferestre-pvc/ferestre-pvc/' },
   { id: 'bauhaus-hr', url: 'https://www.bauhaus.hr/prozori/c/10000800' },
-  { id: 'plastmarket-bg', url: 'https://plast-market.bg/pvc-prozortsi' },
-  { id: 'kips-me', url: 'https://kips.me/kategorija/309/pvc-stolarija' },
 ];
 
 // Kategorija „PVC okna" ima osam artikala (jedan proizvođač, četiri veličine,
@@ -405,7 +494,8 @@ IZVORI.push({
 
 // Jedan izvor od početka do kraja: povuci, pročitaj, pretvori u zapise.
 export async function ocitajIzvor(izv, prekid) {
-  const html = await povuci(izv.url, prekid);
+  let html = await povuci(izv.url, prekid);
+  for (const u of izv.dodatneStrane || []) html += '\n' + await povuci(u, prekid);
   const redovi = izv.citaj(html);
   const datumNaStrani = datumSaStrane(html);
   return redovi.map(r => zapis({
