@@ -206,6 +206,52 @@ export function tabelePoNaslovu(html, o) {
   return out;
 }
 
+// ── KATALOZI (lista proizvoda, ne tabela) ─────────────────────────────────
+// Veliki lanci ne objavljuju cenovnik nego listu artikala, a dimenzija,
+// broj komora i boja stoje u nazivu proizvoda. Podatak se čita iz stanja
+// koje stranica sama ugrađuje u HTML, ne iz izgleda strane — izgled se
+// menja svakog meseca, ugrađeni podaci ne.
+
+// Naziv artikla u red za barometar, ili null ako artikal ne ulazi u uzorak.
+// Ne ulaze: dekor boje (stejar, antracit...) jer podižu cenu, i artikli bez
+// dimenzije (konfiguratori, gde cena znači „od").
+export function artikalRO(naziv, cena) {
+  if (!/fereastr/i.test(naziv)) return null;
+  const { sirina, visina } = dimenzija(naziv);
+  if (!sirina) return null;
+  if (!/alb[ăa]/i.test(naziv)) return null;
+  if (/stejar|antracit|nuc|auriu|gri\b|maro|mahon|culoare|decor/i.test(naziv)) return null;
+  const camere = (naziv.match(/(\d)\s*camere/i) || [])[1];
+  // „fixă + deschidere" je dva krila, jedno nepokretno. Samo „deschidere
+  // dublă" je jedno krilo sa dve funkcije (kip i otvaranje) — ne dva krila.
+  const krila = /fix[ăa]/i.test(naziv) ? 2 : 1;
+  return {
+    sirina, visina, krila,
+    sistem: camere ? camere + ' camere' : null,
+    zastakljenje: /tripan|triplu|3 sticle/i.test(naziv) ? 'troslojno' : 'dvoslojno',
+    cena, valuta: 'RON',
+  };
+}
+
+// Proizvodi iz ugrađenog JSON stanja strane. Isti artikal se u stanju javlja
+// po više puta, pa se duplikati sklanjaju po nazivu i ceni.
+export function proizvodiIzStanja(html, { naslovRe, filter }) {
+  const re = new RegExp(
+    '"title":"(' + naslovRe + '[^"]{10,160})"[\\s\\S]{0,1800}?"defaultPrice":\\{[^}]*?"price":([\\d.]+),"currencyCode":"(\\w+)"',
+    'g');
+  const vidjeno = new Set(), out = [];
+  let m;
+  while ((m = re.exec(html))) {
+    const kljuc = m[1] + '|' + m[2];
+    if (vidjeno.has(kljuc)) continue;
+    vidjeno.add(kljuc);
+    const red = filter(m[1], +m[2]);
+    if (red) out.push(red);
+  }
+  if (!out.length) throw new Error('u stanju strane nema artikala koji prolaze filter');
+  return out;
+}
+
 // ── REGISTAR IZVORA ───────────────────────────────────────────────────────
 export const IZVORI = [
   // Prvi izvor, i merilo za ostale: tačna dimenzija, tvrda cena, dve valute,
@@ -289,6 +335,24 @@ export const IZVORI = [
     }),
   },
 ];
+
+// Prva strana kategorije, 56 artikala. Pored nje stoje i dva konfiguratora
+// sa cenom „od" — ona se filtrom odbacuju, jer nemaju dimenziju.
+// Strana doslovno piše: „Toate prețurile conțin TVA" (sve cene sadrže PDV).
+// Montaže nema — to je maloprodaja robe.
+IZVORI.push({
+  id: 'hornbach-ro',
+  zemlja: 'RO',
+  firma: 'Hornbach',
+  url: 'https://www.hornbach.ro/c/lemn-ferestre-usi/ferestre/ferestre-pvc/S21004/',
+  tipIzvora: 'webshop',
+  materijal: 'PVC',
+  pdv: 'uklj',
+  pdvStopa: 21,
+  montaza: 'bez',
+  tipCene: 'tvrda',
+  citaj: (html) => proizvodiIzStanja(html, { naslovRe: 'Fereastr', filter: artikalRO }),
+});
 
 // Jedan izvor od početka do kraja: povuci, pročitaj, pretvori u zapise.
 export async function ocitajIzvor(izv, prekid) {
