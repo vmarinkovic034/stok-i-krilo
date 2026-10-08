@@ -392,7 +392,10 @@ export function plastMarketBG(html) {
     const sekcije = /^двоен$/i.test(mm[1]) ? 2 : 3;
     const sistem = mm[2].replace(/[\s-]*\d+\s*(?:mm|мм)\s*$/i, '').replace(/\s+/g, ' ').trim();
     const sirina = +mm[3], visina = +mm[4];
-    const red = { sirina, visina, krila: sekcije, sistem, cena, valuta: 'EUR', cenaEur: cena };
+    // Broj sekcija ide u naziv sistema, a krila ostaje prazno: kuhinjski prozor
+    // sa dve sekcije i jednim pokretnim krilom nije dvokrilni prozor i ne sme
+    // da uđe u referencu B.
+    const red = { sirina, visina, krila: null, sistem: sistem + ' (' + sekcije + ' sekcije)', cena, valuta: 'EUR', cenaEur: cena };
     const kljuc = [sistem, sirina, visina, sekcije].join('|');
     const prosli = poKljucu.get(kljuc);
     if (!prosli || cena < prosli.cena) poKljucu.set(kljuc, red);
