@@ -6,6 +6,8 @@
 //     Izvor koji ne piše da li je cena sa PDV-om ili bez ne ulazi u račun —
 //     pogađanje bi pomerilo vrednost za 17–25%, a to je veće od razlike
 //     između zemalja. Takvi izvori se prikazuju, ali se ne broje.
+//     Izuzetak je 'uklj_pretp': pretpostavka da je cena sa PDV-om (potrošački
+//     sajt u Srbiji). Računa se, ali je u izlazu navedena kao pretpostavka.
 //  2. Cena se svodi na neto (bez PDV-a), da se zemlje porede među sobom.
 //  3. Cena po m² pada sa veličinom (fiksni deo + promenljivi deo), pa se
 //     obična medijana €/m² ne koristi. Za svaki izvor se Theil–Sen linijom
@@ -77,7 +79,7 @@ function najnovijiPoIzvoru(zapisi) {
 
 function neto(z) {
   if (z.pdv === 'bez') return z.cenaEur;
-  if (z.pdv === 'uklj' && z.pdvStopa) return z.cenaEur / (1 + z.pdvStopa / 100);
+  if ((z.pdv === 'uklj' || z.pdv === 'uklj_pretp') && z.pdvStopa) return z.cenaEur / (1 + z.pdvStopa / 100);
   return null;
 }
 
@@ -88,6 +90,7 @@ export function izracunaj(zapisi, refId = 'A') {
     .filter(z => z.montaza === 'bez' && (z.materijal === 'PVC' || !z.materijal) && z.cenaEur);
   const poZemlji = {};
   const izvoriBezPdv = new Set();
+  const pretpostavka = new Set(osnova.filter(z => z.pdv === 'uklj_pretp').map(z => z.izvor));
   for (const z of osnova) {
     const n = neto(z);
     if (n == null) { izvoriBezPdv.add(z.izvor); continue; }
@@ -121,5 +124,6 @@ export function izracunaj(zapisi, refId = 'A') {
     napomena: 'Cene bez montaže, neto (bez PDV-a), u evrima; medijana procena po izvoru.',
     zemlje,
     izvoriBezStatusaPdv: [...izvoriBezPdv],
+    izvoriSaPretpostavkomPdv: [...pretpostavka],
   };
 }

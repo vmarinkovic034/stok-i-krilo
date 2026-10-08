@@ -291,7 +291,8 @@ export const IZVORI = [
     url: 'https://www.pvcmarcijus.rs/cenovnik/',
     tipIzvora: 'proizvodjac',
     materijal: 'PVC',
-    pdv: 'ne_pise',
+    pdv: 'uklj_pretp',
+    pdvStopa: 20,
     montaza: 'bez',
     tipCene: 'tvrda',
     citaj: (html) => tabelaCena(html, {
@@ -317,7 +318,8 @@ export const IZVORI = [
     firma: 'Aluport',
     url: 'https://www.aluport.net/cene',
     tipIzvora: 'proizvodjac',
-    pdv: 'ne_pise',
+    pdv: 'uklj_pretp',
+    pdvStopa: 20,
     montaza: null,                 // stoji po koloni, ne po izvoru
     tipCene: 'tvrda',
     podrazumevanoZastakljenje: 'dvoslojno',
@@ -458,6 +460,105 @@ IZVORI.push({
   citaj: kipsME,
 });
 
+// ── SRBIJA, DRUGI TALAS ───────────────────────────────────────────────────
+// PDV kod ovih izvora nigde ne piše. Vrednost „uklj_pretp" znači: pretpostavka
+// da je cena sa PDV-om, zato što su to potrošački sajtovi, a potrošačima
+// se u Srbiji cena iskazuje sa PDV-om. To NIJE pročitan podatak i račun to
+// izdvaja u izlazu (izvoriSaPretpostavkomPdv). Čim izvor odgovori mejlom,
+// vrednost se menja u 'uklj' ili 'bez' i pretpostavka nestaje.
+
+// Premija PVC: dve tabele (jednokrilni, dvokrilni), cene u dinarima, na
+// strani piše „Sa PDV-om" uz svaku cenu i „Cene su bez dostave i montaže".
+export function premijaRS(html) {
+  const o = { kolonaDimenzija: 0, valuta: 'RSD', samoRedovi: /prozor/i };
+  return [
+    ...tabelaCena(html, { ...o, marker: /JEDNOKRILNI PROZORI/ }),
+    ...tabelaCena(html, { ...o, marker: /DVOKRILNI PROZORI/ }),
+  ];
+}
+
+// PVC Stolarija Beograd: jedna tabela sa odeljcima u jednoćelijskim redovima
+// („JEDNOKRILNI PROZORI", „DVOKRILNI PROZORI"...). Kolone su dva sistema.
+// Balkonska vrata se preskaču. Sve cene su „od".
+export function pvcBeogradRS(html) {
+  const tabele = [...html.matchAll(/<table[\s\S]*?<\/table>/gi)].map(m => m[0]);
+  const out = [];
+  for (const tab of tabele) {
+    const redovi = [...tab.matchAll(/<tr[\s\S]*?<\/tr>/gi)].map(m => m[0]);
+    const zagl = [...(redovi[0] || '').matchAll(/<t[hd][\s\S]*?<\/t[hd]>/gi)].map(m => ocisti(m[0]));
+    let krila = null;
+    for (const red of redovi.slice(1)) {
+      const c = [...red.matchAll(/<t[hd][\s\S]*?<\/t[hd]>/gi)].map(m => ocisti(m[0]));
+      if (c.length === 1) {
+        krila = /JEDNOKRIL/i.test(c[0]) ? 1 : /DVOKRIL/i.test(c[0]) ? 2 : /TROKRIL/i.test(c[0]) ? 3 : null;
+        if (/BALKON|VRATA/i.test(c[0])) krila = null;
+        continue;
+      }
+      if (!krila) continue;
+      const { sirina, visina } = dimenzija(c[0]);
+      if (!sirina) continue;
+      c.slice(1).forEach((celija, i) => {
+        const cena = broj(celija);
+        if (cena == null) return;
+        const sistem = (zagl[i + 1] || '').replace(/^Model\s+/i, '') || null;
+        out.push({ sirina, visina, krila, sistem, cena, cenaEur: cena, valuta: 'EUR' });
+      });
+    }
+  }
+  if (!out.length) throw new Error('nijedan red nije pročitan');
+  return out;
+}
+
+// pvcstolarije.rs: tabele „Dimenzije (cm) | Cena (€)", vrsta u naslovu
+// iznad tabele. Cene su „od".
+export function pvcstolarijeRS(html) {
+  return tabelePoNaslovu(html, {
+    naslovFilter: /prozor\s*$/i, kolonaDimenzija: 0, valuta: 'EUR', valutaUEur: true,
+  });
+}
+
+// Euro PVC: bez tabele, svaki proizvod je red „Jednokrilni pvc prozor
+// 400 x 500 mm" pa cena „5500 RSD". Tu stoje i balkonska vrata, koja se ne
+// čitaju jer red mora da počne sa „... pvc prozor".
+export function euroPvcRS(html) {
+  const re = /<span>\s*((?:Jednokrilni|Dvokrilni)\s+pvc\s+prozor[^<]*?mm)\s*<\/span>[\s\S]{0,400}?<p>\s*([\d.,]+)\s*RSD\s*<\/p>/gi;
+  const poKljucu = new Map();
+  let m;
+  while ((m = re.exec(html))) {
+    const { sirina, visina } = dimenzija(m[1]);
+    const cena = broj(m[2]);
+    if (!sirina || cena == null) continue;
+    const krila = krilaIz(m[1]);
+    const k = [sirina, visina, krila].join('|');
+    if (!poKljucu.has(k) || cena < poKljucu.get(k).cena) {
+      poKljucu.set(k, { sirina, visina, krila, cena, valuta: 'RSD' });
+    }
+  }
+  if (!poKljucu.size) throw new Error('nijedan prozor nije pročitan');
+  return [...poKljucu.values()];
+}
+
+IZVORI.push(
+  { id: 'premija-rs', zemlja: 'RS', firma: 'Premija PVC', url: 'https://premijapvc.rs/cenovnik/',
+    tipIzvora: 'proizvodjac', materijal: 'PVC', pdv: 'uklj', pdvStopa: 20, montaza: 'bez', tipCene: 'tvrda',
+    valuta: 'RSD', citaj: premijaRS },
+  { id: 'pvcbeograd-rs', zemlja: 'RS', firma: 'PVC Stolarija Beograd', url: 'https://pvcstolarija-beograd.rs/pvc-stolarija-cenovnik/',
+    tipIzvora: 'proizvodjac', materijal: 'PVC', pdv: 'uklj_pretp', pdvStopa: 20, montaza: 'bez', tipCene: 'od',
+    valuta: 'EUR', citaj: pvcBeogradRS },
+  { id: 'pvcstolarije-rs', zemlja: 'RS', firma: 'pvcstolarije.rs', url: 'https://pvcstolarije.rs/cene/',
+    tipIzvora: 'proizvodjac', materijal: 'PVC', pdv: 'uklj_pretp', pdvStopa: 20, montaza: 'bez', tipCene: 'od',
+    valuta: 'EUR', citaj: pvcstolarijeRS },
+  { id: 'europvc-rs', zemlja: 'RS', firma: 'Euro PVC', url: 'https://europvc.rs/cene-pvc-stolarije/',
+    tipIzvora: 'proizvodjac', materijal: 'PVC', pdv: 'uklj_pretp', pdvStopa: 20, montaza: 'bez', tipCene: 'tvrda',
+    valuta: 'RSD', citaj: euroPvcRS },
+);
+
+// Kurs za izvore u dinarima. Dinar se godinama drži oko 117,2 za evro
+// (raspon 117,1–117,4), pa fiksna vrednost greši manje od 0,3%. Proverava
+// se jednom mesečno prema srednjem kursu NBS; ako se pomeri više od 1%,
+// ovde se menja vrednost i datum.
+export const KURS_U_EUR = { RSD: { vrednost: 117.2, datum: '2026-10-08', izvor: 'NBS, srednji kurs (oko)' } };
+
 // Hornbach RO nije u registru. Parser za njegove nazive radi (provereno na
 // stvarnim nazivima), ali server od sajta dobija stranu „Client Challenge",
 // to jest proveru da li je posetilac čovek. Zaobilaženje takve zaštite nije
@@ -517,7 +618,7 @@ export async function ocitajIzvor(izv, prekid) {
     krila: r.krila,
     cena: r.cena,
     valuta: r.valuta || izv.valuta,
-    cenaEur: r.cenaEur,
+    cenaEur: r.cenaEur ?? ((r.valuta || izv.valuta) in KURS_U_EUR ? +(r.cena / KURS_U_EUR[r.valuta || izv.valuta].vrednost).toFixed(2) : null),
     pdv: izv.pdv,
     pdvStopa: izv.pdvStopa,
     montaza: r.montaza || izv.montaza,
