@@ -514,6 +514,7 @@ export function pvcBeogradRS(html) {
 export function pvcstolarijeRS(html) {
   return tabelePoNaslovu(html, {
     naslovFilter: /prozor\s*$/i, kolonaDimenzija: 0, valuta: 'EUR', valutaUEur: true,
+    kolone: [{ sistem: null }], // zaglavlje „Cena (€)" nije naziv sistema
   });
 }
 
@@ -539,6 +540,9 @@ export function euroPvcRS(html) {
 }
 
 IZVORI.push(
+  // Premija i Euro PVC: parser radi na fixture-u, ali server sajta odgovara
+  // HTTP 447 našem botu (provereno 8. 10. 2026). Zaobilaženje nije opcija;
+  // izvor ostaje u registru da bi se videlo čim ga sajt propusti.
   { id: 'premija-rs', zemlja: 'RS', firma: 'Premija PVC', url: 'https://premijapvc.rs/cenovnik/',
     tipIzvora: 'proizvodjac', materijal: 'PVC', pdv: 'uklj', pdvStopa: 20, montaza: 'bez', tipCene: 'tvrda',
     valuta: 'RSD', citaj: premijaRS },
