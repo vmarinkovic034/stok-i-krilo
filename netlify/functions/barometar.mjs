@@ -3,6 +3,7 @@
 //   GET /api/barometar             → ručno merena korpa (sa ugradnjom)
 //   GET /api/barometar?zapisi=1    → automatska očitavanja (bez montaže)
 //   GET /api/barometar?prolazi=1   → izveštaj poslednjih prolaza robota
+//   GET /api/barometar?reper=1     → zvanični indeksi cena proizvođača (Eurostat, FRED)
 //   GET /api/barometar?indeks=1[&ref=A|B] → vrednost po zemlji na referentnom prozoru
 //   GET /api/barometar?proba=<id>  → suvi prolaz jednog izvora, bez upisa
 //
@@ -19,6 +20,7 @@
 import { readJSON, KLJUC_BAROMETAR } from './_lib.mjs';
 import { KLJUC_ZAPISI, KLJUC_PROLAZI } from './_barometar-zapisi.mjs';
 import { izracunaj } from './_barometar-racun.mjs';
+import { reper } from './_barometar-reper.mjs';
 import { IZVORI, KANDIDATI, ocitajIzvor, povuci } from './_barometar-izvori.mjs';
 
 const json = (telo, kes) => new Response(JSON.stringify(telo), {
@@ -61,6 +63,13 @@ export default async (req) => {
 
   if (q.get('prolazi')) {
     return json({ prolazi: await readJSON(KLJUC_PROLAZI, []) }, 'no-store');
+  }
+
+  if (q.get('reper')) {
+    return json({
+      napomena: 'Kontekst, ne deo indeksa. Indeksi cena proizvođača, ne cene prozora; plastični proizvodi (C22.23) i metalni prozori (C25.12) su šire kategorije od PVC prozora.',
+      serije: await reper(),
+    }, 'public, max-age=43200');
   }
 
   if (q.get('indeks')) {
