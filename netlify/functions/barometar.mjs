@@ -75,7 +75,13 @@ export default async (req) => {
   if (q.get('indeks')) {
     const zapisi = await readJSON(KLJUC_ZAPISI, []);
     if (!zapisi.length) return json({ poruka: 'Još nema očitavanja. Prvi prolaz robota nije pokrenut.' }, 'no-store');
-    try { return json(izracunaj(zapisi, q.get('ref') || 'A'), 'public, max-age=900'); }
+    try {
+      const r = izracunaj(zapisi, q.get('ref') || 'A');
+      // Podaci za prikaz: ko su izvori (naziv, adresa) i kada je poslednje očitavanje.
+      r.izvori = Object.fromEntries(IZVORI.map(i => [i.id, { firma: i.firma, zemlja: i.zemlja, url: i.url }]));
+      r.poslednjeOcitavanje = zapisi.reduce((m, z) => (z.datumOcitavanja > m ? z.datumOcitavanja : m), '');
+      return json(r, 'public, max-age=900');
+    }
     catch (e) { return json({ greska: e.message }, 'no-store'); }
   }
 

@@ -538,9 +538,67 @@ tailwind.config = {
         <span class="tag text-brand">BAROMETAR CENA</span>
         <span class="text-xs font-mono bg-gray-950 text-white px-2 py-0.5" id="bar-oznaka">—</span>
       </div>
-      <h1 class="font-serif text-4xl font-bold text-gray-950 mb-3">Koliko košta ista korpa stolarije na tri tržišta</h1>
-      <p class="text-gray-500 max-w-3xl">Tri elementa koje svaka firma u regionu pravi, u tri klase opreme, po istoj specifikaciji. Ne cena po kvadratu — fiksna korpa, da bi se merila promena cene, a ne promena uzorka. Tržišta za koja podaci još ne postoje nabrojana su na dnu strane, sa razlogom.</p>
+      <h1 class="font-serif text-4xl font-bold text-gray-950 mb-3">Koliko košta PVC prozor na Balkanu</h1>
+      <p class="text-gray-500 max-w-3xl">Cene koje firme same objavljuju na svojim sajtovima, preuzete automatski jednom mesečno. Bez montaže, bez PDV-a, na istoj referentnoj veličini. Gde nema dovoljno izvora, ne prikazujemo broj. Ovde nema procena ni popunjavanja rupa.</p>
       <p class="text-amber-700 text-sm mt-3" id="bar-starost" style="display:none"></p>
+    </div>
+
+    <!-- ============ SERIJA 1: javni izvori, automatski ============ -->
+    <section class="mb-16" id="bw-serija">
+      <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+        <div class="tag text-brand">SERIJA 1 · JAVNI IZVORI · BEZ MONTAŽE · NETO</div>
+        <div class="text-xs text-gray-400" id="bw-datum"></div>
+      </div>
+      <p class="text-sm text-gray-500 mb-6 max-w-3xl">Vrednost je medijana procena po izvoru, svedena na referentni prozor. Svaki izvor ima jedan glas, bez obzira na veličinu kataloga.</p>
+
+      <div class="flex gap-2 mb-5" id="bw-ref-btns">
+        <button class="filter-btn active" onclick="setBw('A', this)">Jednokrilni 100×100 cm</button>
+        <button class="filter-btn" onclick="setBw('B', this)">Dvokrilni 140×140 cm</button>
+      </div>
+
+      <div class="bg-white border border-gray-200 overflow-x-auto mb-4">
+        <table class="w-full text-sm" style="min-width:560px">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+              <th class="text-left px-4 py-3 tag text-gray-500 font-bold">Zemlja</th>
+              <th class="text-right px-4 py-3 tag text-gray-500 font-bold">Cena, € neto</th>
+              <th class="text-right px-4 py-3 tag text-gray-500 font-bold">Izvora</th>
+              <th class="text-left px-4 py-3 tag text-gray-500 font-bold">Status</th>
+              <th class="text-left px-4 py-3 tag text-gray-500 font-bold">Izvori</th>
+            </tr>
+          </thead>
+          <tbody id="bw-tabela"><tr><td colspan="5" class="px-4 py-6 text-gray-400">Učitavanje…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="text-xs text-gray-500 leading-relaxed max-w-4xl mb-1" id="bw-pdv"></p>
+      <p class="text-xs text-gray-500 leading-relaxed max-w-4xl"><strong>Status:</strong> „ok" znači tri nezavisna izvora ili više, „okvirno" dva. Jedan izvor nije barometar, pa se vrednost ne prikazuje kao broj. Cene „od" su početne cene sa sajta.</p>
+
+      <!-- Reper -->
+      <div class="mt-10 bg-gray-50 border border-gray-200 p-6">
+        <div class="tag text-gray-500 mb-1">KONTEKST · ZVANIČNA STATISTIKA</div>
+        <div class="font-serif text-xl font-bold text-gray-950 mb-1">Cene proizvođača, promena na godišnjem nivou</div>
+        <p class="text-xs text-gray-500 mb-4 max-w-3xl">Indeksi cena proizvođača (Eurostat, američki BLS preko FRED-a). To nisu cene prozora i ne porede se sa nivoima iznad: šire su kategorije, drugi PDV, a u nekim zemljama montaža ulazi u cenu. Pokazuju samo pravac. Eurostat nema podatke za Srbiju, region ni Poljsku.</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-200 border border-gray-200" id="bw-reper"></div>
+        <div class="text-xs text-gray-400 mt-3" id="bw-reper-izvor"></div>
+      </div>
+
+      <!-- Metodologija -->
+      <div class="mt-8 text-xs text-gray-500 leading-relaxed max-w-4xl">
+        <div class="tag text-gray-400 mb-2">KAKO SE RAČUNA</div>
+        <ol class="list-decimal pl-5 space-y-1">
+          <li>Uzimaju se samo cene PVC prozora <strong>bez montaže</strong>. Cene sa ugradnjom se ne mešaju sa ovom serijom.</li>
+          <li>Sve cene se svode na <strong>neto</strong> (bez PDV-a) u evrima. Dinari se preračunavaju fiksnim kursom (NBS, srednji kurs, proverava se mesečno).</li>
+          <li>Cena po m² opada sa veličinom prozora, pa se ne uzima prosek po kvadratu. Za svaki izvor se kroz njegove cene postavlja Theil–Sen linija (cena ~ površina), a očitava se na referentnoj veličini. Izvor se ne ekstrapolira van veličina koje stvarno prodaje.</li>
+          <li>Vrednost zemlje je medijana izvora. Izvor koji odstupa više od 35% od medijane ostalih (kad ih ima bar tri) se izdvaja.</li>
+          <li>Nijedna cena nije procenjena ni dopunjena. Sve se vidi na adresi izvora, na datum očitavanja.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ SERIJA 2: stara korpa, sa ugradnjom ============ -->
+    <div class="border-t-2 border-gray-950 pt-6 mb-8">
+      <div class="tag text-gray-500 mb-1">SERIJA 2 · PONUDE IZVOĐAČA · SA UGRADNJOM · RUČNO, 31. AVGUST 2026</div>
+      <p class="text-sm text-gray-500 max-w-3xl">Posebna serija, drugi proizvod: cene sa montažom, sa sajtova koji agregiraju ponude izvođača. Ne poredi se sa serijom iznad.</p>
     </div>
 
     <!-- KPI strip -->
@@ -2369,6 +2427,101 @@ async function subscribeNewsletter(inputId) {
 }
 
 // ==================== NAVIGATION ====================
+// ==================== BAROMETAR: JAVNI IZVORI (serija 1) ====================
+const BW_ZEMLJE = [
+  ['RS','Srbija'],['CG','Crna Gora'],['SI','Slovenija'],['BG','Bugarska'],
+  ['HR','Hrvatska'],['BA','Bosna i Hercegovina'],['MK','Severna Makedonija'],['AL','Albanija'],['XK','Kosovo']
+];
+let bwRef = 'A';
+const bwKes = {};
+function bwEsc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+async function bwUcitaj(ref) {
+  if (bwKes[ref]) return bwKes[ref];
+  const r = await fetch('/api/barometar?indeks=1&ref=' + ref);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return (bwKes[ref] = await r.json());
+}
+async function setBw(ref, btn) {
+  bwRef = ref;
+  document.querySelectorAll('#bw-ref-btns .filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  await renderBw();
+}
+async function renderBw() {
+  const tb = document.getElementById('bw-tabela');
+  if (!tb) return;
+  let d;
+  try { d = await bwUcitaj(bwRef); }
+  catch (e) { tb.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-gray-400">Podaci trenutno nisu dostupni.</td></tr>'; return; }
+  if (!d || !d.zemlje) { tb.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-gray-400">Prvo očitavanje još nije završeno.</td></tr>'; return; }
+  const pret = new Set(d.izvoriSaPretpostavkomPdv || []);
+  const info = d.izvori || {};
+  const fmtIzv = (id) => {
+    const i = info[id] || {};
+    const naziv = bwEsc(i.firma || id);
+    const zv = pret.has(id) ? '<sup title="PDV nije izričito naveden na sajtu, pretpostavka je da je cena sa PDV-om" class="text-amber-700">*</sup>' : '';
+    return i.url ? '<a class="text-brand hover:underline" href="' + bwEsc(i.url) + '" target="_blank" rel="noopener">' + naziv + '</a>' + zv : naziv + zv;
+  };
+  const red = BW_ZEMLJE.map(([k, ime]) => {
+    const z = d.zemlje[k];
+    const izv = z ? (z.izvoriDetalj || []).map(x => fmtIzv(x.izvor)).join(', ') : '';
+    const odb = z && z.odbaceni && z.odbaceni.length ? z.odbaceni.length : 0;
+    let cena = '<span class="text-gray-400">—</span>', status, stClass = 'text-gray-400';
+    if (z && z.status === 'ok') { cena = '<strong class="tabular-nums">' + Math.round(z.vrednostNeto) + ' €</strong>'; status = 'ok'; stClass = 'text-emerald-700'; }
+    else if (z && z.status === 'okvirno') { cena = '<span class="tabular-nums">~' + Math.round(z.vrednostNeto) + ' €</span>'; status = 'okvirno (2 izvora)'; stClass = 'text-amber-700'; }
+    else if (z) { status = 'nema dovoljno podataka' + (z.izvora === 1 ? ' (1 izvor)' : ''); }
+    else { status = 'nema podataka'; }
+    return '<tr class="border-b border-gray-100"><td class="px-4 py-3 font-medium text-gray-950">' + ime + '</td>'
+      + '<td class="px-4 py-3 text-right">' + cena + '</td>'
+      + '<td class="px-4 py-3 text-right tabular-nums text-gray-500">' + (z ? z.izvora : 0) + '</td>'
+      + '<td class="px-4 py-3 text-xs ' + stClass + '">' + status + '</td>'
+      + '<td class="px-4 py-3 text-xs text-gray-500">' + (izv || '') + (odb ? '<div class="text-gray-400 mt-0.5">izdvojeno: ' + odb + '</div>' : '') + '</td></tr>';
+  }).join('');
+  tb.innerHTML = red;
+  const dat = document.getElementById('bw-datum');
+  if (dat && d.poslednjeOcitavanje) dat.textContent = 'Poslednje očitavanje: ' + d.poslednjeOcitavanje.slice(0, 10).split('-').reverse().join('. ') + '.';
+  const pdv = document.getElementById('bw-pdv');
+  if (pdv) {
+    pdv.innerHTML = pret.size
+      ? '<strong>* Napomena o PDV-u:</strong> ' + pret.size + ' izvora iz Srbije (označeni zvezdicom) ne navode da li je cena sa PDV-om. Računamo da jeste, jer su to potrošački sajtovi, i zato od cene oduzimamo 20%. Ako su cene zapravo bez PDV-a, vrednost za Srbiju je za oko 17% preniska. Pretpostavka postaje podatak kad izvori potvrde.'
+      : '';
+  }
+}
+const BW_REPER_IMENA = {
+  'de-plastika': 'Nemačka · plastični proizvodi za građevinu',
+  'ea-plastika': 'Evrozona · plastični proizvodi za građevinu',
+  'eu27-metal': 'EU27 · metalni prozori i vrata',
+  'fr-plastika': 'Francuska · plastični proizvodi za građevinu',
+  'it-plastika': 'Italija · plastični proizvodi za građevinu',
+  'de-metal': 'Nemačka · metalni prozori i vrata',
+  'us-metal': 'SAD · metalni prozori i vrata'
+};
+const BW_MESECI = ['jan','feb','mar','apr','maj','jun','jul','avg','sep','okt','nov','dec'];
+function bwMesec(m) { const p = String(m || '').split('-'); return p.length >= 2 ? BW_MESECI[(+p[1]) - 1] + ' ' + p[0] : (m || ''); }
+async function renderBwReper() {
+  const el = document.getElementById('bw-reper');
+  if (!el) return;
+  try {
+    const r = await fetch('/api/barometar?reper=1');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    const serije = (d.serije || []).filter(x => x && x.yoy != null);
+    if (!serije.length) { el.innerHTML = '<div class="bg-white p-4 text-sm text-gray-400">Podaci trenutno nisu dostupni.</div>'; return; }
+    el.innerHTML = serije.map(x => {
+      const y = x.yoy, boja = y > 0 ? 'text-gray-950' : 'text-gray-950';
+      const znak = y > 0 ? '+' : '';
+      const ime = BW_REPER_IMENA[x.id] || x.naziv || x.id;
+      return '<div class="bg-white p-4"><div class="text-2xl font-bold tabular-nums ' + boja + '">' + znak + y.toFixed(1).replace('.', ',') + '%</div>'
+        + '<div class="text-xs text-gray-600 mt-1 leading-snug">' + bwEsc(ime) + '</div>'
+        + '<div class="text-xs text-gray-400 mt-0.5">na godišnjem nivou · ' + bwMesec(x.poslednjiMesec) + '</div></div>';
+    }).join('');
+    const iz = document.getElementById('bw-reper-izvor');
+    if (iz) iz.innerHTML = 'Izvori: <a class="text-brand hover:underline" href="https://ec.europa.eu/eurostat/databrowser/view/sts_inpp_m" target="_blank" rel="noopener">Eurostat, sts_inpp_m</a> · <a class="text-brand hover:underline" href="https://fred.stlouisfed.org/series/PCU332321332321" target="_blank" rel="noopener">FRED, PCU332321332321</a>';
+  } catch (e) {
+    el.innerHTML = '<div class="bg-white p-4 text-sm text-gray-400">Podaci trenutno nisu dostupni.</div>';
+  }
+}
+
 // ==================== BAROMETAR CENA ====================
 // Fiksna korpa B1-B3 u tri klase opreme, mereno mesecno po istoj specifikaciji.
 // Sve cene: EUR/kom, SA UGRADNJOM. Izvor: agregatori ponuda izvodjaca (Daibau grupa).
@@ -2913,6 +3066,7 @@ function initPortal() {
   try { ucitajCene(); } catch(e) { console.error('ucitajCene:', e); }
   try { ucitajKompanije(); } catch(e) { console.error('ucitajKompanije:', e); }
   try { ucitajBarometar(); } catch(e) { console.error('ucitajBarometar:', e); }
+  try { renderBw(); renderBwReper(); } catch(e) { console.error('barometar javni izvori:', e); }
   // Dubinski link se rešava tek kad vesti stignu sa servera — vidi
   // fetchApprovedNews. Ovde ih još nema.
 }
