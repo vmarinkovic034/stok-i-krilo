@@ -2486,7 +2486,7 @@ async function renderBw() {
   }).join('');
   tb.innerHTML = red || '<tr><td colspan="5" class="px-4 py-6 text-gray-400">Za ovu referencu još nema dovoljno podataka.</td></tr>';
   const pr = document.getElementById('bw-prazne');
-  if (pr) pr.textContent = prazne.length ? 'Nema javnog cenovnika bez montaže, pa nema ni broja: ' + prazne.join(', ') + '.' : '';
+  if (pr) pr.textContent = prazne.length ? 'Nema uporedivih javnih cena bez montaže za ovu referencu, pa nema ni broja: ' + prazne.join(', ') + '.' : '';
   const dat = document.getElementById('bw-datum');
   if (dat && d.poslednjeOcitavanje) dat.textContent = 'Poslednje očitavanje: ' + d.poslednjeOcitavanje.slice(0, 10).split('-').reverse().join('. ') + '.';
   const pdv = document.getElementById('bw-pdv');
