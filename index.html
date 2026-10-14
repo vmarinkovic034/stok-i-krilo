@@ -597,11 +597,12 @@ tailwind.config = {
       </div>
     </section>
 
-    <!-- ============ SERIJA 2: stara korpa, sa ugradnjom ============ -->
-    <div class="border-t-2 border-gray-950 pt-6 mb-8">
-      <div class="tag text-gray-500 mb-1">SERIJA 2 · PONUDE IZVOĐAČA · SA UGRADNJOM · RUČNO, 31. AVGUST 2026</div>
-      <p class="text-sm text-gray-500 max-w-3xl">Posebna serija, drugi proizvod: cene sa montažom, sa sajtova koji agregiraju ponude izvođača. Ne poredi se sa serijom iznad.</p>
-    </div>
+    <!-- ============ SERIJA 2: arhiva, ponude izvođača sa ugradnjom ============ -->
+    <details class="border-t-2 border-gray-950 pt-4 mb-10" id="bar-arhiva">
+      <summary class="cursor-pointer select-none mb-6">
+        <span class="tag text-gray-500">ARHIVA · PONUDE IZVOĐAČA SA UGRADNJOM · RUČNO, 31. AVGUST 2026</span>
+        <span class="block text-sm text-gray-500 mt-1 max-w-3xl">Posebna, starija serija: sredine raspona ponuda izvođača sa agregatora, sa ugradnjom. Ne meri cenu prozora i ne poredi se sa serijom iznad. Klikni da otvoriš.</span>
+      </summary>
 
     <!-- KPI strip -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200 border border-gray-200 mb-10">
@@ -658,13 +659,6 @@ tailwind.config = {
       </div>
     </div>
 
-    <!-- What it means -->
-    <div class="bg-gray-50 border border-gray-200 p-6 mb-10">
-      <div class="tag text-brand mb-2">ŠTA OVO ZNAČI ZA PROIZVOĐAČE?</div>
-      <p class="text-gray-700 leading-relaxed mb-3"><strong>Premium segment u Srbiji još nema cenu.</strong> Razlika između ekonomik i premium klase je u Srbiji 11%, u Hrvatskoj 26%, u Sloveniji 75%. Za dvokrilni prozor i balkonska vrata srpski izvor daje identičan raspon za standard i premium — tržište ne naplaćuje sigurnosni okov i Uw ≤ 0,8.</p>
-      <p class="text-gray-700 leading-relaxed">Zbog toga se izvozna prilika ne nalazi u jeftinom prozoru, gde je transport pojede, nego u premium elementu: jaz prema Sloveniji je 3,3× u ekonomiku, a 5,3× u premiumu — više od 1.000 evra razlike po komadu.</p>
-    </div>
-
     <!-- Gaps + panel CTA -->
     <div class="grid md:grid-cols-3 gap-6 mb-10">
       <div class="md:col-span-2 bg-white border border-gray-200 p-6">
@@ -688,6 +682,8 @@ tailwind.config = {
       <p class="mb-2">Sve cene su po komadu, u evrima, <strong>sa ugradnjom</strong>, preuzete 31. avgusta 2026. s javno objavljenih stranica koje agregiraju ponude izvođača. Kolona „bez ugradnje" uvodi se tek s panelom — javni izvori za nju nisu međusobno uporedivi. Vrednosti u indeksu su sredine objavljenih raspona. Objavljeni raspon za dvokrilni prozor u Hrvatskoj, klasa E, u izvoru stoji obrnuto (480–380) i ovde je ispravljen na 380–480.</p>
       <p>Izvori: <a class="text-brand hover:underline" href="https://www.daibau.rs/cene/pvc_prozori" target="_blank" rel="noopener">daibau.rs</a> · <a class="text-brand hover:underline" href="https://www.emajstor.hr/cijene/pvc_prozori" target="_blank" rel="noopener">emajstor.hr</a> · <a class="text-brand hover:underline" href="https://www.mojmojster.net/cene/pvc_okna" target="_blank" rel="noopener">mojmojster.net</a> · <a class="text-brand hover:underline" href="https://www.daibau.ba/cene/pvc_prozori" target="_blank" rel="noopener">daibau.ba</a> · <a class="text-brand hover:underline" href="https://www.daibau.mk/ceni/pvts_prozortsi" target="_blank" rel="noopener">daibau.mk</a></p>
     </div>
+
+    </details>
 
     <!-- AD SLOT -->
     <div class="ad-section mt-10 py-5 relative">
@@ -2699,9 +2695,7 @@ function renderBarometar() {
   // Napomena uz grafikon
   const note = document.getElementById('bar-chart-note');
   if (note) {
-    const si = Math.round(barKorpa('SI', klasa) / bazna * 100);
-    note.innerHTML = 'Ista tri elementa, isti standard: u Sloveniji <strong>' + (si / 100).toFixed(1).replace('.', ',') +
-      '×</strong> skuplje nego u Srbiji. Broj se ne poredi s prošlim mesecom dok ne bude dvanaest merenja — do tada isključivo godina na godinu.';
+    note.textContent = 'Sredine raspona ponuda izvođača, sa ugradnjom. Ugradnja se među zemljama jako razlikuje po ceni, pa razliku ne treba čitati kao razliku u ceni prozora.';
   }
 
   renderBarometarChart(klasa, bazna);
