@@ -244,7 +244,7 @@ tailwind.config = {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div style="border-left:4px solid #1a3a5c; padding-left:1.5rem; background:#f8fafc; padding: 1.5rem 1.5rem 1.5rem 2rem; border-left:4px solid #1a3a5c;">
         <div class="tag text-brand mb-2">ŠTA OVO ZNAČI ZA BALKAN?</div>
-        <p class="text-gray-700 text-base leading-relaxed mb-4">"Rast cene aluminijuma direktno utiče na ulazne troškove proizvođača aluminijumske stolarije. Proizvođači koji rade sa manjim zalihama mogu prvi osetiti promenu troškova."</p>
+        <p class="text-gray-700 text-base leading-relaxed mb-4">"Promena cene aluminijuma direktno utiče na ulazne troškove proizvođača aluminijumske stolarije. Proizvođači koji rade sa manjim zalihama mogu prvi osetiti promenu troškova."</p>
         <div class="mb-4">
           <div class="text-xs font-bold text-gray-500 tracking-wider mb-2">3 stvari koje treba pratiti</div>
           <div class="flex flex-wrap gap-2">
@@ -511,7 +511,7 @@ tailwind.config = {
     <!-- What this means -->
     <div class="mt-8 bg-gray-50 border border-gray-200 p-6">
       <div class="tag text-brand mb-2">ŠTA CENA ZNAČI ZA PROIZVOĐAČE?</div>
-      <p class="text-gray-700 leading-relaxed">Aluminijum čini 40–60% ukupnih troškova materijala kod proizvođača AL stolarije. Svaki skok cene od 5% na LME direktno smanjuje maržu za 2–3% ukoliko nema zaštitnih mehanizama u ugovorima sa dobavljačima. Pratite trendove i prilagodite kalkulacije na vreme.</p>
+      <p class="text-gray-700 leading-relaxed">Aluminijum čini 40–60% ukupnih troškova materijala kod proizvođača AL stolarije. Svaki skok cene od 5% na berzi povećava troškove materijala za 2–3%, ukoliko nema zaštitnih mehanizama u ugovorima sa dobavljačima. Pratite trendove i prilagodite kalkulacije na vreme.</p>
     </div>
 
     <!-- AD SLOT - CENE STRANICA -->
@@ -821,8 +821,8 @@ tailwind.config = {
     <div class="space-y-8">
       <div class="border-b border-gray-100 pb-8">
         <div class="tag text-up mb-2">CENE SIROVINA</div>
-        <h2 class="font-serif text-2xl font-bold text-gray-950 mb-3">Šta rast cene aluminijuma znači za proizvođače AL stolarije</h2>
-        <p class="text-gray-600 leading-relaxed mb-4">LME cena aluminijuma porasla je za 4.8% u poslednjih 30 dana. Analiziramo direktan uticaj na kalkulacije, moguće strategije zaštite i kada očekivati da se rast prenese na krajnje kupce.</p>
+        <h2 class="font-serif text-2xl font-bold text-gray-950 mb-3">Šta kretanje cene aluminijuma znači za proizvođače AL stolarije</h2>
+        <p class="text-gray-600 leading-relaxed mb-4"><span id="an-al-30"></span>Analiziramo direktan uticaj na kalkulacije, moguće strategije zaštite i kada očekivati da se promena prenese na krajnje kupce.</p>
         <button class="text-brand text-sm font-semibold hover:underline">Pročitaj analizu →</button>
       </div>
     </div>
@@ -1078,7 +1078,7 @@ tailwind.config = {
     </div>
     <div class="border-t border-gray-800 pt-6 flex flex-wrap justify-between items-center gap-2">
       <div class="text-gray-600 text-xs">© 2026 ŠTOK I KRILO. Sva prava zadržana. Izdavač: GP GALAXY d.o.o. Kragujevac.</div>
-      <div class="text-gray-600 text-xs">Polja označena „OGLASNI PROSTOR" su slobodne oglasne pozicije. Portal trenutno nema plaćene oglašivače.</div>
+      <div class="text-gray-600 text-xs">Polja označena „OGLASNI PROSTOR" su slobodne oglasne pozicije.</div>
     </div>
   </div>
 </footer>
@@ -1752,10 +1752,12 @@ async function ucitajCene() {
         boja: s.gore === true ? '#16a34a' : (s.gore === false ? '#dc2626' : '#9ca3af'),
         bojaTraka: s.gore === true ? '#4ade80' : (s.gore === false ? '#f87171' : '#9ca3af'),
         note: s.napomena || '',
+        promena30: s.promena30 || null,
         live: true,
         fetched: true,
       }));
       ceneOcitano = d.ocitano || null;
+      try { renderAnalizaAl(); } catch (e) { /* tekst ostaje bez broja */ }
     }
 
     if (statusEl) {
@@ -1872,6 +1874,19 @@ function filterNews(cat, btn) {
   renderNews(cat);
 }
 
+function renderAnalizaAl() {
+  const el = document.getElementById('an-al-30');
+  if (!el) return;
+  const al = (prices || []).find(x => x.id === 'al');
+  const p = al && al.promena30;
+  if (!p || typeof p.vrednost !== 'number') { el.textContent = ''; return; }
+  const v = p.vrednost, a = Math.abs(v);
+  const dat = (d) => { const q = String(d || '').split('-'); return q.length === 3 ? (+q[2]) + '. ' + (+q[1]) + '.' : ''; };
+  const broj = a.toFixed(1).replace('.', ',');
+  const rec = a < 0.1 ? 'Cena aluminijuma na berzi se u poslednjih 30 dana skoro nije promenila'
+    : 'Cena aluminijuma na berzi je u poslednjih 30 dana ' + (v > 0 ? 'porasla' : 'pala') + ' za ' + broj + '%';
+  el.textContent = rec + ' (' + dat(p.od) + ' – ' + dat(p.do) + '). ';
+}
 // ==================== PRICES ====================
 let mainChart = null;
 let activePriceId = 'al';

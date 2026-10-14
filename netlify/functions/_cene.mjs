@@ -28,8 +28,10 @@ const store = () => getStore(STORE_CENE);
 // pa su brojevi stajali u kodu i niko ih nije menjao. Dva izmišljena broja
 // obaraju poverenje u ostalih dvanaest koji su tačni.
 export const POKAZATELJI = [
-  { id: 'al',     grupa: 'METALI',   naziv: 'Aluminijum LME', jedinica: 'EUR/t',     decimale: 0 },
-  { id: 'cu',     grupa: 'METALI',   naziv: 'Bakar LME',      jedinica: 'EUR/t',     decimale: 0 },
+  { id: 'al',     grupa: 'METALI',   naziv: 'Aluminijum',     jedinica: 'EUR/t',     decimale: 0,
+    napomena: 'Terminska cena sa berze, preračunata u evre' },
+  { id: 'cu',     grupa: 'METALI',   naziv: 'Bakar',          jedinica: 'EUR/t',     decimale: 0,
+    napomena: 'Terminska cena sa berze, preračunata u evre' },
   { id: 'brent',  grupa: 'ENERGIJA', naziv: 'Nafta Brent',    jedinica: 'USD/bbl',   decimale: 2 },
   // Henry Hub je američka cena gasa i proizvođača u Pančevu ne dotiče.
   // Evropski trošak peći i ekstruzije određuje holandski TTF.
@@ -96,6 +98,23 @@ async function berza(oznaka) {
   const meta = d?.chart?.result?.[0]?.meta;
   if (!meta || typeof meta.regularMarketPrice !== 'number') throw new Error('nema cene');
   return meta.regularMarketPrice;
+}
+
+// Promena cene u poslednjih trideset dana, iz dnevnih zatvaranja. Računa se u
+// valuti u kojoj berza kotira (USD), jer kurs ne pripada ovom broju.
+async function berzaPromena(oznaka, dana = 30) {
+  const d = await (await uzmi('https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(oznaka) + '?range=3mo&interval=1d')).json();
+  const r = d?.chart?.result?.[0];
+  const t = r?.timestamp, c = r?.indicators?.quote?.[0]?.close;
+  if (!Array.isArray(t) || !Array.isArray(c)) throw new Error('nema niza');
+  let k = c.length - 1;
+  while (k >= 0 && typeof c[k] !== 'number') k--;
+  if (k < 0) throw new Error('nema zatvaranja');
+  const granica = t[k] - dana * 86400;
+  let j = k;
+  while (j >= 0 && (t[j] > granica || typeof c[j] !== 'number')) j--;
+  if (j < 0 || !c[j]) throw new Error('niz je prekratak');
+  return { promena: (c[k] / c[j] - 1) * 100, od: new Date(t[j] * 1000).toISOString().slice(0, 10), do: new Date(t[k] * 1000).toISOString().slice(0, 10) };
 }
 
 // ── EUROSTAT ──────────────────────────────────────────────────────────────
@@ -186,6 +205,7 @@ export async function osveziCene() {
     Promise.allSettled([
       berza('ALI=F'), berza('HG=F'), berza('BZ=F'), berza('TTF=F'),
       eurostatPPI('C23'), eurostatPPI('C22'), euribor(), eurostatDozvole(),
+      berzaPromena('ALI=F'),
     ]),
   ]);
 
@@ -210,7 +230,9 @@ export async function osveziCene() {
     return { v: null, pre12: null };
   };
 
-  const [pAl, pCu, pBrent, pTtf, pGlass, pPvc, pEuribor, pDozvole] = poslovi;
+  const [pAl, pCu, pBrent, pTtf, pGlass, pPvc, pEuribor, pDozvole, pAl30] = poslovi;
+  const al30 = pAl30 && pAl30.status === 'fulfilled' ? pAl30.value : null;
+  dijag.aluminijum30 = al30 ? 'ok' : 'greška: ' + (pAl30?.reason?.message || 'nepoznato');
   const al = uzmiRez(pAl, 'aluminijum');
   const cu = uzmiRez(pCu, 'bakar');
   const brent = uzmiRez(pBrent, 'brent');
@@ -303,6 +325,7 @@ export async function osveziCene() {
       promenaOpis: p.godisnja ? 'god./god.' : 'dan',
       gore: promena === null ? null : (promena > 0 ? true : (promena < 0 ? false : null)),
       napomena: p.napomena || null,
+      promena30: p.id === 'al' && al30 ? { vrednost: Number(al30.promena.toFixed(1)), od: al30.od, do: al30.do } : undefined,
       // Kad je vrednost iz rezerve, čitalac treba da zna od kog je dana.
       rezervaOd: rezerva,
     });
