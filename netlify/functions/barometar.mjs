@@ -5,6 +5,7 @@
 //   GET /api/barometar?prolazi=1   → izveštaj poslednjih prolaza robota
 //   GET /api/barometar?reper=1     → zvanični indeksi cena proizvođača (Eurostat, FRED)
 //   GET /api/barometar?indeks=1[&ref=A|B] → vrednost po zemlji na referentnom prozoru
+//   GET /api/barometar?istorija=1[&ref=A|B] → ista vrednost po mesecima
 //   GET /api/barometar?proba=<id>  → suvi prolaz jednog izvora, bez upisa
 //
 // Proba ne traži token jer ništa ne menja i vraća samo ono što je i inače
@@ -70,6 +71,27 @@ export default async (req) => {
       napomena: 'Kontekst, ne deo indeksa. Indeksi cena proizvođača, ne cene prozora; plastični proizvodi (C22.23) i metalni prozori (C25.12) su šire kategorije od PVC prozora.',
       serije: await reper(),
     }, 'public, max-age=43200');
+  }
+
+  if (q.get('istorija')) {
+    // Vrednost po mesecu, računata samo iz zapisa koji su postojali do kraja tog meseca.
+    // Isti račun kao ?indeks=1, ponovljen za svaki mesec, pa se serije mogu porediti.
+    const zapisi = await readJSON(KLJUC_ZAPISI, []);
+    const ref = q.get('ref') || 'A';
+    const meseci = [...new Set(zapisi.map(z => String(z.datumOcitavanja).slice(0, 7)))].sort();
+    try {
+      const serija = meseci.map(m => {
+        const r = izracunaj(zapisi.filter(z => String(z.datumOcitavanja).slice(0, 7) <= m), ref);
+        return {
+          mesec: m,
+          zemlje: Object.fromEntries(Object.entries(r.zemlje).map(([k, z]) => [k, {
+            vrednostNeto: z.vrednostNeto, izvora: z.izvora, status: z.status,
+            izvori: z.izvoriDetalj.map(x => x.izvor).sort(),
+          }])),
+        };
+      });
+      return json({ referenca: ref, serija }, 'public, max-age=900');
+    } catch (e) { return json({ greska: e.message }, 'no-store'); }
   }
 
   if (q.get('indeks')) {
