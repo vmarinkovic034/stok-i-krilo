@@ -570,8 +570,9 @@ tailwind.config = {
           <tbody id="bw-tabela"><tr><td colspan="5" class="px-4 py-6 text-gray-400">Učitavanje…</td></tr></tbody>
         </table>
       </div>
+      <p class="text-xs text-gray-500 leading-relaxed max-w-4xl mb-2" id="bw-prazne"></p>
       <p class="text-xs text-gray-500 leading-relaxed max-w-4xl mb-1" id="bw-pdv"></p>
-      <p class="text-xs text-gray-500 leading-relaxed max-w-4xl"><strong>Status:</strong> „ok" znači tri nezavisna izvora ili više, „okvirno" dva. Jedan izvor nije barometar, pa se vrednost ne prikazuje kao broj. Cene „od" su početne cene sa sajta.</p>
+      <p class="text-xs text-gray-500 leading-relaxed max-w-4xl"><strong>Status:</strong> „ok" znači tri nezavisna izvora ili više, „okvirno" dva. Jedan izvor nije barometar: sivi red je cena jedne firme i ne govori o tržištu. Cene „od" su početne cene sa sajta.</p>
 
       <!-- Reper -->
       <div class="mt-10 bg-gray-50 border border-gray-200 p-6">
@@ -2462,22 +2463,30 @@ async function renderBw() {
     const zv = pret.has(id) ? '<sup title="PDV nije izričito naveden na sajtu, pretpostavka je da je cena sa PDV-om" class="text-amber-700">*</sup>' : '';
     return i.url ? '<a class="text-brand hover:underline" href="' + bwEsc(i.url) + '" target="_blank" rel="noopener">' + naziv + '</a>' + zv : naziv + zv;
   };
+  const prazne = [];
   const red = BW_ZEMLJE.map(([k, ime]) => {
     const z = d.zemlje[k];
-    const izv = z ? (z.izvoriDetalj || []).map(x => fmtIzv(x.izvor)).join(', ') : '';
-    const odb = z && z.odbaceni && z.odbaceni.length ? z.odbaceni.length : 0;
-    let cena = '<span class="text-gray-400">—</span>', status, stClass = 'text-gray-400';
-    if (z && z.status === 'ok') { cena = '<strong class="tabular-nums">' + Math.round(z.vrednostNeto) + ' €</strong>'; status = 'ok'; stClass = 'text-emerald-700'; }
-    else if (z && z.status === 'okvirno') { cena = '<span class="tabular-nums">~' + Math.round(z.vrednostNeto) + ' €</span>'; status = 'okvirno (2 izvora)'; stClass = 'text-amber-700'; }
-    else if (z) { status = 'nema dovoljno podataka' + (z.izvora === 1 ? ' (1 izvor)' : ''); }
-    else { status = 'nema podataka'; }
-    return '<tr class="border-b border-gray-100"><td class="px-4 py-3 font-medium text-gray-950">' + ime + '</td>'
+    if (!z || z.izvora === 0) { prazne.push(ime); return ''; }
+    const izv = (z.izvoriDetalj || []).map(x => fmtIzv(x.izvor)).join(', ');
+    const odb = z.odbaceni && z.odbaceni.length ? z.odbaceni.length : 0;
+    let cena, status, stClass = 'text-gray-500', klasa = '';
+    if (z.status === 'ok') { cena = '<strong class="tabular-nums">' + Math.round(z.vrednostNeto) + ' €</strong>'; status = 'ok'; stClass = 'text-emerald-700'; }
+    else if (z.status === 'okvirno') { cena = '<span class="tabular-nums">~' + Math.round(z.vrednostNeto) + ' €</span>'; status = 'okvirno (2 izvora)'; stClass = 'text-amber-700'; }
+    else {
+      // Jedan izvor: prikazuje se cena te jedne firme, sivo i jasno označena. Nije barometar.
+      cena = '<span class="tabular-nums text-gray-400">' + Math.round(z.vrednostNeto) + ' €</span>';
+      status = 'cena jedne firme, ne tržišta (1 izvor)';
+      klasa = ' bg-gray-50';
+    }
+    return '<tr class="border-b border-gray-100' + klasa + '"><td class="px-4 py-3 font-medium text-gray-950">' + ime + '</td>'
       + '<td class="px-4 py-3 text-right">' + cena + '</td>'
-      + '<td class="px-4 py-3 text-right tabular-nums text-gray-500">' + (z ? z.izvora : 0) + '</td>'
+      + '<td class="px-4 py-3 text-right tabular-nums text-gray-500">' + z.izvora + '</td>'
       + '<td class="px-4 py-3 text-xs ' + stClass + '">' + status + '</td>'
-      + '<td class="px-4 py-3 text-xs text-gray-500">' + (izv || '') + (odb ? '<div class="text-gray-400 mt-0.5">izdvojeno: ' + odb + '</div>' : '') + '</td></tr>';
+      + '<td class="px-4 py-3 text-xs text-gray-500 break-words" style="min-width:200px">' + izv + (odb ? '<div class="text-gray-400 mt-0.5">izdvojeno: ' + odb + '</div>' : '') + '</td></tr>';
   }).join('');
-  tb.innerHTML = red;
+  tb.innerHTML = red || '<tr><td colspan="5" class="px-4 py-6 text-gray-400">Za ovu referencu još nema dovoljno podataka.</td></tr>';
+  const pr = document.getElementById('bw-prazne');
+  if (pr) pr.textContent = prazne.length ? 'Nema javnog cenovnika bez montaže, pa nema ni broja: ' + prazne.join(', ') + '.' : '';
   const dat = document.getElementById('bw-datum');
   if (dat && d.poslednjeOcitavanje) dat.textContent = 'Poslednje očitavanje: ' + d.poslednjeOcitavanje.slice(0, 10).split('-').reverse().join('. ') + '.';
   const pdv = document.getElementById('bw-pdv');
