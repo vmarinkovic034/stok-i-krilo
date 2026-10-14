@@ -600,7 +600,7 @@ tailwind.config = {
     <!-- ============ SERIJA 2: arhiva, ponude izvođača sa ugradnjom ============ -->
     <details class="border-t-2 border-gray-950 pt-4 mb-10" id="bar-arhiva">
       <summary class="cursor-pointer select-none mb-6">
-        <span class="tag text-gray-500">ARHIVA · PONUDE IZVOĐAČA SA UGRADNJOM · RUČNO, 31. AVGUST 2026</span>
+        <span class="tag text-gray-500">ARHIVA · PONUDE IZVOĐAČA SA UGRADNJOM · AVGUST 2026</span>
         <span class="block text-sm text-gray-500 mt-1 max-w-3xl">Posebna, starija serija: sredine raspona ponuda izvođača sa agregatora, sa ugradnjom. Ne meri cenu prozora i ne poredi se sa serijom iznad. Klikni da otvoriš.</span>
       </summary>
 
@@ -2497,7 +2497,7 @@ async function renderBw() {
       + '<td class="px-4 py-3 text-right">' + cena + '</td>'
       + '<td class="px-4 py-3 text-right tabular-nums text-gray-500">' + z.izvora + '</td>'
       + '<td class="px-4 py-3 text-xs ' + stClass + '">' + status + '</td>'
-      + '<td class="px-4 py-3 text-xs text-gray-500 break-words" style="min-width:200px">' + izv + (odb ? '<div class="text-gray-400 mt-0.5">izdvojeno: ' + odb + '</div>' : '') + '</td></tr>';
+      + '<td class="px-4 py-3 text-xs text-gray-500 break-words" style="min-width:200px">' + izv + (odb ? '<div class="text-gray-400 mt-0.5">' + odb + (odb === 1 ? ' izvor nije uračunat: odstupa više od 35% od ostalih' : ' izvora nije uračunato: odstupaju više od 35% od ostalih') + '</div>' : '') + '</td></tr>';
   }).join('');
   tb.innerHTML = red || '<tr><td colspan="5" class="px-4 py-6 text-gray-400">Za ovu referencu još nema dovoljno podataka.</td></tr>';
   renderBwPromena();
