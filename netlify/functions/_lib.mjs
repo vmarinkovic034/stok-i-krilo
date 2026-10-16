@@ -128,6 +128,11 @@ export const SOURCES = [
   // skraćen na kraju; poslednja stavka bez zatvorenog taga ispada, ostale prolaze.
   { id: 'eurowindoor', name: 'EuroWindoor', lang: 'en', region: 'EU', tier: 1,
     rss: 'https://www.eurowindoor.eu/category/news/feed/' },
+  // Britanski tehnički portal o prozorima, vratima i fasadnim detaljima.
+  // Dnevno objavi jednu do tri stavke; deo su ugovori britanskih izvođača,
+  // koje model preskače kao nebitne za Balkan.
+  { id: 'wit', name: 'Window Industry Today', lang: 'en', region: 'UK', tier: 1,
+    rss: 'https://window-industry-today.com/rss.xml' },
 
   // ── DOMAĆI IZVORI ──────────────────────────────────────────────────────
   // Opšti građevinski portali, ne specijalizovani za stolariju. Zato nose

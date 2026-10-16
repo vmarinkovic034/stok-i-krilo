@@ -25,7 +25,7 @@ export default async (req) => {
   }
 
   // Nadoknada propuštenog: ?poizvoru=10&maks=15 gleda dublje u izvore i piše
-  // više tekstova odjednom. Bez parametara ostaje dnevni režim (4 i 5).
+  // više tekstova odjednom. Bez parametara ostaje dnevni režim (8 i 8).
   const broj = (ime, podrazumevano, gornja) => {
     const v = parseInt(url.searchParams.get(ime) || '', 10);
     return Number.isFinite(v) && v > 0 ? Math.min(v, gornja) : podrazumevano;
@@ -38,8 +38,8 @@ export default async (req) => {
     return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
   };
   const opcije = {
-    poIzvoru: broj('poizvoru', 4, 20),
-    maks: broj('maks', 5, 25),
+    poIzvoru: broj('poizvoru', 8, 20),
+    maks: broj('maks', 8, 25),
     strane: broj('strane', 1, 6),
     od: datum('od'),
     do: datum('do'),
