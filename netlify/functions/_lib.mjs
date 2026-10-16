@@ -122,6 +122,12 @@ export const SOURCES = [
   // pogađamo strukturu stranice.
   { id: 'windowdoor', name: 'Window + Door', lang: 'en', region: 'SAD', tier: 1,
     rss: 'https://www.windowanddoor.com/rss.xml' },
+  // Evropsko udruženje proizvođača prozora, vrata i fasada (Brisel). Objavljuje
+  // retko, jednu do dve vesti mesečno, ali su to stavovi o CPR-u, standardima i
+  // oznakama koji za nekoliko godina važe i za balkanske proizvođače. Feed je
+  // skraćen na kraju; poslednja stavka bez zatvorenog taga ispada, ostale prolaze.
+  { id: 'eurowindoor', name: 'EuroWindoor', lang: 'en', region: 'EU', tier: 1,
+    rss: 'https://www.eurowindoor.eu/category/news/feed/' },
 
   // ── DOMAĆI IZVORI ──────────────────────────────────────────────────────
   // Opšti građevinski portali, ne specijalizovani za stolariju. Zato nose
