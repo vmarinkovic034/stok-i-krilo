@@ -133,6 +133,10 @@ export const SOURCES = [
   // koje model preskače kao nebitne za Balkan.
   { id: 'wit', name: 'Window Industry Today', lang: 'en', region: 'UK', tier: 1,
     rss: 'https://window-industry-today.com/rss.xml' },
+  // Britanski list o prozorima i vratima (Fenestration Bulletin). Mešavina
+  // proizvodnih vesti i potrošačkih saveta; potrošačke model preskače.
+  { id: 'fenbul', name: 'Fenestration Bulletin', lang: 'en', region: 'UK', tier: 1,
+    rss: 'https://www.fenestration.news/NewsFeeds/RSSfeed/1001' },
 
   // ── DOMAĆI IZVORI ──────────────────────────────────────────────────────
   // Opšti građevinski portali, ne specijalizovani za stolariju. Zato nose
