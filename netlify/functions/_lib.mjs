@@ -98,6 +98,45 @@ export const KLJUCNE_SUBVENCIJE = [
   'stolarij', 'prozor', 'zamena stolarije', 'domacinstv',
 ];
 
+// ── PREPOZNAVANJE ISTE VESTI IZ DVA IZVORA ────────────────────────
+
+// Do sada se duplikat prepoznavao samo po adresi. To je bilo dovoljno dok je
+// svaki izvor pisao svoje. Otkad u listi stoje i portali koji prenose ista
+// saopštenja branše — OKNA.ua, glassonweb i Fereastra često objave isti
+// Kommerlingov ili Hydrin podatak istog dana — dve različite adrese nose
+// istu vest. Bez ove provere model piše obe i obe osvanu na portalu.
+const STOP_RECI = new Set([
+  'the','and','for','with','from','that','this','new','its','has','have','will',
+  'are','was','were','out','all','more','than','into','over','after','about',
+  'their','they','first','also','been','what','when','which','would','could',
+  'should','says','said','year','years','pentru','care','este','sunt','intre',
+  'kod','sa','po','pri','ali','ili','nije','bez','kao','koji','koje','koja',
+  'svoje','posle','prema','preko','nova','novi','novo',
+]);
+
+// Skup nosivih reči naslova. Kratke reči i veznici ispadaju, jer se poklapaju
+// uvek i između nepovezanih vesti.
+export function naslovKljuc(t) {
+  return new Set(
+    normRec(t).replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/)
+      .filter(w => w.length >= 4 && !STOP_RECI.has(w))
+  );
+}
+
+// Poklapanje se meri prema kraćem naslovu, ne prema uniji. Tako se hvata i
+// slučaj kad jedan izvor doda mesto ili sajam: „Hydro sales up 15.8% in Q3"
+// i „Hydro sales up 15.8% in Q3, Extrusions division" su ista vest.
+// Naslov sa manje od tri nosive reči se ne poredi — prekratak je da bi se
+// iz njega bilo šta zaključilo.
+export function naslovSlican(a, b, prag = 0.6) {
+  const A = a instanceof Set ? a : naslovKljuc(a);
+  const B = b instanceof Set ? b : naslovKljuc(b);
+  if (A.size < 3 || B.size < 3) return false;
+  let presek = 0;
+  for (const w of A) if (B.has(w)) presek++;
+  return presek / Math.min(A.size, B.size) >= prag;
+}
+
 // Da li stavka iz opšteg izvora uopšte govori o onome što nas zanima.
 // Izvor može da ponese svoju listu reči; bez nje važi lista za stolariju.
 export function ticeSeStolarije(item, reci = KLJUCNE_RECI) {
@@ -137,6 +176,33 @@ export const SOURCES = [
   // proizvodnih vesti i potrošačkih saveta; potrošačke model preskače.
   { id: 'fenbul', name: 'Fenestration Bulletin', lang: 'en', region: 'UK', tier: 1,
     rss: 'https://www.fenestration.news/NewsFeeds/RSSfeed/1001' },
+
+  // Rumunski list posvećen isključivo stolariji — PVC i ALU prozori, vrata i
+  // fasade, izdanje grupe Agenda Construcţiilor. Do danas je Rumunija, najjače
+  // tržište u našem barometru, bila bez ijednog izvora vesti.
+  // Objavljuje dnevno, dva do četiri teksta. Sajt je Joomla; `rssAgendaConstructiilor.php`
+  // nije odgovorio pri proveri 31. 10. 2026, pa ide preko HTML-a sa strane /stiri/.
+  // robots.txt zabranjuje samo administrativne putanje, nijedan AI bot nije imenovan.
+  { id: 'fereastra', name: 'Fereastra', lang: 'ro', region: 'Rumunija', tier: 1,
+    html: 'https://www.fereastra.ro/stiri/',
+    linkPattern: /href="(https:\/\/www\.fereastra\.ro\/stiri\/[a-z-]+\/[a-z0-9-]{20,})"/gi },
+
+  // Ukrajinski portal sa posebnim engleskim izdanjem. Piše ga sopstvena redakcija,
+  // dnevno pet do deset stavki, i prati evropsku branšu u celini — VFF-ove prognoze,
+  // studije Interconnection Consultinga, ALUMIL, preuzimanja u industriji stakla.
+  // Autorski tekst, ne saopštenje: sme da se citira i linkuje, ne sme da se prenosi.
+  // robots.txt otvoren, nijedan AI bot nije imenovan (provereno 31. 10. 2026).
+  { id: 'oknaua', name: 'OKNA.ua', lang: 'en', region: 'Evropa', tier: 1,
+    html: 'https://okna.ua/en/news/',
+    linkPattern: /href="(https:\/\/okna\.ua\/en\/news\/\d{8}\/[a-z0-9-]{10,})"/gi },
+
+  // Evropski portal o ravnom staklu i fasadama. Donosi i pozicije udruženja
+  // (Glass for Europe, GGF) koje druge naše izvore zaobilaze. Njegov /rss.xml
+  // postoji ali je mrtav — poslednja stavka iz februara 2022 — pa ide preko HTML-a.
+  // robots.txt je podrazumevani Drupal, nijedan AI bot nije imenovan.
+  { id: 'glassonweb', name: 'glassonweb', lang: 'en', region: 'Evropa', tier: 1,
+    html: 'https://www.glassonweb.com/news',
+    linkPattern: /href="(https:\/\/www\.glassonweb\.com\/news\/[a-z0-9-]{20,})"/gi },
 
   // ── DOMAĆI IZVORI ──────────────────────────────────────────────────────
   // Opšti građevinski portali, ne specijalizovani za stolariju. Zato nose

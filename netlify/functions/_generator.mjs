@@ -6,7 +6,7 @@
 //      ako ima problema, JEDAN popravni krug -> nacrt ide uredniku.
 // Ništa ne ide na sajt bez ljudskog odobrenja.
 // ==========================================================================
-import { fetchAll, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, CAT_IMG, json } from './_lib.mjs';
+import { fetchAll, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, KEY_APPROVED, CAT_IMG, json, naslovKljuc, naslovSlican } from './_lib.mjs';
 import { proveri, proveriPonavljanje, MARKER } from './_kvalitet.mjs';
 
 const MODEL = 'claude-sonnet-5-5';
@@ -96,10 +96,10 @@ DRUGO: završni pasus ne objašnjava Balkan čoveku koji na Balkanu radi. Ne pi�
 
 Domaća vest o kojoj čitalac već zna sve iz dnevnih novina nema vrednost — vrati "skip": true. Vredi ono što on ne bi sam pročitao ili ne bi povezao sa svojim poslom.
 
-═══ REGIONALNE VESTI (lang: "mk", "bg", "el") ═══
+═══ REGIONALNE VESTI (lang: "mk", "bg", "el", "ro") ═══
 Izvor je sa Balkana, ali na drugom jeziku. Prevodi se kao i svaka strana vest, ali završni pasus ide po pravilu za domaću vest — čitaocu se ne objašnjava „šta ovo znači za Balkan", jer se događa na Balkanu. Kaže se šta se menja kod njegovog kupca, u njegovoj nabavci ili kod njegove konkurencije.
 
-Imena mesta, firmi i institucija transkribuju se po srpskom pravopisu: Skoplje, Sofija, Solun, Podgorica, Bitolj. Naziv programa ili zakona daje se u prevodu, a original u zagradi samo ako čitalac treba da ga nađe u dokumentaciji.
+Imena mesta, firmi i institucija transkribuju se po srpskom pravopisu: Skoplje, Sofija, Solun, Podgorica, Bitolj, Bukurešt, Temišvar, Kluž, Jaši, Brašov, Konstanca, Arad, Sibinj. Rumunska valuta je lej, množina leji: „12.500 leja", nikad „RON 12500" ni „12,500 lei". Uz iznos u lejima daje se i približna vrednost u evrima, jer čitalac računa u evrima. Naziv programa ili zakona daje se u prevodu, a original u zagradi samo ako čitalac treba da ga nađe u dokumentaciji.
 
 Subvencije, javni pozivi i propisi iz ovih zemalja vrede i kad se ne tiču Srbije — proizvođač koji izvozi u Makedoniju ili Grčku ima kupca koji na tome zarađuje. Kaže se do kada važi i ko ima pravo.
 
@@ -312,6 +312,27 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
     });
   }
 
+  // Ista vest iz dva izvora. Provera po adresi to ne hvata — OKNA.ua,
+  // glassonweb i Fereastra prenose ista saopštenja branše pod svojim
+  // adresama, pa bi model istu vest napisao dvaput i obe bi otišle na portal.
+  // Poredi se i sa već napisanim nacrtima i objavljenim vestima, jer isto
+  // saopštenje ume da stigne sutradan preko drugog izvora.
+  const objavljene = await readJSON(KEY_APPROVED, []);
+  const stariKljucevi = [...drafts, ...objavljene]
+    .map(x => x && x.title).filter(Boolean).map(naslovKljuc);
+  const uzetiKljucevi = [];
+  let duplikata = 0;
+  kandidati = kandidati.filter(x => {
+    const k = naslovKljuc(x.title || '');
+    if (stariKljucevi.some(p => naslovSlican(k, p)) || uzetiKljucevi.some(p => naslovSlican(k, p))) {
+      duplikata++;
+      return false;
+    }
+    uzetiKljucevi.push(k);
+    return true;
+  });
+  if (duplikata) console.log('duplikata po naslovu preskoceno: ' + duplikata);
+
   // Kvota se deli naizmenično po izvorima, a ne redom kojim su upisani.
   // Ranije su strani izvori, koji stoje prvi u listi i daju po dvadeset
   // stavki, popunjavali celu kvotu, pa domaći nikad nisu dolazili na red —
@@ -320,7 +341,7 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
   if (!novi.length) {
     return json({
       ok: true, poruka: 'Nema novih vesti u izvorima.', povuceno: all.length, greske: errors,
-      poIzvoru: brojPoIzvoru, prestaro,
+      poIzvoru: brojPoIzvoru, prestaro, duplikata,
       prozor: (od || doDatuma) ? { od, do: doDatuma, vanProzora, bezDatuma } : null,
     });
   }
@@ -431,6 +452,7 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
     padovi,
     poIzvoru: brojPoIzvoru,
     prestaro,
+    duplikata,
     prozor: (od || doDatuma) ? { od, do: doDatuma, vanProzora, bezDatuma } : null,
     datumi: dodati.map(d => d.date),
     pregled: dodati.map(d => ({ naslov: d.title, ocena: d.provera.ocena, status: d.provera.status })),
