@@ -183,9 +183,13 @@ export const SOURCES = [
   // Objavljuje dnevno, dva do četiri teksta. Sajt je Joomla; `rssAgendaConstructiilor.php`
   // nije odgovorio pri proveri 31. 10. 2026, pa ide preko HTML-a sa strane /stiri/.
   // robots.txt zabranjuje samo administrativne putanje, nijedan AI bot nije imenovan.
+  // Adrese u HTML-u su relativne (/stiri/...), pa ide uz `base`. Alat koji
+  // čita stranu ume da ih prikaže kao apsolutne — pattern se piše prema
+  // onome što stoji u izvornom HTML-u, ne prema onome što alat ispiše.
   { id: 'fereastra', name: 'Fereastra', lang: 'ro', region: 'Rumunija', tier: 1,
     html: 'https://www.fereastra.ro/stiri/',
-    linkPattern: /href="(https:\/\/www\.fereastra\.ro\/stiri\/[a-z-]+\/[a-z0-9-]{20,})"/gi },
+    linkPattern: /href="(\/stiri\/[a-z-]+\/[a-z0-9-]{20,})"/gi,
+    base: 'https://www.fereastra.ro' },
 
   // Ukrajinski portal sa posebnim engleskim izdanjem. Piše ga sopstvena redakcija,
   // dnevno pet do deset stavki, i prati evropsku branšu u celini — VFF-ove prognoze,
@@ -202,7 +206,8 @@ export const SOURCES = [
   // robots.txt je podrazumevani Drupal, nijedan AI bot nije imenovan.
   { id: 'glassonweb', name: 'glassonweb', lang: 'en', region: 'Evropa', tier: 1,
     html: 'https://www.glassonweb.com/news',
-    linkPattern: /href="(https:\/\/www\.glassonweb\.com\/news\/[a-z0-9-]{20,})"/gi },
+    linkPattern: /href="(\/news\/[a-z0-9-]{20,})"/gi,
+    base: 'https://www.glassonweb.com' },
 
   // ── DOMAĆI IZVORI ──────────────────────────────────────────────────────
   // Opšti građevinski portali, ne specijalizovani za stolariju. Zato nose
@@ -296,11 +301,30 @@ async function parseHTML(list, src, limit) {
       const summary =
         strip((page.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)/i) || [])[1]) ||
         strip((page.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)/i) || [])[1]);
+      // Datum se traži redom, od najpouzdanijeg zapisa ka najslabijem.
+      // Ranije se gledalo samo `article:published_time` i domaći zapis
+      // 30.09.2026, pa je svaki sajt koji nosi datum drugačije padao na datum
+      // obrade — ista greška koja je 1. 10. 2026. stavljala septembarske članke
+      // na portal kao današnje. Provereno 31. 10. 2026: Fereastra i OKNA.ua
+      // nose <time datetime>, glassonweb nema nijednu oznaku nego samo tekst.
+      // Tekstualni zapis ide POSLEDNJI, jer na strani ume da stoji i današnji
+      // datum u zaglavlju — na Fereastri baš tako i stoji.
       const published =
         strip((page.match(/<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)/i) || [])[1]) ||
-        strip((page.match(/(\d{2}\.\d{2}\.\d{4})/) || [])[1]);
-      const paras = [...page.matchAll(/<p[^>]*>([\s\S]{60,}?)<\/p>/gi)]
+        strip((page.match(/<time[^>]+datetime=["']([^"']+)/i) || [])[1]) ||
+        strip((page.match(/"datePublished"\s*:\s*"([^"]+)"/i) || [])[1]) ||
+        strip((page.match(/(\d{2}\.\d{2}\.\d{4})/) || [])[1]) ||
+        strip((page.match(/(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i) || [])[1]);
+      let paras = [...page.matchAll(/<p[^>]*>([\s\S]{60,}?)<\/p>/gi)]
         .map(x => strip(x[1])).filter(t => t.length > 60).slice(0, 6).join('\n\n');
+      // Sajt bez ijednog <p> taga. OKNA.ua telo vesti drži u <div>-ovima, pa
+      // je gornji izraz vraćao prazan tekst i model bi dobio samo og:description
+      // od stotinak znakova — premalo da se iz toga napiše vest.
+      // itemprop="articleBody" je schema.org oznaka i radi i na drugim sajtovima.
+      if (paras.length < 200) {
+        const telo = (page.match(/itemprop=["']articleBody["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/i) || [])[1];
+        if (telo) paras = strip(telo);
+      }
       if (title) out.push({ source: src.name, sourceId: src.id, lang: src.lang, title, url: u, summary, published, excerpt: paras.slice(0, 2500) });
     } catch (e) { console.log('[' + src.id + '] preskoceno ' + u + ': ' + e.message); }
   }
