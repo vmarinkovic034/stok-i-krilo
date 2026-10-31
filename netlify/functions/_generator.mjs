@@ -103,6 +103,21 @@ Imena mesta, firmi i institucija transkribuju se po srpskom pravopisu: Skoplje, 
 
 Subvencije, javni pozivi i propisi iz ovih zemalja vrede i kad se ne tiču Srbije — proizvođač koji izvozi u Makedoniju ili Grčku ima kupca koji na tome zarađuje. Kaže se do kada važi i ko ima pravo.
 
+═══ STAVOVI (stavka sa tip: "stav") ═══
+Ovde važe OBRNUTA pravila od obične vesti. Obična vest se prepričava svojim rečima i navod je izuzetak. Stav postoji zbog navoda — ako ga prepričaš, ostane bezlična vest o propisu i ceo smisao rubrike nestane.
+
+Šta je obavezno:
+- IME I FUNKCIJA čoveka u naslovu ili u prvoj rečenici. Ne "udruženje traži", nego "Frank Koos, generalni sekretar EuroWindoor-a, traži". Čitalac treba da zna ko govori.
+- JEDAN doslovan navod, pod navodnicima, do petnaest reči, preveden na srpski. Bira se rečenica u kojoj čovek iznosi stav, ne ona kojom opisuje postupak.
+- ŠTA TO ZNAČI ZA NJEGA. Stav evropskog funkcionera je čitaocu zanimljiv samo ako mu kažeš šta stiže na njegov sto i kada. Ako iz stava ne sledi ništa za firmu sa deset ljudi, vrati "skip": true.
+
+Šta je zabranjeno:
+- Više od jednog navoda iz istog izvora.
+- Navod duži od petnaest reči.
+- Prenos celog saopštenja. Piše se šta je rečeno i zašto je važno, ne sve što je rečeno.
+
+cat je uvek "stavovi", catLabel uvek "STAV".
+
 ═══ JEZIK I PREVOD ═══
 Ovo je srpski tekst, ne prevod. Rečenica koja zvuči kao da je prošla kroz prevodilac se prepisuje.
 
@@ -144,8 +159,9 @@ ${JSON.stringify(items, null, 1)}
 Vrati JSON niz, isti redosled kao ulaz. Za svaku stavku:
 {
   "skip": false,
-  "cat": "trziste" | "kompanije" | "proizvodnja" | "tehnologija" | "proizvodi" | "standardi" | "investicije",
-  "catLabel": "TRŽIŠTE" | "INDUSTRIJA" | "PROIZVODNJA" | "TEHNOLOGIJA" | "OKOV" | "NOVI PROIZVOD" | "STANDARDI" | "INVESTICIJA" | "REGULATIVA" | "OBRAZOVANJE",
+  "cat": "trziste" | "kompanije" | "proizvodnja" | "tehnologija" | "proizvodi" | "standardi" | "investicije" | "stavovi",
+  "catLabel": "TRŽIŠTE" | "INDUSTRIJA" | "PROIZVODNJA" | "TEHNOLOGIJA" | "OKOV" | "NOVI PROIZVOD" | "STANDARDI" | "INVESTICIJA" | "REGULATIVA" | "OBRAZOVANJE" | "STAV",
+  "govornik": "samo za tip \"stav\": ime i funkcija, npr. \"Frank Koos, generalni sekretar EuroWindoor-a\". Ako u izvoru nema imenovanog čoveka, vrati skip.",
   "title": "naslov na srpskom, konkretan, do 95 znakova",
   "desc": "2-3 rečenice: ko, šta, gde, kada, zašto",
   "body": "3-6 pasusa razdvojenih sa \\\\n\\\\n, poslednji pasus počinje sa '${MARKER}'",
@@ -347,7 +363,7 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
   }
 
   const ulaz = novi.map(n => ({
-    source: n.source, lang: n.lang, title: n.title, url: n.url,
+    source: n.source, lang: n.lang, tip: n.tip || 'vest', title: n.title, url: n.url,
     published: n.published || '', text: (n.excerpt || n.summary || '').slice(0, 2500),
   }));
 
@@ -410,8 +426,12 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
       id: 'd' + Date.now().toString(36) + i,
       status: 'nacrt',
       createdAt: now,
-      cat: w.cat || 'trziste',
-      catLabel: w.catLabel || 'TRŽIŠTE',
+      // Izvor označen kao stav uvek završava u svojoj rubrici. Model ume da
+      // odluta na "standardi", jer je tema propis — a rubriku određuje to ko
+      // govori, ne o čemu govori.
+      cat: src.tip === 'stav' ? 'stavovi' : (w.cat || 'trziste'),
+      catLabel: src.tip === 'stav' ? 'STAV' : (w.catLabel || 'TRŽIŠTE'),
+      govornik: w.govornik || null,
       date: objavljeno ? srpskiDatum(objavljeno) : danas(),
       datumISO: (objavljeno || new Date()).toISOString(),
       datumIzIzvora: Boolean(objavljeno),

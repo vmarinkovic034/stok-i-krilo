@@ -165,7 +165,11 @@ export const SOURCES = [
   // retko, jednu do dve vesti mesečno, ali su to stavovi o CPR-u, standardima i
   // oznakama koji za nekoliko godina važe i za balkanske proizvođače. Feed je
   // skraćen na kraju; poslednja stavka bez zatvorenog taga ispada, ostale prolaze.
-  { id: 'eurowindoor', name: 'EuroWindoor', lang: 'en', region: 'EU', tier: 1,
+  // tip: 'stav' — ovde ljudi govore pod imenom i funkcijom o CPR-u, Digitalnom
+  // pasosu proizvoda, PFAS-u. Takva vest ide u rubriku Stavovi i za nju važe
+  // obrnuta pravila: navod je obavezan, ne najviše jedan. Bez toga model
+  // prepriča izjavu, ime nestane i ostane bezlična vest o propisu.
+  { id: 'eurowindoor', name: 'EuroWindoor', lang: 'en', region: 'EU', tier: 1, tip: 'stav',
     rss: 'https://www.eurowindoor.eu/category/news/feed/' },
   // Britanski tehnički portal o prozorima, vratima i fasadnim detaljima.
   // Dnevno objavi jednu do tri stavke; deo su ugovori britanskih izvođača,
@@ -279,7 +283,7 @@ function parseRSS(xml, src) {
     const link  = strip((it.match(/<link[^>]*>([\s\S]*?)<\/link>/i) || [])[1]);
     const desc  = strip((it.match(/<description[^>]*>([\s\S]*?)<\/description>/i) || [])[1]).slice(0, 900);
     const pub   = strip((it.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i) || [])[1]);
-    if (title && link) out.push({ source: src.name, sourceId: src.id, lang: src.lang, title, url: link, summary: desc, excerpt: desc, published: pub });
+    if (title && link) out.push({ source: src.name, sourceId: src.id, lang: src.lang, tip: src.tip || null, title, url: link, summary: desc, excerpt: desc, published: pub });
   }
   return out;
 }
@@ -325,7 +329,7 @@ async function parseHTML(list, src, limit) {
         const telo = (page.match(/itemprop=["']articleBody["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/i) || [])[1];
         if (telo) paras = strip(telo);
       }
-      if (title) out.push({ source: src.name, sourceId: src.id, lang: src.lang, title, url: u, summary, published, excerpt: paras.slice(0, 2500) });
+      if (title) out.push({ source: src.name, sourceId: src.id, lang: src.lang, tip: src.tip || null, title, url: u, summary, published, excerpt: paras.slice(0, 2500) });
     } catch (e) { console.log('[' + src.id + '] preskoceno ' + u + ': ' + e.message); }
   }
   return out;
@@ -404,6 +408,7 @@ export const CAT_IMG = {
   proizvodi:   'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=900&fit=crop&auto=format&q=75',
   standardi:   'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&fit=crop&auto=format&q=75',
   investicije: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=900&fit=crop&auto=format&q=75',
+  stavovi:     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&fit=crop&auto=format&q=75',
 };
 
 export const json = (body, status = 200) => new Response(JSON.stringify(body), {
