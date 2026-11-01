@@ -10,7 +10,11 @@ export default async (req) => {
   if (!admin || dat !== admin) {
     return new Response(JSON.stringify({ error: 'Neispravan token' }), { status: 401 });
   }
-  const r = await generisiIzPodkasta({ maks: 2 });
+  // maks se može zadati u adresi: &maks=5. Podrazumevano tri — svaka
+  // epizoda znači skidanje do 24 MB zvuka, transkripciju i jedan poziv modela,
+  // pa broj diže trošak i vreme.
+  const maks = Math.min(8, Math.max(1, parseInt(url.searchParams.get('maks') || '3', 10) || 3));
+  const r = await generisiIzPodkasta({ maks });
   console.log('run-podcasts:', await r.clone().text());
   return r;
 };

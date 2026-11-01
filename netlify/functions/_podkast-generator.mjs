@@ -146,8 +146,12 @@ export async function generisiIzPodkasta({ maks = 2 } = {}) {
       dodati.push({
         id: 'p' + Date.now().toString(36) + dodati.length,
         status: 'nacrt', tip: 'podkast', createdAt: now,
-        cat: w.cat || 'trziste',
-        catLabel: w.catLabel || 'PODKAST',
+        // Podkast sa imenovanim gostom ide u rubriku Stavovi. To je i jedini
+        // izvor pravih intervjua koji imamo — pres sobe proizvođača daju
+        // jubileje i pripravnike, a na podkastu čovek iz branše govori svoje.
+        // Uslov je da se govornik čuje; bez imena je obična vest.
+        cat: (ep.rubrika === 'stav' && w.govornik) ? 'stavovi' : (w.cat || 'trziste'),
+        catLabel: (ep.rubrika === 'stav' && w.govornik) ? 'STAV' : (w.catLabel || 'PODKAST'),
         date: danas(),
         title: w.title,
         desc: w.desc || '',
@@ -155,7 +159,7 @@ export async function generisiIzPodkasta({ maks = 2 } = {}) {
         read: w.read || '3 min',
         source: ep.podcast,
         url: ep.url,
-        img: CAT_IMG[w.cat] || CAT_IMG.trziste,
+        img: ((ep.rubrika === 'stav' && w.govornik) ? CAT_IMG.stavovi : CAT_IMG[w.cat]) || CAT_IMG.trziste,
         epizoda: ep.title,
         govornik: w.govornik || '',
         transkriptMB: mb,

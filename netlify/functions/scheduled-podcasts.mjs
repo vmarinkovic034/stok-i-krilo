@@ -20,13 +20,16 @@ export default async () => {
   }
 };
 
-// Raspored je isključen 3. 10. 2026. Funkcija se palila svakog ponedeljka,
-// zvala model i pravila epizode — a na portalu nema nijednog mesta gde se
-// podkast čuje. Dakle trošak bez čitaoca.
+// Raspored je bio isključen 3. 10. 2026, uz obrazloženje da na portalu nema
+// mesta gde se podkast čuje. To je bila pogrešna mera: ovaj posao ne pravi
+// stranicu sa epizodama, nego VEST iz epizode, koja ide u iste nacrte kao i
+// sve ostalo. Mesto je dakle uvek postojalo.
 //
-// Kod ostaje netaknut. Kad se napravi sekcija na sajtu, vraća se red:
-//   export const config = { schedule: '0 4 * * 1' };
+// Vraćeno 1. 11. 2026, kad je napravljena rubrika Stavovi. Podkast je jedini
+// izvor pravih intervjua koji imamo — pres sobe proizvođača daju jubileje i
+// pripravnike, a na podkastu čovek iz branše govori svoje, pod imenom.
 //
-// Do tada se obrada pokreće ručno:
-//   /.netlify/functions/run-podcasts-background?token=ADMIN_TOKEN
-export const config = {};
+// Ponedeljkom u 04:00 UTC, pre dnevnih vesti. Tri epizode po krugu.
+// Ručno, sa svojim brojem:
+//   /.netlify/functions/run-podcasts-background?token=ADMIN_TOKEN&maks=5
+export const config = { schedule: '0 4 * * 1' };

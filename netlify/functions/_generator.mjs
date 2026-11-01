@@ -363,7 +363,7 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
   }
 
   const ulaz = novi.map(n => ({
-    source: n.source, lang: n.lang, tip: n.tip || 'vest', title: n.title, url: n.url,
+    source: n.source, lang: n.lang, tip: n.rubrika || 'vest', title: n.title, url: n.url,
     published: n.published || '', text: (n.excerpt || n.summary || '').slice(0, 2500),
   }));
 
@@ -429,8 +429,8 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
       // Izvor označen kao stav uvek završava u svojoj rubrici. Model ume da
       // odluta na "standardi", jer je tema propis — a rubriku određuje to ko
       // govori, ne o čemu govori.
-      cat: src.tip === 'stav' ? 'stavovi' : (w.cat || 'trziste'),
-      catLabel: src.tip === 'stav' ? 'STAV' : (w.catLabel || 'TRŽIŠTE'),
+      cat: src.rubrika === 'stav' ? 'stavovi' : (w.cat || 'trziste'),
+      catLabel: src.rubrika === 'stav' ? 'STAV' : (w.catLabel || 'TRŽIŠTE'),
       govornik: w.govornik || null,
       date: objavljeno ? srpskiDatum(objavljeno) : danas(),
       datumISO: (objavljeno || new Date()).toISOString(),

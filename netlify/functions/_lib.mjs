@@ -165,11 +165,11 @@ export const SOURCES = [
   // retko, jednu do dve vesti mesečno, ali su to stavovi o CPR-u, standardima i
   // oznakama koji za nekoliko godina važe i za balkanske proizvođače. Feed je
   // skraćen na kraju; poslednja stavka bez zatvorenog taga ispada, ostale prolaze.
-  // tip: 'stav' — ovde ljudi govore pod imenom i funkcijom o CPR-u, Digitalnom
+  // rubrika: 'stav' — ovde ljudi govore pod imenom i funkcijom o CPR-u, Digitalnom
   // pasosu proizvoda, PFAS-u. Takva vest ide u rubriku Stavovi i za nju važe
   // obrnuta pravila: navod je obavezan, ne najviše jedan. Bez toga model
   // prepriča izjavu, ime nestane i ostane bezlična vest o propisu.
-  { id: 'eurowindoor', name: 'EuroWindoor', lang: 'en', region: 'EU', tier: 1, tip: 'stav',
+  { id: 'eurowindoor', name: 'EuroWindoor', lang: 'en', region: 'EU', tier: 1, rubrika: 'stav',
     rss: 'https://www.eurowindoor.eu/category/news/feed/' },
   // Britanski tehnički portal o prozorima, vratima i fasadnim detaljima.
   // Dnevno objavi jednu do tri stavke; deo su ugovori britanskih izvođača,
@@ -283,7 +283,7 @@ function parseRSS(xml, src) {
     const link  = strip((it.match(/<link[^>]*>([\s\S]*?)<\/link>/i) || [])[1]);
     const desc  = strip((it.match(/<description[^>]*>([\s\S]*?)<\/description>/i) || [])[1]).slice(0, 900);
     const pub   = strip((it.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i) || [])[1]);
-    if (title && link) out.push({ source: src.name, sourceId: src.id, lang: src.lang, tip: src.tip || null, title, url: link, summary: desc, excerpt: desc, published: pub });
+    if (title && link) out.push({ source: src.name, sourceId: src.id, lang: src.lang, rubrika: src.rubrika || null, title, url: link, summary: desc, excerpt: desc, published: pub });
   }
   return out;
 }
@@ -329,7 +329,7 @@ async function parseHTML(list, src, limit) {
         const telo = (page.match(/itemprop=["']articleBody["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/i) || [])[1];
         if (telo) paras = strip(telo);
       }
-      if (title) out.push({ source: src.name, sourceId: src.id, lang: src.lang, tip: src.tip || null, title, url: u, summary, published, excerpt: paras.slice(0, 2500) });
+      if (title) out.push({ source: src.name, sourceId: src.id, lang: src.lang, rubrika: src.rubrika || null, title, url: u, summary, published, excerpt: paras.slice(0, 2500) });
     } catch (e) { console.log('[' + src.id + '] preskoceno ' + u + ': ' + e.message); }
   }
   return out;
@@ -436,7 +436,24 @@ export const PODCASTS = [
     fokus: 'Energetska efikasnost i kako se ona prodaje krajnjem kupcu.', tier: 2 },
   { id: 'windowcast', name: 'Window Cast (NGA)', feed: 'https://anchor.fm/s/e3ffd85c/podcast/rss',
     fokus: 'Glasilo National Glass Association. Retko izlazi, ali kvalitetno.', tier: 2 },
+  // Dodato 1. 11. 2026. Podkast kanadskog lista Fenestration Review. Svaka
+  // epizoda je razgovor sa imenovanim čovekom iz branše — „Greg Schirk, SAWDAC",
+  // „John Westerfield, Crystalite". Zato nosi rubrika: 'stav'.
+  { id: 'fenconv', name: 'Fenestration Conversations', feed: 'https://feeds.captivate.fm/fenestration-conversati/',
+    fokus: 'Razgovori sa ljudima iz branše prozora i vrata, list Fenestration Review.', tier: 1, rubrika: 'stav' },
+  // Glas industrije stakla; epizode o glasstec-u, cirkularnoj ekonomiji i
+  // odnosima sa kupcima, uvek sa imenovanim gostom.
+  { id: 'glasscast', name: 'Glass Cast', feed: 'https://anchor.fm/s/e3b3c048/podcast/rss',
+    fokus: 'Staklo i fasade, sajmovi i tržišni pregledi, uz imenovanog gosta.', tier: 1, rubrika: 'stav' },
 ];
+
+// Stanje feedova provereno 1. 11. 2026: svih osam postojećih radi i svi nose
+// audio. Sveži su clearimpact (27. 10.), glasstalk (16. 10.), fabricator
+// (31. 10.), twopigs (28. 10.), powdercoater (13. 10.) i passivhaus (23. 10.).
+// Uspavani su facades (poslednja 12. 6. 2026) i windowcast (20. 4. 2026) —
+// ostaju u listi jer obojica povremeno objave, a prazan feed ne košta ništa.
+// Paradigm Industry Insiders je proveren i NIJE uzet: poslednja epizoda
+// 7. 1. 2026, deset meseci ćutanja.
 
 // Iz podcast RSS-a vadi epizode zajedno sa linkom na audio fajl (enclosure).
 export async function fetchPodcastEpisodes(pod, limit = 3) {
@@ -453,6 +470,7 @@ export async function fetchPodcastEpisodes(pod, limit = 3) {
     if (!title || !audio) continue;
     out.push({
       podcast: pod.name, podcastId: pod.id, tip: 'podkast',
+      rubrika: pod.rubrika || null,
       title, url: link, audio,
       summary: g(/<description[^>]*>([\s\S]*?)<\/description>/i).slice(0, 1500),
       published: g(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i),
