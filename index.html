@@ -3193,12 +3193,78 @@ function _fotoTema(n) {
   return FOTO_RUBRIKA[(n && n.cat) || ''] || 'trziste';
 }
 
-// Ista vest uvek dobija istu fotografiju, a slike unutar teme se smenjuju.
+// Dodela ide kroz ceo spisak vesti odjednom, ne po vesti. Prvi pokušaj je
+// birao sliku iz teme po otisku naslova, pa su se slike ponavljale čim je tema
+// imala manje slika nego što ima vesti — a „tržište" ih ima devet na desetine
+// vesti. Sada svaka vest uzima prvu još neiskorišćenu sliku svoje teme; kad se
+// tema iscrpi, prelazi na srodnu; tek kad i to nestane, slika se ponavlja, i to
+// ona koja je najređe upotrebljena. Red je po spisku vesti, pa je dodela stalna
+// dokle god je spisak isti.
+const FOTO_SRODNE = {
+  sajam:      ['trziste', 'proizvod'],
+  energija:   ['proizvod', 'fasada'],
+  standardi:  ['trziste', 'proizvod'],
+  okov:       ['proizvod', 'staklo'],
+  montaza:    ['gradiliste', 'proizvod'],
+  staklo:     ['proizvod', 'fasada'],
+  pogon:      ['proizvod', 'staklo'],
+  gradiliste: ['fasada', 'montaza'],
+  proizvod:   ['fasada', 'staklo'],
+  fasada:     ['gradiliste', 'proizvod'],
+  trziste:    ['gradiliste', 'fasada'],
+};
+
+let _fotoMapa = null, _fotoZaSpisak = 0;
+
+function _dodeliFotografije(spisak) {
+  const mapa = new Map();
+  const upotreba = new Map();   // url -> koliko puta
+  FOTO.forEach(f => upotreba.set(f.u, 0));
+
+  const izTeme = (tema) => FOTO.filter(f => f.t === tema);
+
+  for (const n of spisak) {
+    if (!n) continue;
+    const tema = _fotoTema(n);
+    const redosled = [tema].concat(FOTO_SRODNE[tema] || []);
+    let izabrana = null;
+
+    for (const t of redosled) {
+      const red = izTeme(t);
+      if (!red.length) continue;
+      // Početak u nizu zavisi od same vesti, da prva vest u temi ne bude uvek
+      // ista slika kad se spisak promeni.
+      const pomak = _koricaSeme(n) % red.length;
+      for (let i = 0; i < red.length; i++) {
+        const f = red[(pomak + i) % red.length];
+        if (upotreba.get(f.u) === 0) { izabrana = f; break; }
+      }
+      if (izabrana) break;
+    }
+
+    // Sve iscrpljeno: uzima se najređe upotrebljena iz svoje teme.
+    if (!izabrana) {
+      const red = izTeme(tema).length ? izTeme(tema) : FOTO;
+      izabrana = red.reduce((a, b) => (upotreba.get(a.u) <= upotreba.get(b.u) ? a : b));
+    }
+
+    upotreba.set(izabrana.u, (upotreba.get(izabrana.u) || 0) + 1);
+    mapa.set(n, izabrana);
+  }
+  return mapa;
+}
+
 function fotoZaVest(n) {
-  const tema = _fotoTema(n);
-  const red = FOTO.filter(f => f.t === tema);
-  if (!red.length) return null;
-  return red[_koricaSeme(n) % red.length];
+  if (!n) return null;
+  const spisak = (typeof newsItems !== 'undefined' && Array.isArray(newsItems)) ? newsItems : [];
+  if (!_fotoMapa || _fotoZaSpisak !== spisak.length) {
+    _fotoMapa = _dodeliFotografije(spisak);
+    _fotoZaSpisak = spisak.length;
+  }
+  if (_fotoMapa.has(n)) return _fotoMapa.get(n);
+  // Vest koja nije u spisku (otvorena iz arhive, pretrage i slično).
+  const red = FOTO.filter(f => f.t === _fotoTema(n));
+  return red.length ? red[_koricaSeme(n) % red.length] : null;
 }
 
 function fotoUrl(f, sirina) {
