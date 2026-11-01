@@ -169,7 +169,9 @@ export const SOURCES = [
   // pasosu proizvoda, PFAS-u. Takva vest ide u rubriku Stavovi i za nju važe
   // obrnuta pravila: navod je obavezan, ne najviše jedan. Bez toga model
   // prepriča izjavu, ime nestane i ostane bezlična vest o propisu.
-  { id: 'eurowindoor', name: 'EuroWindoor', lang: 'en', region: 'EU', tier: 1, rubrika: 'stav',
+  // foto: saopštenja EuroWindoor-a su objavljena da bi ih nacionalna udruženja
+  // prenosila svojim članovima, pa se slika sme preuzeti uz potpis izvora.
+  { id: 'eurowindoor', name: 'EuroWindoor', lang: 'en', region: 'EU', tier: 1, rubrika: 'stav', foto: true,
     rss: 'https://www.eurowindoor.eu/category/news/feed/' },
   // Britanski tehnički portal o prozorima, vratima i fasadnim detaljima.
   // Dnevno objavi jednu do tri stavke; deo su ugovori britanskih izvođača,
@@ -275,6 +277,25 @@ const strip = (h) => String(h || '')
   .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
   .replace(/\s+/g, ' ').trim();
 
+// Slika iz saopštenja. Uzima se SAMO sa izvora koji nose `foto: true` — to su
+// oni čiji je sadržaj saopštenje objavljeno da bi se prenosilo (EuroWindoor to
+// piše doslovno u svom biltenu) ili pres soba proizvođača. Autorski tekst nije
+// isto: tamo sme navod i link, slika ne. Dozvola za čitanje nije dozvola za
+// objavljivanje, pa se spisak širi odlukom, ne automatski.
+const SLIKA_NASTAVAK = /\.(jpe?g|png|webp)(\?|$)/i;
+function slikaIzStavke(it) {
+  const kandidati = [
+    (it.match(/<media:content[^>]+url=["']([^"']+)/i) || [])[1],
+    (it.match(/<media:thumbnail[^>]+url=["']([^"']+)/i) || [])[1],
+    (it.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]*type=["']image/i) || [])[1],
+    (it.match(/<img[^>]+src=["']([^"']+)/i) || [])[1],
+  ];
+  for (const u of kandidati) {
+    if (u && /^https:\/\//i.test(u) && SLIKA_NASTAVAK.test(u)) return u.replace(/&amp;/g, '&');
+  }
+  return null;
+}
+
 function parseRSS(xml, src) {
   const out = [];
   for (const m of xml.matchAll(/<item[\s>][\s\S]*?<\/item>/gi)) {
@@ -283,7 +304,8 @@ function parseRSS(xml, src) {
     const link  = strip((it.match(/<link[^>]*>([\s\S]*?)<\/link>/i) || [])[1]);
     const desc  = strip((it.match(/<description[^>]*>([\s\S]*?)<\/description>/i) || [])[1]).slice(0, 900);
     const pub   = strip((it.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i) || [])[1]);
-    if (title && link) out.push({ source: src.name, sourceId: src.id, lang: src.lang, rubrika: src.rubrika || null, title, url: link, summary: desc, excerpt: desc, published: pub });
+    const slika = src.foto ? slikaIzStavke(it) : null;
+    if (title && link) out.push({ source: src.name, sourceId: src.id, lang: src.lang, rubrika: src.rubrika || null, title, url: link, summary: desc, excerpt: desc, published: pub, slika });
   }
   return out;
 }
@@ -329,7 +351,10 @@ async function parseHTML(list, src, limit) {
         const telo = (page.match(/itemprop=["']articleBody["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/i) || [])[1];
         if (telo) paras = strip(telo);
       }
-      if (title) out.push({ source: src.name, sourceId: src.id, lang: src.lang, rubrika: src.rubrika || null, title, url: u, summary, published, excerpt: paras.slice(0, 2500) });
+      const slika = src.foto
+        ? ((page.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)/i) || [])[1] || null)
+        : null;
+      if (title) out.push({ source: src.name, sourceId: src.id, lang: src.lang, rubrika: src.rubrika || null, title, url: u, summary, published, excerpt: paras.slice(0, 2500), slika: slika && /^https:\/\//i.test(slika) ? slika : null });
     } catch (e) { console.log('[' + src.id + '] preskoceno ' + u + ': ' + e.message); }
   }
   return out;

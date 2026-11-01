@@ -441,6 +441,10 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
       read: w.read || '3 min',
       source: src.source,
       url: src.url,
+      // Fotografija postoji samo ako je izvor označen `foto: true` — saopštenje
+      // koje je objavljeno da bi se prenosilo. Potpis ide uz sliku na portalu.
+      img: src.slika || null,
+      fotoPotpis: src.slika ? src.source : null,
       provera: p,
     });
     seen.push(src.url);

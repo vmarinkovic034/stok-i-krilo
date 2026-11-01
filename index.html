@@ -2281,7 +2281,10 @@ function openArticle(i) {
   const sourceHtml = n.url
     ? '<a href="' + n.url + '" target="_blank" rel="noopener noreferrer" class="text-brand hover:underline">' + (n.source || 'Izvor') + ' ↗</a>'
     : (n.source || 'Redakcija');
-  const heroImg = vizuelVesti(n, i, 'w-full h-56 sm:h-72 rounded-lg mb-6');
+  const potpis = (imaFoto(n) && n.fotoPotpis)
+    ? '<div class="text-[11px] text-gray-400 -mt-4 mb-6">Foto: ' + n.fotoPotpis + '</div>'
+    : '';
+  const heroImg = vizuelVesti(n, i, 'w-full h-56 sm:h-72 rounded-lg mb-6') + potpis;
   document.getElementById('article-content').innerHTML = `
     ${heroImg}
     <div class="tag text-brand mb-3">${n.catLabel || ''}</div>
