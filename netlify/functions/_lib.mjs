@@ -400,16 +400,8 @@ export async function fetchAll(perSource = 4, strane = 1) {
   return { all, errors, brojPoIzvoru };
 }
 
-export const CAT_IMG = {
-  trziste:     'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&fit=crop&auto=format&q=75',
-  kompanije:   'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&fit=crop&auto=format&q=75',
-  proizvodnja: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=900&fit=crop&auto=format&q=75',
-  tehnologija: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&fit=crop&auto=format&q=75',
-  proizvodi:   'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=900&fit=crop&auto=format&q=75',
-  standardi:   'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&fit=crop&auto=format&q=75',
-  investicije: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=900&fit=crop&auto=format&q=75',
-  stavovi:     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&fit=crop&auto=format&q=75',
-};
+// CAT_IMG (osam stok fotografija, jedna po kategoriji) uklonjen 1. 11. 2026.
+// Vest više ne nosi sliku; naslovnicu crta portal iz naslova vesti.
 
 export const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },

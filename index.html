@@ -1631,24 +1631,10 @@ function renderHero() {
   }
   const sides = [newsItems[1], newsItems[3], newsItems[4], newsItems[5]].filter(Boolean);
 
-  const svgFallback = `
-    <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 w-full h-full opacity-20">
-      <rect x="50" y="60" width="120" height="180" fill="none" stroke="white" stroke-width="2"/>
-      <rect x="80" y="90" width="30" height="40" fill="white" opacity="0.3"/>
-      <rect x="120" y="90" width="30" height="40" fill="white" opacity="0.3"/>
-      <rect x="80" y="160" width="70" height="80" fill="white" opacity="0.2"/>
-      <rect x="200" y="40" width="160" height="220" fill="none" stroke="white" stroke-width="2"/>
-      <rect x="220" y="80" width="50" height="60" fill="white" opacity="0.25"/>
-      <rect x="290" y="80" width="50" height="60" fill="white" opacity="0.25"/>
-      <rect x="220" y="180" width="120" height="80" fill="white" opacity="0.15"/>
-      <rect x="400" y="80" width="100" height="140" fill="none" stroke="white" stroke-width="1.5"/>
-      <rect x="415" y="100" width="30" height="35" fill="white" opacity="0.2"/>
-      <rect x="455" y="100" width="30" height="35" fill="white" opacity="0.2"/>
-    </svg>`;
-
-  const bgStyle = featured.img
-    ? `background:url('${novinskaSlika(featured)}') center/cover no-repeat; background-color:#1a3a5c;`
-    : `background:linear-gradient(135deg,#1a3a5c 0%,#2563a8 50%,#1e5a8a 100%);`;
+  const foto = imaFoto(featured);
+  const bgStyle = foto
+    ? `background:url('${featured.img}') center/cover no-repeat; background-color:#1a3a5c;`
+    : koricaPozadina(featured, true);
 
   const featuredIdx = newsItems.indexOf(featured);
 
@@ -1666,7 +1652,7 @@ function renderHero() {
   document.getElementById('hero-section').innerHTML = `
     <div class="lg:col-span-2 card-hover cursor-pointer" onclick="openArticle(${featuredIdx})">
       <div class="relative overflow-hidden" style="height:300px; ${bgStyle}">
-        ${featured.img ? '' : svgFallback}
+        ${foto ? '' : koricaSvg(featured, true)}
         <div class="absolute bottom-0 left-0 right-0 p-5 sm:p-6" style="background:linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%);">
           <div class="tag text-yellow-300 mb-2">${featured.catLabel}</div>
           <h2 class="font-serif text-white text-2xl sm:text-3xl font-bold leading-tight">${featured.title}</h2>
@@ -1847,9 +1833,9 @@ function renderNews(filter) {
     for (var i = 0; i < filtered.length; i++) {
       var n = filtered[i];
       var tc = tagColor(n.cat);
-      var img = '<img src="' + novinskaSlika(n) + '" onerror="_imgFallback(this,\'' + (n.cat||'') + '\')" class="w-full h-32 object-cover rounded mb-3" loading="lazy">';
-      html += '<div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover rounded-lg" onclick="openArticle(' + newsItems.indexOf(n) + ')">';
-      html += img;
+      var idx = newsItems.indexOf(n);
+      html += '<div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover rounded-lg" onclick="openArticle(' + idx + ')">';
+      html += vizuelVesti(n, idx, 'w-full h-32 rounded mb-3');
       html += '<div class="flex items-center gap-2 mb-2">';
       html += '<span class="tag text-xs font-semibold" style="color:' + tc + '">' + (n.catLabel || '') + '</span>';
       html += '<span class="text-xs text-gray-400">' + (n.date || '') + '</span>';
@@ -2295,7 +2281,7 @@ function openArticle(i) {
   const sourceHtml = n.url
     ? '<a href="' + n.url + '" target="_blank" rel="noopener noreferrer" class="text-brand hover:underline">' + (n.source || 'Izvor') + ' ↗</a>'
     : (n.source || 'Redakcija');
-  const heroImg = '<img src="' + novinskaSlika(n) + '" onerror="_imgFallback(this,\'' + (n.cat||'') + '\')" alt="' + n.title.replace(/"/g, '&quot;') + '" class="w-full h-56 sm:h-72 object-cover rounded-lg mb-6" loading="lazy">';
+  const heroImg = vizuelVesti(n, i, 'w-full h-56 sm:h-72 rounded-lg mb-6');
   document.getElementById('article-content').innerHTML = `
     ${heroImg}
     <div class="tag text-brand mb-3">${n.catLabel || ''}</div>
@@ -3077,24 +3063,102 @@ function renderAdStrips() {
   });
 }
 
-// Rezervna slika po kategoriji - vest bez slike ili sa pokvarenim linkom
-// više ne prikazuje polomljenu ikonicu.
-const NEWS_IMG_FALLBACK = {
-  trziste:     'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&fit=crop&auto=format&q=75',
-  kompanije:   'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&fit=crop&auto=format&q=75',
-  proizvodnja: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=900&fit=crop&auto=format&q=75',
-  tehnologija: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&fit=crop&auto=format&q=75',
-  proizvodi:   'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=900&fit=crop&auto=format&q=75',
-  standardi:   'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&fit=crop&auto=format&q=75',
-  investicije: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=900&fit=crop&auto=format&q=75',
-  tehnika:     'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=900&fit=crop&auto=format&q=75',
+// ==================== NASLOVNICE VESTI ====================
+// Vesti više ne nose stok fotografije. Do 1. 11. 2026. postojalo je osam slika
+// za sve vesti, jedna po kategoriji, pa je isti snimak laptopa stajao uz svaku
+// drugu vest. Sada svaka vest dobija naslovnicu koja se crta iz njenog naslova:
+// isti naslov uvek daje istu sliku, a dve vesti se ne poklapaju. Motiv je štok
+// i krilo — okvir, krilo, podela, staklo.
+const KORICA_BOJA = {
+  trziste:    '#1a3a5c', kompanije:  '#b45309', proizvodnja: '#475569',
+  tehnologija:'#166534', proizvodi:  '#6d28d9', standardi:   '#0f766e',
+  investicije:'#1e40af', stavovi:    '#9f1239', tehnika:     '#475569',
+  regulativa: '#b91c1c', balkan:     '#0369a1', svet:        '#475569',
 };
-function novinskaSlika(n) {
-  return (n && n.img) || NEWS_IMG_FALLBACK[n && n.cat] || NEWS_IMG_FALLBACK.trziste;
+function koricaBoja(n) { return KORICA_BOJA[(n && n.cat) || ''] || '#1a3a5c'; }
+
+// Fotografija se prikazuje samo ako je stvarna. Stare vesti u bazi i dalje nose
+// stok adresu u polju img; ona se preskače, ne briše.
+function imaFoto(n) {
+  return !!(n && n.img && n.img.indexOf('images.unsplash.com') === -1);
 }
-function _imgFallback(el, cat) {
+
+function _koricaSeme(n) {
+  const s = String((n && (n.id || n.title)) || 'stok i krilo');
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+// Dva do četiri okna, svako svoje širine i visine, poneko sa nadsvetlom ili
+// srednjim štokom. Jedno staklo je tonirano, da slika ne bude samo crtež.
+function koricaSvg(n, tamna) {
+  const boja = koricaBoja(n);
+  let r = _koricaSeme(n);
+  const broj = (m) => { r = (Math.imul(r, 1103515245) + 12345) >>> 0; return (r >>> 8) % m; };
+  const W = 400, H = 170, dno = 142, u = 7;
+  const linija = tamna ? '#ffffff' : boja;
+  const op = tamna ? { stok: 0.5, krilo: 0.3, staklo: 0.16 } : { stok: 0.5, krilo: 0.3, staklo: 0.12 };
+  const crta = (x1, y1, x2, y2, w, o) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${linija}" stroke-opacity="${o}" stroke-width="${w}" stroke-linecap="square"/>`;
+
+  let d = '';
+  let x = 16 + broj(4) * 8;
+  for (let i = 0; i < 4 && x < W - 70; i++) {
+    const s = 56 + broj(7) * 8;
+    if (x + s > W - 12) break;
+    const v = 58 + broj(8) * 8;
+    const y = dno - v;
+    const nadsvetlo = v > 90 && broj(2) === 0;
+    const yk = nadsvetlo ? y + Math.round(v * 0.3) : y + u;
+    const dvokrilno = s >= 80;
+    const xm = x + Math.round(s / 2);
+    const polja = [];
+    if (nadsvetlo) polja.push([x + u, y + u, s - 2 * u, yk - (y + u)]);
+    if (dvokrilno) {
+      polja.push([x + u, yk, xm - (x + u), dno - u - yk]);
+      polja.push([xm, yk, (x + s - u) - xm, dno - u - yk]);
+    } else {
+      polja.push([x + u, yk, s - 2 * u, dno - u - yk]);
+    }
+    const p = polja[broj(polja.length)];
+    d += `<rect x="${p[0]}" y="${p[1]}" width="${p[2]}" height="${p[3]}" fill="${linija}" fill-opacity="${op.staklo}"/>`;
+    d += `<rect x="${x}" y="${y}" width="${s}" height="${v}" fill="none" stroke="${linija}" stroke-opacity="${op.stok}" stroke-width="3"/>`;
+    d += `<rect x="${x + u}" y="${y + u}" width="${s - 2 * u}" height="${v - 2 * u}" fill="none" stroke="${linija}" stroke-opacity="${op.krilo}" stroke-width="1.5"/>`;
+    if (nadsvetlo) d += crta(x + u, yk, x + s - u, yk, 3, op.stok);
+    if (dvokrilno) d += crta(xm, yk, xm, dno - u, 2, op.krilo);
+    x += s + 10 + broj(4) * 4;
+  }
+  d += crta(0, dno, W, dno, 2, op.stok);
+
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 w-full h-full" aria-hidden="true">${d}</svg>`;
+}
+
+function koricaPozadina(n, tamna) {
+  const boja = koricaBoja(n);
+  return tamna
+    ? `background:linear-gradient(135deg,${boja} 0%,#10243c 100%);`
+    : `background:linear-gradient(135deg,#f8fafc 0%,${boja}1f 100%);`;
+}
+
+function koricaHtml(n, klase, tamna) {
+  return '<div class="relative overflow-hidden ' + (klase || '') + '" style="' + koricaPozadina(n, tamna) + '">' + koricaSvg(n, tamna) + '</div>';
+}
+
+// Prava fotografija koja ne stigne ne ostavlja polomljenu ikonicu nego naslovnicu.
+function _imgFallback(el, i) {
   el.onerror = null;
-  el.src = NEWS_IMG_FALLBACK[cat] || NEWS_IMG_FALLBACK.trziste;
+  const n = (typeof newsItems !== 'undefined' && newsItems[i]) || null;
+  el.outerHTML = koricaHtml(n, (el.className || '').replace('object-cover', ''));
+}
+
+// Vizuelni deo kartice: fotografija ako je ima, inače naslovnica.
+function vizuelVesti(n, i, klase) {
+  if (imaFoto(n)) {
+    return '<img src="' + n.img + '" onerror="_imgFallback(this,' + i + ')" alt="" class="' +
+      klase + ' object-cover" loading="lazy">';
+  }
+  return koricaHtml(n, klase);
 }
 
 function initPortal() {

@@ -6,7 +6,7 @@
 //      ako ima problema, JEDAN popravni krug -> nacrt ide uredniku.
 // Ništa ne ide na sajt bez ljudskog odobrenja.
 // ==========================================================================
-import { fetchAll, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, KEY_APPROVED, CAT_IMG, json, naslovKljuc, naslovSlican } from './_lib.mjs';
+import { fetchAll, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, KEY_APPROVED, json, naslovKljuc, naslovSlican } from './_lib.mjs';
 import { proveri, proveriPonavljanje, MARKER } from './_kvalitet.mjs';
 
 const MODEL = 'claude-sonnet-5-5';
@@ -441,7 +441,6 @@ export async function generisi({ poIzvoru = 4, maks = MAX_NOVIH, strane = 1, od 
       read: w.read || '3 min',
       source: src.source,
       url: src.url,
-      img: CAT_IMG[w.cat] || CAT_IMG.trziste,
       provera: p,
     });
     seen.push(src.url);

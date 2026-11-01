@@ -4,7 +4,7 @@
 // pripisivanjem (podkast + govornik) i najviše JEDNIM kratkim citatom.
 // Nikad prepričavanje cele epizode.
 // ==========================================================================
-import { fetchAllPodcasts, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, CAT_IMG, json } from './_lib.mjs';
+import { fetchAllPodcasts, readJSON, writeJSON, KEY_DRAFTS, KEY_SEEN, json } from './_lib.mjs';
 import { transkribuj } from './_transkript.mjs';
 import { proveri, MARKER } from './_kvalitet.mjs';
 
@@ -159,7 +159,6 @@ export async function generisiIzPodkasta({ maks = 2 } = {}) {
         read: w.read || '3 min',
         source: ep.podcast,
         url: ep.url,
-        img: ((ep.rubrika === 'stav' && w.govornik) ? CAT_IMG.stavovi : CAT_IMG[w.cat]) || CAT_IMG.trziste,
         epizoda: ep.title,
         govornik: w.govornik || '',
         transkriptMB: mb,
