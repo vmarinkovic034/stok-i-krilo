@@ -1632,8 +1632,9 @@ function renderHero() {
   const sides = [newsItems[1], newsItems[3], newsItems[4], newsItems[5]].filter(Boolean);
 
   // Velika vest: fotografija iz saopštenja, pa iz biblioteke, pa naslovnica.
-  const slikaHero = imaFoto(featured) ? featured.img
-    : (fotoZaVest(featured) ? fotoUrl(fotoZaVest(featured), 1400) : null);
+  const fHero = imaFoto(featured) ? null : fotoZaVest(featured);
+  const slikaHero = imaFoto(featured) ? featured.img : (fHero ? fotoUrl(fHero, 1400) : null);
+  const heroIlustracija = Boolean(fHero && fHero.il);
   const bgStyle = slikaHero
     ? `background:url('${slikaHero}') center/cover no-repeat; background-color:#1a3a5c;`
     : koricaPozadina(featured, true);
@@ -1655,6 +1656,7 @@ function renderHero() {
     <div class="lg:col-span-2 card-hover cursor-pointer" onclick="openArticle(${featuredIdx})">
       <div class="relative overflow-hidden" style="height:300px; ${bgStyle}">
         ${slikaHero ? '' : koricaSvg(featured, true)}
+        ${heroIlustracija ? '<span class="absolute top-3 left-3 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-white/90 bg-black/55 rounded-sm">ILUSTRACIJA</span>' : ''}
         <div class="absolute bottom-0 left-0 right-0 p-5 sm:p-6" style="background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0) 100%);">
           <div class="tag text-yellow-300 mb-2">${featured.catLabel}</div>
           <h2 class="font-serif text-white text-2xl sm:text-3xl font-bold leading-tight">${featured.title}</h2>
@@ -3156,6 +3158,54 @@ const FOTO = [
   {t:'okov',u:'https://images.unsplash.com/photo-1734090127437-97ec7e52326b',a:"Liana S",al:'https://unsplash.com/@cherstve_pechivo'},
   {t:'okov',u:'https://images.unsplash.com/photo-1789159500137-a5141edb8dc2',a:"Kier in Sight Archives",al:'https://unsplash.com/@kierinsightarchives'},
   {t:'okov',u:'https://images.unsplash.com/photo-1585095069708-149c44017afc',a:"Diego Gavilanez",al:'https://unsplash.com/@gego98'},
+
+  // Ilustracije, ne fotografije: generisane slike, 1. 11. 2026. Koriste se jer
+  // pokrivaju teme za koje nemamo snimak (pogon, okov, montaža, staklo). Nosе
+  // oznaku na samoj slici i u potpisu — čitalac ne sme da ih pomeša sa dokazom.
+  // Ispada svaka na kojoj se vidi tuđi znak, naziv sistema, broj, oznaka
+  // standarda ili lice u fokusu: tvrdnja na generisanoj slici je netačna.
+  // Zamenjuju se pravim fotografijama iz pogona čim ih bude.
+  {t:'energija',u:'assets/foto/energija-01.jpg',il:1},
+  {t:'energija',u:'assets/foto/energija-02.jpg',il:1},
+  {t:'energija',u:'assets/foto/energija-03.jpg',il:1},
+  {t:'energija',u:'assets/foto/energija-04.jpg',il:1},
+  {t:'gradiliste',u:'assets/foto/gradiliste-01.jpg',il:1},
+  {t:'gradiliste',u:'assets/foto/gradiliste-02.jpg',il:1},
+  {t:'gradiliste',u:'assets/foto/gradiliste-03.jpg',il:1},
+  {t:'gradiliste',u:'assets/foto/gradiliste-04.jpg',il:1},
+  {t:'gradiliste',u:'assets/foto/gradiliste-05.jpg',il:1},
+  {t:'gradiliste',u:'assets/foto/gradiliste-06.jpg',il:1},
+  {t:'gradiliste',u:'assets/foto/gradiliste-07.jpg',il:1},
+  {t:'gradiliste',u:'assets/foto/gradiliste-08.jpg',il:1},
+  {t:'montaza',u:'assets/foto/montaza-01.jpg',il:1},
+  {t:'montaza',u:'assets/foto/montaza-02.jpg',il:1},
+  {t:'montaza',u:'assets/foto/montaza-03.jpg',il:1},
+  {t:'montaza',u:'assets/foto/montaza-04.jpg',il:1},
+  {t:'montaza',u:'assets/foto/montaza-05.jpg',il:1},
+  {t:'montaza',u:'assets/foto/montaza-06.jpg',il:1},
+  {t:'montaza',u:'assets/foto/montaza-07.jpg',il:1},
+  {t:'montaza',u:'assets/foto/montaza-08.jpg',il:1},
+  {t:'okov',u:'assets/foto/okov-01.jpg',il:1},
+  {t:'okov',u:'assets/foto/okov-02.jpg',il:1},
+  {t:'okov',u:'assets/foto/okov-03.jpg',il:1},
+  {t:'okov',u:'assets/foto/okov-04.jpg',il:1},
+  {t:'okov',u:'assets/foto/okov-05.jpg',il:1},
+  {t:'okov',u:'assets/foto/okov-06.jpg',il:1},
+  {t:'okov',u:'assets/foto/okov-07.jpg',il:1},
+  {t:'pogon',u:'assets/foto/pogon-01.jpg',il:1},
+  {t:'pogon',u:'assets/foto/pogon-02.jpg',il:1},
+  {t:'pogon',u:'assets/foto/pogon-03.jpg',il:1},
+  {t:'pogon',u:'assets/foto/pogon-04.jpg',il:1},
+  {t:'pogon',u:'assets/foto/pogon-05.jpg',il:1},
+  {t:'pogon',u:'assets/foto/pogon-06.jpg',il:1},
+  {t:'pogon',u:'assets/foto/pogon-07.jpg',il:1},
+  {t:'pogon',u:'assets/foto/pogon-08.jpg',il:1},
+  {t:'pogon',u:'assets/foto/pogon-09.jpg',il:1},
+  {t:'staklo',u:'assets/foto/staklo-01.jpg',il:1},
+  {t:'staklo',u:'assets/foto/staklo-02.jpg',il:1},
+  {t:'staklo',u:'assets/foto/staklo-03.jpg',il:1},
+  {t:'staklo',u:'assets/foto/staklo-04.jpg',il:1},
+  {t:'staklo',u:'assets/foto/staklo-05.jpg',il:1},
 ];
 
 // Koreni reči, ne cele reči, zbog padeža. Dve zamke su već upale u zamku i
@@ -3268,9 +3318,11 @@ function fotoZaVest(n) {
 }
 
 function fotoUrl(f, sirina) {
+  if (f.il) return f.u;              // naša datoteka, bez Unsplash parametara
   return f.u + '?auto=format&fit=crop&q=72&w=' + (sirina || 900);
 }
 function fotoPotpisHtml(f) {
+  if (f.il) return 'Ilustracija (AI) · Štok &amp; Krilo';
   const utm = '?utm_source=stok_i_krilo&utm_medium=referral';
   return 'Foto: <a href="' + f.al + utm + '" target="_blank" rel="noopener nofollow" class="hover:underline">' + f.a +
          '</a> / <a href="https://unsplash.com' + utm + '" target="_blank" rel="noopener nofollow" class="hover:underline">Unsplash</a>';
@@ -3375,8 +3427,17 @@ function vizuelVesti(n, i, klase, sirina) {
   }
   const f = fotoZaVest(n);
   if (f) {
-    return '<img src="' + fotoUrl(f, sirina) + '" onerror="_imgFallback(this,' + i + ')" alt="" class="' +
+    const slika = '<img src="' + fotoUrl(f, sirina) + '" onerror="_imgFallback(this,' + i + ')" alt="" class="' +
       klase + ' object-cover" loading="lazy">';
+    // Generisana slika nosi oznaku na sebi, ne samo u potpisu ispod. Fotorealistična
+    // ilustracija bez oznake se čita kao fotografija, a to je na industrijskom
+    // mediju neistina na mestu gde nam je jedina imovina tačnost.
+    if (f.il) {
+      return '<div class="relative">' + slika +
+        '<span class="absolute top-2 left-2 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider ' +
+        'text-white/90 bg-black/55 rounded-sm">ILUSTRACIJA</span></div>';
+    }
+    return slika;
   }
   return koricaHtml(n, klase);
 }
