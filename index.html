@@ -1631,9 +1631,11 @@ function renderHero() {
   }
   const sides = [newsItems[1], newsItems[3], newsItems[4], newsItems[5]].filter(Boolean);
 
-  const foto = imaFoto(featured);
-  const bgStyle = foto
-    ? `background:url('${featured.img}') center/cover no-repeat; background-color:#1a3a5c;`
+  // Velika vest: fotografija iz saopštenja, pa iz biblioteke, pa naslovnica.
+  const slikaHero = imaFoto(featured) ? featured.img
+    : (fotoZaVest(featured) ? fotoUrl(fotoZaVest(featured), 1400) : null);
+  const bgStyle = slikaHero
+    ? `background:url('${slikaHero}') center/cover no-repeat; background-color:#1a3a5c;`
     : koricaPozadina(featured, true);
 
   const featuredIdx = newsItems.indexOf(featured);
@@ -1652,7 +1654,7 @@ function renderHero() {
   document.getElementById('hero-section').innerHTML = `
     <div class="lg:col-span-2 card-hover cursor-pointer" onclick="openArticle(${featuredIdx})">
       <div class="relative overflow-hidden" style="height:300px; ${bgStyle}">
-        ${foto ? '' : koricaSvg(featured, true)}
+        ${slikaHero ? '' : koricaSvg(featured, true)}
         <div class="absolute bottom-0 left-0 right-0 p-5 sm:p-6" style="background:linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%);">
           <div class="tag text-yellow-300 mb-2">${featured.catLabel}</div>
           <h2 class="font-serif text-white text-2xl sm:text-3xl font-bold leading-tight">${featured.title}</h2>
@@ -1835,7 +1837,7 @@ function renderNews(filter) {
       var tc = tagColor(n.cat);
       var idx = newsItems.indexOf(n);
       html += '<div class="bg-white border border-gray-100 p-5 cursor-pointer card-hover rounded-lg" onclick="openArticle(' + idx + ')">';
-      html += vizuelVesti(n, idx, 'w-full h-32 rounded mb-3');
+      html += vizuelVesti(n, idx, 'w-full h-32 rounded mb-3', 600);
       html += '<div class="flex items-center gap-2 mb-2">';
       html += '<span class="tag text-xs font-semibold" style="color:' + tc + '">' + (n.catLabel || '') + '</span>';
       html += '<span class="text-xs text-gray-400">' + (n.date || '') + '</span>';
@@ -2281,10 +2283,9 @@ function openArticle(i) {
   const sourceHtml = n.url
     ? '<a href="' + n.url + '" target="_blank" rel="noopener noreferrer" class="text-brand hover:underline">' + (n.source || 'Izvor') + ' ↗</a>'
     : (n.source || 'Redakcija');
-  const potpis = (imaFoto(n) && n.fotoPotpis)
-    ? '<div class="text-[11px] text-gray-400 -mt-4 mb-6">Foto: ' + n.fotoPotpis + '</div>'
-    : '';
-  const heroImg = vizuelVesti(n, i, 'w-full h-56 sm:h-72 rounded-lg mb-6') + potpis;
+  const pot = potpisVesti(n);
+  const potpis = pot ? '<div class="text-[11px] text-gray-400 -mt-4 mb-6">' + pot + '</div>' : '';
+  const heroImg = vizuelVesti(n, i, 'w-full h-56 sm:h-72 rounded-lg mb-6', 1400) + potpis;
   document.getElementById('article-content').innerHTML = `
     ${heroImg}
     <div class="tag text-brand mb-3">${n.catLabel || ''}</div>
@@ -3066,6 +3067,151 @@ function renderAdStrips() {
   });
 }
 
+// ==================== BIBLIOTEKA FOTOGRAFIJA ====================
+// Osamdeset četiri fotografije sa Unsplasha, odabrane ručno 1. 11. 2026. po
+// temama branše. Slika se bira prema rečima iz naslova vesti, ne prema rubrici,
+// pa dve vesti iz iste rubrike ne dobijaju istu fotografiju. Unsplash traži da
+// se slika poslužuje sa njihove adrese i da autor bude potpisan — oboje radimo.
+// Izbor po vesti je deterministički, pa se slika ne menja pri svakom učitavanju.
+const FOTO = [
+  {t:'fasada',u:'https://images.unsplash.com/photo-1497465689543-5940d3cede89',a:"Scott Webb",al:'https://unsplash.com/@scottwebb'},
+  {t:'fasada',u:'https://images.unsplash.com/photo-1488972685288-c3fd157d7c7a',a:"Anders Jildén",al:'https://unsplash.com/@andersjilden'},
+  {t:'fasada',u:'https://images.unsplash.com/photo-1550136513-548af4445338',a:"hohyeong lee",al:'https://unsplash.com/@hoi_hoit'},
+  {t:'fasada',u:'https://images.unsplash.com/photo-1623051786552-e46ef84e6c07',a:"the blowup",al:'https://unsplash.com/@theblowup'},
+  {t:'fasada',u:'https://images.unsplash.com/photo-1589282741585-30ab896335cd',a:"Julian Hochgesang",al:'https://unsplash.com/@julianhochgesang'},
+  {t:'fasada',u:'https://images.unsplash.com/photo-1523477593243-78bbf626fd3b',a:"Christian Ladewig",al:'https://unsplash.com/@dozy_de'},
+  {t:'fasada',u:'https://images.unsplash.com/photo-1600849201385-980094c9037a',a:"ASIA CULTURECENTER",al:'https://unsplash.com/@asiaculturecenter'},
+  {t:'fasada',u:'https://images.unsplash.com/photo-1532888277436-2286814f0ee1',a:"Joakim Honkasalo",al:'https://unsplash.com/@jhonkasalo'},
+  {t:'fasada',u:'https://images.unsplash.com/photo-1641787354718-46774dd8f94a',a:"CeKuhn",al:'https://unsplash.com/@kuhnzsq'},
+  {t:'pogon',u:'https://images.unsplash.com/photo-1717386255773-1e3037c81788',a:"Homa Appliances",al:'https://unsplash.com/@homaappliances'},
+  {t:'pogon',u:'https://images.unsplash.com/photo-1716191300020-b52dec5b70a8',a:"Homa Appliances",al:'https://unsplash.com/@homaappliances'},
+  {t:'pogon',u:'https://images.unsplash.com/photo-1717386255767-52643970d483',a:"Homa Appliances",al:'https://unsplash.com/@homaappliances'},
+  {t:'pogon',u:'https://images.unsplash.com/photo-1747999060057-89b7a533f347',a:"TECNIC Bioprocess Solutions",al:'https://unsplash.com/@tecnic'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1730718949490-8bb461a9d9bc',a:"Okna Milano",al:'https://unsplash.com/@oknamilano'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1496092607007-ca127e0b6a10',a:"Nathan Fertig",al:'https://unsplash.com/@nathanfertig'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1745864049984-08ad9bf9d5d2',a:"Ries Bosch",al:'https://unsplash.com/@ries_bosch'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1702993971395-4738db7ea4e5',a:"snap wander",al:'https://unsplash.com/@passimage'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1782969869882-c2ff013ccf61',a:"X F",al:'https://unsplash.com/@aizerd'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1766603636700-e9d80473f40f',a:"Alef Morais",al:'https://unsplash.com/@alef_visuals'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1689097765687-2c7fb2c95024',a:"Milan Chudoba",al:'https://unsplash.com/@kennymax'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1642887534384-81c81882dd1a',a:"Artur Voznenko",al:'https://unsplash.com/@voznenko_artur'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1680866362357-d8192e20a7dc',a:"Trophim Laptev",al:'https://unsplash.com/@laptevtro'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1755926913774-6949aac299d0',a:"eedgar ivann",al:'https://unsplash.com/@eedgarivann'},
+  {t:'proizvod',u:'https://images.unsplash.com/flagged/photo-1553591866-b6b58649d6ea',a:"Ricardo Gomez Angel",al:'https://unsplash.com/@rgaleriacom'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1764837599929-100bd5890c57',a:"Tsuyoshi Kozu",al:'https://unsplash.com/@tsuyoshikozu'},
+  {t:'proizvod',u:'https://images.unsplash.com/photo-1764837558601-a2f365c1fad2',a:"Tsuyoshi Kozu",al:'https://unsplash.com/@tsuyoshikozu'},
+  {t:'montaza',u:'https://images.unsplash.com/photo-1646640381839-02748ae8ddf0',a:"Jimmy Nilsson Masth",al:'https://unsplash.com/@jimmynilssonmasth'},
+  {t:'montaza',u:'https://images.unsplash.com/photo-1748027869634-fc2e545cfb0c',a:"Citadel Life Safety",al:'https://unsplash.com/@citadellifesafety'},
+  {t:'montaza',u:'https://images.unsplash.com/photo-1505798577917-a65157d3320a',a:"Annie Gray",al:'https://unsplash.com/@anniegray'},
+  {t:'montaza',u:'https://images.unsplash.com/photo-1605018836321-11457d0edea9',a:"sohail shaikh",al:'https://unsplash.com/@sohailnj'},
+  {t:'montaza',u:'https://images.unsplash.com/photo-1625220346325-d95f70d74f5b',a:"Yousef Salhamoud",al:'https://unsplash.com/@salhamoud'},
+  {t:'montaza',u:'https://images.unsplash.com/photo-1589939705384-5185137a7f0f',a:"Jeriden Villegas",al:'https://unsplash.com/@jeriden94'},
+  {t:'montaza',u:'https://images.unsplash.com/photo-1664662568348-24b1482b6354',a:"Thatselby",al:'https://unsplash.com/@thatselby'},
+  {t:'montaza',u:'https://images.unsplash.com/photo-1694521787799-ad4ad241cb39',a:"Glenov Brankovic",al:'https://unsplash.com/@glenovbrankovic'},
+  {t:'staklo',u:'https://images.unsplash.com/photo-1655886923609-3ba907c759ac',a:"Romy Preißler",al:'https://unsplash.com/@romyloreen'},
+  {t:'staklo',u:'https://images.unsplash.com/photo-1514994792087-578fe80d0ff9',a:"Timothy Flippo",al:'https://unsplash.com/@tengo'},
+  {t:'staklo',u:'https://images.unsplash.com/photo-1646564360155-d51a4f898283',a:"ün LIU",al:'https://unsplash.com/@vixxer'},
+  {t:'staklo',u:'https://images.unsplash.com/photo-1646170666345-5510e28ed8d4',a:"Clay LeConey",al:'https://unsplash.com/@clayleconey'},
+  {t:'staklo',u:'https://images.unsplash.com/photo-1559000141-27eb32ea1304',a:"Veeti",al:'https://unsplash.com/@veetiphotos'},
+  {t:'staklo',u:'https://images.unsplash.com/photo-1684147297610-6a452a965efc',a:"Đào Việt Hoàng",al:'https://unsplash.com/@dvhoang2106'},
+  {t:'gradiliste',u:'https://images.unsplash.com/photo-1689574666650-de9cd6056e82',a:"Auro Realty",al:'https://unsplash.com/@aurorealty'},
+  {t:'gradiliste',u:'https://images.unsplash.com/photo-1787672358547-329e925361af',a:"Divaris Shirichena",al:'https://unsplash.com/@divaris'},
+  {t:'gradiliste',u:'https://images.unsplash.com/photo-1460317442991-0ec209397118',a:"Brandon Griggs",al:'https://unsplash.com/@paralitik'},
+  {t:'gradiliste',u:'https://images.unsplash.com/photo-1621511075938-f03482369feb',a:"Design Hills",al:'https://unsplash.com/@designhills'},
+  {t:'gradiliste',u:'https://images.unsplash.com/photo-1576577610667-c9ea0ac983fd',a:"Marek Minor",al:'https://unsplash.com/@marekminor'},
+  {t:'gradiliste',u:'https://images.unsplash.com/photo-1532562145520-b8cce2486cd2',a:"Ivan Bandura",al:'https://unsplash.com/@unstable_affliction'},
+  {t:'gradiliste',u:'https://images.unsplash.com/photo-1531431057391-da7a1aabd412',a:"Ivan Bandura",al:'https://unsplash.com/@unstable_affliction'},
+  {t:'gradiliste',u:'https://images.unsplash.com/photo-1596541513035-630fea51dbb4',a:"Milo Bunnik",al:'https://unsplash.com/@mostpeoplecallmemilo'},
+  {t:'standardi',u:'https://images.unsplash.com/photo-1542621334-a254cf47733d',a:"Sven Mieke",al:'https://unsplash.com/@sxoxm'},
+  {t:'standardi',u:'https://images.unsplash.com/photo-1503387762-592deb58ef4e',a:"Daniel McCullough",al:'https://unsplash.com/@d_mccullough'},
+  {t:'standardi',u:'https://images.unsplash.com/photo-1503387837-b154d5074bd2',a:"Daniel McCullough",al:'https://unsplash.com/@d_mccullough'},
+  {t:'standardi',u:'https://images.unsplash.com/photo-1603901622056-0a5bee231395',a:"Lucas Kepner",al:'https://unsplash.com/@lucaskphoto'},
+  {t:'standardi',u:'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc',a:"ThisisEngineering",al:'https://unsplash.com/@thisisengineering'},
+  {t:'standardi',u:'https://images.unsplash.com/photo-1581092160562-40aa08e78837',a:"ThisisEngineering",al:'https://unsplash.com/@thisisengineering'},
+  {t:'standardi',u:'https://images.unsplash.com/photo-1581094488379-6a10d04c0f04',a:"ThisisEngineering",al:'https://unsplash.com/@thisisengineering'},
+  {t:'standardi',u:'https://images.unsplash.com/photo-1581093806997-124204d9fa9d',a:"ThisisEngineering",al:'https://unsplash.com/@thisisengineering'},
+  {t:'sajam',u:'https://images.unsplash.com/photo-1775314054195-85f31de0c944',a:"Euronewsweek Media",al:'https://unsplash.com/@euronewsweek'},
+  {t:'sajam',u:'https://images.unsplash.com/photo-1789912621243-40a224863cce',a:"Brayden Goh",al:'https://unsplash.com/@gohkailoon96'},
+  {t:'sajam',u:'https://images.unsplash.com/photo-1773829020694-413e879d2957',a:"Marwen Larafa",al:'https://unsplash.com/@marwen_larafa'},
+  {t:'sajam',u:'https://images.unsplash.com/photo-1778877036599-9a7aa57a160b',a:"Ufoma Ojo",al:'https://unsplash.com/@ladyufoma001'},
+  {t:'sajam',u:'https://images.unsplash.com/photo-1778876091184-8839210e1917',a:"Ufoma Ojo",al:'https://unsplash.com/@ladyufoma001'},
+  {t:'sajam',u:'https://images.unsplash.com/photo-1722803921446-70be3842871e',a:"Connor Gan",al:'https://unsplash.com/@connorgan'},
+  {t:'sajam',u:'https://images.unsplash.com/photo-1702774273891-a1ce9a30b593',a:"John Diep",al:'https://unsplash.com/@johndiep'},
+  {t:'sajam',u:'https://images.unsplash.com/photo-1760965254591-2819bdbda133',a:"Connor Gan",al:'https://unsplash.com/@connorgan'},
+  {t:'trziste',u:'https://images.unsplash.com/photo-1606836591695-4d58a73eba1e',a:"Rodeo Project Management Software",al:'https://unsplash.com/@getrodeo'},
+  {t:'trziste',u:'https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a',a:"Mario Gogh",al:'https://unsplash.com/@mariogogh'},
+  {t:'trziste',u:'https://images.unsplash.com/photo-1758691736933-bb0f88fe2e0c',a:"Vitaly Gariev",al:'https://unsplash.com/@silverkblack'},
+  {t:'trziste',u:'https://images.unsplash.com/photo-1573336939501-8eb3fc268258',a:"Robert Anasch",al:'https://unsplash.com/@diesektion'},
+  {t:'trziste',u:'https://images.unsplash.com/photo-1609151968755-508d1e545076',a:"CARTIST",al:'https://unsplash.com/@cartist'},
+  {t:'trziste',u:'https://images.unsplash.com/photo-1605745341112-85968b19335b',a:"Ian Taylor",al:'https://unsplash.com/@carrier_lost'},
+  {t:'trziste',u:'https://images.unsplash.com/photo-1606964212858-c215029db704',a:"Barrett Ward",al:'https://unsplash.com/@barrettward'},
+  {t:'trziste',u:'https://images.unsplash.com/photo-1689942010216-dc412bb1e7a9',a:"AFINIS Group ® - AFINIS GASKET® Production",al:'https://unsplash.com/@afinisgroup'},
+  {t:'trziste',u:'https://images.unsplash.com/photo-1709804945989-c8be542e04db',a:"Ali Mkumbwa",al:'https://unsplash.com/@mkumbwajr'},
+  {t:'energija',u:'https://images.unsplash.com/photo-1607400201889-565b1ee75f8e',a:"Erik Mclean",al:'https://unsplash.com/@introspectivedsgn'},
+  {t:'energija',u:'https://images.unsplash.com/photo-1591684080176-bb2b73f9ec68',a:"Greg Rosenke",al:'https://unsplash.com/@greg_rosenke'},
+  {t:'energija',u:'https://images.unsplash.com/photo-1775546911720-3ba896c00260',a:"Ahmet Yüksek ✪",al:'https://unsplash.com/@ahmetyuksek'},
+  {t:'energija',u:'https://images.unsplash.com/photo-1753460133435-3b294c9dda5e',a:"Brett Jordan",al:'https://unsplash.com/@brett_jordan'},
+  {t:'energija',u:'https://images.unsplash.com/photo-1753363563295-bd0314e2a802',a:"Brett Jordan",al:'https://unsplash.com/@brett_jordan'},
+  {t:'okov',u:'https://images.unsplash.com/photo-1779204749779-5296e620968a',a:"Izzudin Habib",al:'https://unsplash.com/@habib2510'},
+  {t:'okov',u:'https://images.unsplash.com/photo-1592924271903-1e4b1a1ae20f',a:"engin akyurt",al:'https://unsplash.com/@enginakyurt'},
+  {t:'okov',u:'https://images.unsplash.com/photo-1665503243141-6120282a6e1d',a:"Lémuel Koukoua",al:'https://unsplash.com/@lemuelkoukoua'},
+  {t:'okov',u:'https://images.unsplash.com/photo-1734090127437-97ec7e52326b',a:"Liana S",al:'https://unsplash.com/@cherstve_pechivo'},
+  {t:'okov',u:'https://images.unsplash.com/photo-1789159500137-a5141edb8dc2',a:"Kier in Sight Archives",al:'https://unsplash.com/@kierinsightarchives'},
+  {t:'okov',u:'https://images.unsplash.com/photo-1585095069708-149c44017afc',a:"Diego Gavilanez",al:'https://unsplash.com/@gego98'},
+];
+
+// Koreni reči, ne cele reči, zbog padeža. Dve zamke su već upale u zamku i
+// popravljene: „stand" je hvatao „standard", a „izvođač" je hvatao
+// „proizvođač". Zato razmak ispred tamo gde koren ume da sedne usred duže reči.
+const FOTO_RECI = {
+  sajam:      ['sajam','sajm','sajmu','izlaga','konferencij','expo','fensterbau','frontale','vitrum','bau u ','štand'],
+  energija:   ['energetsk','energij','subvencij','sanacij','izolacij','ušted','efikasn','u-vrednost','toplotn','grejanj'],
+  standardi:  ['standard','en 1','propis','norma','normativ','regulativ','cpr','uredb','sertifikat','ispitivanj','pasoš','deklaracij','pfas','klas'],
+  montaza:    ['montaž','ugradnj',' izvođač','majstor','instalacij','monter','kadrov','zaposlen','radnik'],
+  staklo:     ['stakl','zastakljenj','troslojn','dvoslojn','float','laminiran','termopan'],
+  pogon:      ['proizvodn','fabrik','pogon','proizvodna linij','ekstruzij','mašin','kapacitet','recikl','preuzima','akvizicij','investira u pogon'],
+  gradiliste: ['gradilišt','gradnj','izgradnj','stambena','stanov','investicij','obnov','građevinsk dozvol','dozvol'],
+  proizvod:   ['prozor','vrat','profil','pvc','stolarij','roletn','komarnik','novi proizvod'],
+  okov:       ['okov','kvak','šarka','šarke','brav','ručic'],
+  fasada:     ['fasad','aluminijum','alumin','omotač','navesn'],
+  trziste:    ['tržišt','prodaj','cene','cena','kvartal','prihod','izvoz','uvoz','rast','pad','prognoz','potražnj','poskup'],
+};
+// Od najuže teme ka najširoj: „sajam u Minhenu" je sajam, iako u naslovu stoji
+// i reč prozor.
+const FOTO_RED = ['sajam','energija','standardi','okov','montaza','staklo','pogon','gradiliste','proizvod','fasada','trziste'];
+
+// Kad naslov ne kaže ništa, tema se izvodi iz rubrike.
+const FOTO_RUBRIKA = {
+  trziste:'trziste', kompanije:'pogon', proizvodnja:'pogon', tehnologija:'pogon',
+  proizvodi:'proizvod', standardi:'standardi', investicije:'gradiliste',
+  stavovi:'trziste', tehnika:'staklo', regulativa:'standardi',
+};
+
+function _fotoTema(n) {
+  const t = (((n && n.title) || '') + ' ' + ((n && n.desc) || '')).toLowerCase();
+  for (const tema of FOTO_RED) {
+    if ((FOTO_RECI[tema] || []).some(r => t.indexOf(r) !== -1)) return tema;
+  }
+  return FOTO_RUBRIKA[(n && n.cat) || ''] || 'trziste';
+}
+
+// Ista vest uvek dobija istu fotografiju, a slike unutar teme se smenjuju.
+function fotoZaVest(n) {
+  const tema = _fotoTema(n);
+  const red = FOTO.filter(f => f.t === tema);
+  if (!red.length) return null;
+  return red[_koricaSeme(n) % red.length];
+}
+
+function fotoUrl(f, sirina) {
+  return f.u + '?auto=format&fit=crop&q=72&w=' + (sirina || 900);
+}
+function fotoPotpisHtml(f) {
+  const utm = '?utm_source=stok_i_krilo&utm_medium=referral';
+  return 'Foto: <a href="' + f.al + utm + '" target="_blank" rel="noopener nofollow" class="hover:underline">' + f.a +
+         '</a> / <a href="https://unsplash.com' + utm + '" target="_blank" rel="noopener nofollow" class="hover:underline">Unsplash</a>';
+}
+
 // ==================== NASLOVNICE VESTI ====================
 // Vesti više ne nose stok fotografije. Do 1. 11. 2026. postojalo je osam slika
 // za sve vesti, jedna po kategoriji, pa je isti snimak laptopa stajao uz svaku
@@ -3155,13 +3301,27 @@ function _imgFallback(el, i) {
   el.outerHTML = koricaHtml(n, (el.className || '').replace('object-cover', ''));
 }
 
-// Vizuelni deo kartice: fotografija ako je ima, inače naslovnica.
-function vizuelVesti(n, i, klase) {
+// Vizuelni deo kartice. Tri izvora, ovim redom: fotografija iz saopštenja
+// izvora, pa fotografija iz biblioteke uparena po temi vesti, pa nacrtana
+// naslovnica kad ni to ne uspe.
+function vizuelVesti(n, i, klase, sirina) {
   if (imaFoto(n)) {
     return '<img src="' + n.img + '" onerror="_imgFallback(this,' + i + ')" alt="" class="' +
       klase + ' object-cover" loading="lazy">';
   }
+  const f = fotoZaVest(n);
+  if (f) {
+    return '<img src="' + fotoUrl(f, sirina) + '" onerror="_imgFallback(this,' + i + ')" alt="" class="' +
+      klase + ' object-cover" loading="lazy">';
+  }
   return koricaHtml(n, klase);
+}
+
+// Potpis ispod slike: izvor saopštenja ili autor sa Unsplasha.
+function potpisVesti(n) {
+  if (imaFoto(n)) return n.fotoPotpis ? 'Foto: ' + n.fotoPotpis : '';
+  const f = fotoZaVest(n);
+  return f ? fotoPotpisHtml(f) : '';
 }
 
 function initPortal() {
